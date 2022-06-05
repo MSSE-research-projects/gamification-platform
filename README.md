@@ -1,4 +1,8 @@
-# gamification-platform
+# Gamification-platform
+
+# Environment setup
+
+TODO
 
 # Contributing
 
@@ -23,7 +27,7 @@ The types are specified as followed:
 - **fix**: patches a bug in the codebase.
 - **feat**: introduces a new feature to the codebase.
 - **style**: codebase changes related to code format problems
-- **docs**
+- **doc**
 - **chore**
 - **refactor**
 - ......
@@ -34,3 +38,9 @@ Break down the code you implemented into small parts and commit as soon as you
 finish a small part.
 
 **DO NOT** squash all the work into one commit!
+
+## Multiple authors for a commit
+
+If there are multiple authors for a commit (for example, pair-programming), follow the instructions from this
+[link](https://docs.github.com/en/pull-requests/committing-changes-to-your-project/creating-and-editing-commits/creating-a-commit-with-multiple-authors#creating-co-authored-commits-on-the-command-line)
+here to add co-authors.
