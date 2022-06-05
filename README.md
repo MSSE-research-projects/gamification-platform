@@ -9,7 +9,7 @@ server database.
 
 1. Install required python packages
 
-   It is suggested to create a brand-new virtual environment then `pip install requirments.txt`.
+   It is suggested to create a brand-new virtual environment then `pip install -r requirments.txt`.
 
 2. Install MySQL server locally
 
