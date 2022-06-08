@@ -10,6 +10,13 @@ server database.
 1. Install required python packages
 
    It is suggested to create a brand-new virtual environment then `pip install -r requirements.txt`.
+   
+   For MAC users, replace `mysqlclient==2.1.0` with `PyMySQL==1.0.2` in `requirements.txt` file. Then add following lines to `config/__init__.py`
+
+   ```python
+   import pymysql
+   pymysql.install_as_MySQLdb()
+   ```
 
 2. Install MySQL server locally
 
