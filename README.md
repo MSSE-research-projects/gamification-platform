@@ -9,18 +9,23 @@ server database.
 
 1. Install required python packages
 
-   It is suggested to create a brand-new virtual environment then `pip install -r requirements.txt`.
+    It is suggested to create a brand-new virtual environment then `pip install -r requirements.txt`.
    
-   For MAC users, replace `mysqlclient==2.1.0` with `PyMySQL==1.0.2` in `requirements.txt` file. Then add following lines to `config/__init__.py`
+    For Mac users, replace `mysqlclient==2.1.0` with `PyMySQL==1.0.2` in `requirements.txt` file. Then add the following lines to `config/__init__.py`
 
-   ```python
-   import pymysql
-   pymysql.install_as_MySQLdb()
-   ```
+    ```python
+    import pymysql
+    pymysql.install_as_MySQLdb()
+    ```
+
+    > What we are doing here is essentially changing the [MySQL driver](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers) for Django,
+    since `mysqlclient` seems to have some compatiblity issues on Mac while [`PyMySQL`](https://pypi.org/project/PyMySQL/)
+    is purely based on Python and will work on any platform. But `mysqlclient` is
+    officially supported by Django in this [list](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers), so we will stick with it on other platforms.
 
 2. Install MySQL server locally
 
-   MySQL server's version should be >= 5.7, as is required by `mysqlclient` package.
+    MySQL server's version should be >= 5.7, as is required by `mysqlclient` package.
 
 3. Configure MySQL server
 
@@ -65,7 +70,32 @@ server database.
       SHOW TABLES;
       ```
 
-4. Test if everything is working
+4. Configure environment variables
+
+    Add a `.env` file at the project directory (the same level as `manage.py`)
+    with the following environment variables:
+
+    ```
+    SECRET_KEY='django-insecure-2-mg5vw^&skma(kxqan1_7^2acwc74pb54g6&ea&&a=0g=!!0g'
+    DEBUG=True
+    ALLOWED_HOSTS='localhost 127.0.0.1'
+    ```
+
+    > In production environment,
+    > - `SECRET_KEY` should be kept as a real secret and not exposed to users.
+    > - `DEBUG` should be set to `False`.
+    > - `ALLOWED_HOSTS` should be added with the IP address or the domain name 
+    > of the production server.
+    
+    You can also customize your environment by setting different database related
+    variables like:
+    - `DB_NAME`: default to `dev`, the name of the database
+    - `DB_USER`: default to `dbuser`, the username used to access the database
+    - `DB_PASSWORD`: default to `dbuser`, the password for `DB_USER`
+    - `DB_HOST`: default to `localhost`, the host for the database
+    - `DB_PORT`: default to `3306`, the port where MySQL server is on
+
+5. Test if everything is working
 
     Run command `python manage.py runserver`
 
