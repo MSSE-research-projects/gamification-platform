@@ -18,6 +18,10 @@ server database.
     pymysql.install_as_MySQLdb()
     ```
 
+    > Note: Don't forget to add `config/__init__.py` to your local 'ignore' file
+    > list so as not to mess up the repo. Follow instructions in this [link](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files#excluding-local-files-without-creating-a-gitignore-file)
+    > for how to ignore files locally.
+
     > What we are doing here is essentially changing the [MySQL driver](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers) for Django,
     since `mysqlclient` seems to have some compatiblity issues on Mac while [`PyMySQL`](https://pypi.org/project/PyMySQL/)
     is purely based on Python and will work on any platform. But `mysqlclient` is
@@ -100,6 +104,24 @@ server database.
     Run command `python manage.py runserver`
 
 # Contributing
+
+## Pull requests and branches
+
+There will be mainly 3 types of branches while developing:
+- `main`: Always be deployable and the most stable version. Never commit directly
+          on `main` branch. All code changes on `main` should come from merging
+          with pull requests.
+- `dev`: The branch for evolving the development. Once a major set of features
+         has been implemented, a version tag like `x.0.0` will be added, and this
+         branch will be merged into `main` for release.
+- `{new_feat}`: A type of branch for developing different features. Whenever a 
+          new feature is to be developed, checkout a feature branch from `dev`,
+          name it after the feature description, and write code on that branch.
+          After finishing developing, merge this branch into `dev`.
+
+Developers are free to add as many `{new_feat}` branches as needed, but code
+changes in `dev` and `main` branch should always be done through pull requests
+and code reviews.
 
 ## Python formatter
 
