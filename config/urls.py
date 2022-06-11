@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+import app.gamification.views.pages as page_views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('dashboard/', page_views.dashboard, name='dashboard'),
 ]
