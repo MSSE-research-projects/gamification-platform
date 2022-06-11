@@ -21,5 +21,6 @@ import app.gamification.views.pages as page_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('signup/', page_views.signup, name='signup'),
     path('dashboard/', page_views.dashboard, name='dashboard'),
 ]
