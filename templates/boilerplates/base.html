@@ -23,12 +23,15 @@
   <!-- inject:css -->
   <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
   <!-- endinject -->
-  <!-- <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" /> -->
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
 </head>
 
 <body>
-  {% block body %}
-  {% endblock body %}
+  <div class="container-scroller">
+    {% block body %}
+    {% endblock body %}
+  </div>
+  <!-- container-scroller -->
 
   <!-- plugins:js -->
   <script src="{% static 'vendors/js/vendor.bundle.base.js' %}"></script>
