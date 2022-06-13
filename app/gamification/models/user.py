@@ -1,3 +1,4 @@
+from email.policy import default
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
@@ -22,6 +23,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             'unique': _('A user with that andrew id already exists.'),
         },
     )
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     first_name = models.CharField(_('first name'), max_length=150, blank=True)
     last_name = models.CharField(_('last name'), max_length=150, blank=True)
     email = models.EmailField(
@@ -65,6 +67,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         '''
         full_name = '%s %s' % (self.first_name, self.last_name)
         return full_name.strip()
+
+    def __str__(self):
+        return f'{self.get_full_name()}'
 
     def get_short_name(self):
         '''Return the short name for the user.'''
