@@ -23,7 +23,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             'unique': _('A user with that andrew id already exists.'),
         },
     )
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    image = models.ImageField(
+        default='default.jpg', upload_to='profile_pics')
     first_name = models.CharField(_('first name'), max_length=150, blank=True)
     last_name = models.CharField(_('last name'), max_length=150, blank=True)
     email = models.EmailField(
