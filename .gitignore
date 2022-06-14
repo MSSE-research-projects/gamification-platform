@@ -4,5 +4,6 @@
 .env
 .coverage
 htmlcov/
+db.sqlite3
 
 __pycache__/
