@@ -2,3 +2,6 @@ Django==3.2
 django-widget-tweaks==1.4.12
 mysqlclient==2.1.0
 python-dotenv==0.20.0
+
+# Dev requirements
+coverage==6.4.1
