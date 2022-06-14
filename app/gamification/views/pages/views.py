@@ -20,3 +20,11 @@ def signup(request):
 
 def dashboard(request):
     return render(request, 'dashboard.html')
+
+def signin(request):
+    if request.method == 'POST':
+        return redirect('dashboard')
+    else:
+        form = SignUpForm(label_suffix='')
+
+    return render(request, 'signin.html', {'form': form})
