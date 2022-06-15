@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
 
     'app.gamification',
+    # 'app.gamification.apps.GamificationConfig',
 ]
 
 MIDDLEWARE = [
@@ -133,6 +134,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
