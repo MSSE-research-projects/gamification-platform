@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 import app.gamification.views.pages as page_views
 
@@ -23,4 +23,6 @@ urlpatterns = [
 
     path('signup/', page_views.signup, name='signup'),
     path('dashboard/', page_views.dashboard, name='dashboard'),
+
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
