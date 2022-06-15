@@ -50,12 +50,12 @@ class SignUpForm(forms.ModelForm):
         super()._post_clean()
         # Validate the password after self.instance is updated with form data
         # by super()
-        password = self.cleaned_data.get('password2')
+        password = self.cleaned_data.get('password1')
         if password:
             try:
                 password_validation.validate_password(password, self.instance)
             except ValidationError as error:
-                self.add_error('password2', error)
+                self.add_error('password1', error)
 
     def save(self, commit=True):
         user = super().save(commit=True)

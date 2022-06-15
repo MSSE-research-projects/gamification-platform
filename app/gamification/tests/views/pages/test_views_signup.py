@@ -165,7 +165,7 @@ class InvalidSignUpTest(TestCase):
         form = response.context.get('form')
         # Assert
         self.assertEqual(response.status_code, 200)     # test response code
-        self.assertIn('password2', form.errors.keys())  # test form error field
+        self.assertIn('password1', form.errors.keys())  # test form error field
         self.assertFalse(CustomUser.objects.exists())   # test user not created
 
     def test_signup_with_password_similar_to_andrew_id(self):
@@ -177,7 +177,7 @@ class InvalidSignUpTest(TestCase):
         form = response.context.get('form')
         # Assert
         self.assertEqual(response.status_code, 200)     # test response code
-        self.assertIn('password2', form.errors.keys())  # test form error field
+        self.assertIn('password1', form.errors.keys())  # test form error field
         self.assertFalse(CustomUser.objects.exists())   # test user not created
 
     def test_signup_with_too_common_password(self):
@@ -189,7 +189,7 @@ class InvalidSignUpTest(TestCase):
         form = response.context.get('form')
         # Assert
         self.assertEqual(response.status_code, 200)     # test response code
-        self.assertIn('password2', form.errors.keys())  # test form error field
+        self.assertIn('password1', form.errors.keys())  # test form error field
         self.assertFalse(CustomUser.objects.exists())   # test user not created
 
     def test_signup_with_entirely_numeric_password(self):
@@ -201,5 +201,5 @@ class InvalidSignUpTest(TestCase):
         form = response.context.get('form')
         # Assert
         self.assertEqual(response.status_code, 200)     # test response code
-        self.assertIn('password2', form.errors.keys())  # test form error field
+        self.assertIn('password1', form.errors.keys())  # test form error field
         self.assertFalse(CustomUser.objects.exists())   # test user not created
