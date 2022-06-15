@@ -55,6 +55,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = 'users'
+        # db_table = 'auth_user'
         verbose_name = _('user')
         verbose_name_plural = _('users')
 

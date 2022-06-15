@@ -22,9 +22,15 @@ def dashboard(request):
     return render(request, 'dashboard.html')
 
 
+# user: andrew_id, first_name, last_name, email, image, is_staff, is_active
+# form:Email address, First name, Last name, Profile picture
 def profile(request):
     user = request.user
-    # print(request.FILES)
+    if(user.is_anonymous):
+        print("anonymous user: ", user.andrew_id)
+    else:
+        print("not anony user: ", user.andrew_id)
+    # print(request.FILES)):
     print(user.image)
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES,
@@ -36,5 +42,9 @@ def profile(request):
     # print(user, type(user), user.andrew_id)
     else:
         form = ProfileForm(instance=user)
-
+    print("form:    ", form)
     return render(request, 'profile.html', {'user': user, 'form': form})
+
+def test(request):
+    user = request.user
+    return render(request, 'test.html', {'user': user})
