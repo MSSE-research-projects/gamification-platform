@@ -1,6 +1,8 @@
-from django.contrib.auth import login
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate
+from django.contrib import messages
 from django.shortcuts import redirect, render
-from ...models import user
+
 from ...forms import SignUpForm, ProfileForm
 
 
@@ -11,7 +13,7 @@ def signup(request):
             user = form.save()
             login(request, user)
 
-            return redirect('dashboard')
+            return redirect('profile')
     else:
         form = SignUpForm(label_suffix='')
 
@@ -22,28 +24,36 @@ def dashboard(request):
     return render(request, 'dashboard.html')
 
 
-# user: andrew_id, first_name, last_name, email, image, is_staff, is_active
-# form:Email address, First name, Last name, Profile picture
+def signin(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('profile')
+    else:
+        form = AuthenticationForm()
+
+    return render(request=request, template_name="signin.html", context={"form": form})
+
+
 def profile(request):
     user = request.user
-    if(user.is_anonymous):
-        print("anonymous user: ", user.andrew_id)
-    else:
-        print("not anony user: ", user.andrew_id)
-    # print(request.FILES)):
-    print(user.image)
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES,
                            instance=user, label_suffix='')
-        
+
         if form.is_valid():
             user = form.save()
-            # message.success(request, f'Your account has been updated')
-    # print(user, type(user), user.andrew_id)
+
     else:
         form = ProfileForm(instance=user)
-    print("form:    ", form)
+
     return render(request, 'profile.html', {'user': user, 'form': form})
+
 
 def test(request):
     user = request.user
