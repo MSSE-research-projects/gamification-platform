@@ -1,11 +1,11 @@
-# Gamification-platform
+# Gamification Platform
 
 This project aims to provide a platform where students can give feedback to 
 their classmates' presentation assignments, with specially designed gamification 
 elements to encourage students' engagement. It is based on Django 3.2 and MySQL 
 server database.
 
-# Developer Environment setup
+# Developer Environment Setup
 
 1. Install required python packages
 
@@ -102,6 +102,34 @@ server database.
 5. Test if everything is working
 
     Run command `python manage.py runserver`
+
+# How to Run
+
+After setting up the environment, run `python manage.py runserver` to start the server. Here are a few pages implemented at the moment:
+
+- Sign in page `127.0.0.1:8000/signin/`
+
+  The sign in page is where you input your andrew ID and password to login into
+  the system. If the andrew ID doesn't exist or the password is incorrect, an
+  error message will be displayed to ask you to enter again. \
+  After successful sign in, you will be redirected to your profile page.
+
+- Sign up page `127.0.0.1:8000/signup/`
+
+  The sign up page is where you register an account. You will be asked to enter
+  your andrew ID (required), email (required), password (required), and enter
+  the password one more time for confirmation. The password should be at least
+  8 characters, irrelavant to your personal information (andrew ID or email),
+  not too common or entirely numeric. If any of the field above doesn't meet the
+  requirement, you will be asked to input the information again. \
+  After successful sign up, you will be redirected to your profile page.
+
+- Profile page `127.0.0.1:8000/profile/`
+
+  The profile page is where you can view your personal information. You can edit
+  your account information (andrew ID, email address, first name, last name and
+  profile image) by filling in the form on this page. Currently, only the 'edit'
+  tab is clickable and all other tabs are not implemented yet.
 
 # Contributing
 
