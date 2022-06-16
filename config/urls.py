@@ -13,6 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -21,8 +24,15 @@ import app.gamification.views.pages as page_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('signin/', page_views.signin, name='signin'),
     path('signup/', page_views.signup, name='signup'),
     path('dashboard/', page_views.dashboard, name='dashboard'),
+    path('profile/', page_views.profile, name='profile'),
+    path('test/', page_views.test, name='test'),
 
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
