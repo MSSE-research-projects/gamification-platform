@@ -48,13 +48,13 @@ class SuccessfulSignUpTest(TestCase):
             'password2': 'arbitary-password',
         }
         self.response = self.client.post(self.url, self.data)
-        self.dashboard_url = reverse('dashboard')
+        self.profile_url = reverse('profile')
 
     def test_redirection(self):
         '''
-        A valid form submission should redirect the user to dashboard page
+        A valid form submission should redirect the user to profile page
         '''
-        self.assertRedirects(self.response, self.dashboard_url)
+        self.assertRedirects(self.response, self.profile_url)
 
     def test_user_creation(self):
         # Act
@@ -70,7 +70,7 @@ class SuccessfulSignUpTest(TestCase):
         '''
 
         # Arrange
-        response = self.client.get(self.dashboard_url)
+        response = self.client.get(self.profile_url)
         # Act
         user = response.context.get('user')
         # Assert
