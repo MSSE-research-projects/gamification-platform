@@ -22,7 +22,7 @@ import app.gamification.views.pages as page_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('signin/', page_views.signin, name = 'signin'),
+    path('signin/', page_views.signin, name='signin'),
     path('signup/', page_views.signup, name='signup'),
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
