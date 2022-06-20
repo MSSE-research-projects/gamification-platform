@@ -6,7 +6,7 @@ from app.gamification.models import CustomUser
 from app.gamification.views.pages import signin
 
 
-class SignUpTest(TestCase):
+class SignInTest(TestCase):
 
     def setUp(self):
         self.url = reverse('signin')
@@ -32,18 +32,18 @@ class SignUpTest(TestCase):
         self.assertContains(self.response, 'name="username"', 1)
         self.assertContains(self.response, 'name="password"', 1)
 
-
-
 class SuccessfulSignInTest(TestCase):
 
     def setUp(self):
-        user = CustomUser.objects.create(andrew_id='jiad')
-        user.set_password('yunshan123')
+        test_username = "user1"
+        test_password = "123"
+        user = CustomUser.objects.create(andrew_id=test_username)
+        user.set_password(test_password)
         user.save()
         self.url = reverse('signin')
         self.data = {
-            'username': 'jiad',
-            'password': 'yunshan123',
+            'username': test_username,
+            'password': test_password,
         }
         self.response = self.client.post(self.url, self.data)
         self.profile_url = reverse('profile')
@@ -54,33 +54,30 @@ class SuccessfulSignInTest(TestCase):
         '''
         self.assertRedirects(self.response, self.profile_url)
 
-
-
     def test_user_authentication(self):
-
-
         # Arrange
         response = self.client.get(self.profile_url)
         # Act
         user = response.context.get('user')
         # Assert
         self.assertTrue(user.is_authenticated)
-        self.assertEqual(user.andrew_id, 'jiad')
+        self.assertEqual(user.andrew_id, 'user1')
 
 
 class InvalidSignInTest(TestCase):
 
     def setUp(self):
+        test_username = "user1"
+        test_password = "123"
         user = CustomUser.objects.create(andrew_id='jiad')
         user.set_password('yunshan123')
         user.save()
         self.url = reverse('signin')
         self.profile_url = reverse('profile')
         self.data = {
-            'username': 'jiad',
-            'password': '123',
+            'username': test_username,
+            'password': test_password,
         }
-
 
     def test_signin_with_wrong_password(self):
         response = self.client.post(self.url, self.data)
@@ -88,8 +85,6 @@ class InvalidSignInTest(TestCase):
         self.assertEqual(form.errors['__all__'][0], 
         'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
         self.assertEqual(response.status_code, 200)
-
-
 
     def test_signin_with_no_password(self):
         self.data['password'] = ' '
@@ -99,7 +94,6 @@ class InvalidSignInTest(TestCase):
         'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
         self.assertEqual(response.status_code, 200)
         
-
     def test_signin_with_not_exist_username(self):
         self.data['username'] = 'testUser'
         response = self.client.post(self.url, self.data)
