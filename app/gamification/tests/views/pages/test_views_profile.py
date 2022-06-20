@@ -5,12 +5,8 @@ from django.urls import resolve, reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from app.gamification.forms import ProfileForm
-# FIX: Remove unnecessary imports and comments
-from app.gamification.models import CustomUser
 from app.gamification.views.pages import profile
 from app.gamification.tests.views.pages.utils import LogInUser
-# NOTE: This is the right way of dynamically importing settings
-# (Remove this note before making next commit)
 from django.conf import settings
 
 
@@ -43,6 +39,8 @@ class ProfileTest(TestCase):
         The view must contain four inputs: csrf, andrew_id, email, first_name, last_name, image
         FIX: Four inputs? Why no assertion on the number of '<input' elements?
         '''
+        self.assertContains(self.response, '<input', 5)
+        print(self.response)
         self.assertContains(self.response, 'name="email"', 1)
         self.assertContains(self.response, 'name="first_name"', 1)
         self.assertContains(self.response, 'name="last_name"', 1)
