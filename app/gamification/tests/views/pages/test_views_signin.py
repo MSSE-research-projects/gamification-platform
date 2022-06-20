@@ -77,13 +77,33 @@ class InvalidSignInTest(TestCase):
         self.url = reverse('signin')
         self.profile_url = reverse('profile')
         self.data = {
-            'username': 'yunshan123',
+            'username': 'jiad',
             'password': '123',
         }
 
 
     def test_signin_with_wrong_password(self):
         response = self.client.post(self.url, self.data)
-        # Assert
+        form = response.context.get('form')
+        self.assertEqual(form.errors['__all__'][0], 
+        'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
         self.assertEqual(response.status_code, 200)
 
+
+
+    def test_signin_with_no_password(self):
+        self.data['password'] = ' '
+        response = self.client.post(self.url, self.data)
+        form = response.context.get('form')
+        self.assertEqual(form.errors['__all__'][0], 
+        'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
+        self.assertEqual(response.status_code, 200)
+        
+
+    def test_signin_with_not_exist_username(self):
+        self.data['username'] = 'testUser'
+        response = self.client.post(self.url, self.data)
+        form = response.context.get('form')
+        self.assertEqual(form.errors['__all__'][0], 
+        'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
+        self.assertEqual(response.status_code, 200)
