@@ -27,6 +27,7 @@ urlpatterns = [
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
     path('test/', page_views.test, name='test'),
+    path('course/add_course', page_views.addcourse, name='course'),
 ]
 
 if settings.DEBUG:
