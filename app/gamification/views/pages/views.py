@@ -59,6 +59,9 @@ def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})
 
+def course(request):
+    return render(request, 'course.html')
+
 def editCourse(request):
     # if request.method == 'POST':
     #     form = CourseForm(request.POST, instance=course, label_suffix='')
