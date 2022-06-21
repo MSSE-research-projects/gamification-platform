@@ -58,3 +58,15 @@ def profile(request):
 def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})
+
+def editCourse(request):
+    # if request.method == 'POST':
+    #     form = CourseForm(request.POST, instance=course, label_suffix='')
+
+    #     if form.is_valid():
+    #         course = form.save()
+
+    # else:
+    #     form = ProfileForm(instance=course)
+    # return render(request, 'addcourse.html', {'course': course})
+    return render(request, 'editCourse.html')
