@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import CustomUser
+from .models import CustomUser, Course
 
 
 class SignUpForm(forms.ModelForm):
@@ -76,15 +76,17 @@ class ProfileForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-    
-# class CourseForm(forms.ModelForm):
 
-#     class Meta:
-#         model = Course
-#         fields = ('course_id','course_name','syllabus','semester', 'visibility', 'instructor')
-        
-#     def save(self, commit=True):
-#         course = super().save(commit=True)
-#         if commit:
-#             course.save()
-#         return course
+
+class CourseForm(forms.ModelForm):
+
+    class Meta:
+        model = Course
+        fields = ('course_id', 'course_name', 'syllabus',
+                  'semester', 'visible')
+
+    def save(self, commit=True):
+        course = super().save(commit=True)
+        if commit:
+            course.save()
+        return course

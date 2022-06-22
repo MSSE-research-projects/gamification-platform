@@ -22,13 +22,14 @@ import app.gamification.views.pages as page_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('signin/', page_views.signin, name = 'signin'),
+    path('signin/', page_views.signin, name='signin'),
     path('signup/', page_views.signup, name='signup'),
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
     path('test/', page_views.test, name='test'),
     path('course/', page_views.course, name='course'),
-    path('course/editCourse/', page_views.editCourse, name='editCourse'),
+    path('course/edit_course/<str:course_id>',
+         page_views.edit_course, name='edit_course'),
 ]
 
 if settings.DEBUG:

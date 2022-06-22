@@ -2,8 +2,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.shortcuts import redirect, render
+from ...models import Course
 
-from ...forms import SignUpForm, ProfileForm
+from ...forms import SignUpForm, ProfileForm, CourseForm
 
 
 def signup(request):
@@ -59,17 +60,34 @@ def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})
 
+
 def course(request):
-    return render(request, 'course.html')
-
-def editCourse(request):
-    # if request.method == 'POST':
-    #     form = CourseForm(request.POST, instance=course, label_suffix='')
-
-    #     if form.is_valid():
-    #         course = form.save()
-
+    if request.method == 'GET':
+        courses = Course.objects.all()
+        context = {'courses': courses}
+        return render(request, 'course.html', context)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        courses = Course.objects.all()
+        context = {'courses': courses}
+        return render(request, 'course.html', context)
     # else:
-    #     form = ProfileForm(instance=course)
-    # return render(request, 'addcourse.html', {'course': course})
-    return render(request, 'editCourse.html')
+    #    courses = []
+    #    context = {'courses': courses}
+    #    return render(request, 'course.html', context)
+
+
+def edit_course(request, course_id):
+    course = Course.objects.get(course_id=course_id)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, instance=course, label_suffix='')
+
+        if form.is_valid():
+            course = form.save()
+
+    else:
+        form = CourseForm(instance=course)
+
+    return render(request, 'edit_course.html', {'course': course, 'form': form})
