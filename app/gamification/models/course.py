@@ -31,6 +31,18 @@ class Course(models.Model):
             courses=self.pk, userRole=Registration.UserRole.Instructor).values_list('users', flat=True)
         return self.users.filter(pk__in=query)
 
+    @property
+    def students(self):
+        query = Registration.objects.filter(
+            courses=self.pk, userRole=Registration.UserRole.Student).values_list('users', flat=True)
+        return self.users.filter(pk__in=query)
+
+    @property
+    def TAs(self):
+        query = Registration.objects.filter(
+            courses=self.pk, userRole=Registration.UserRole.TA).values_list('users', flat=True)
+        return self.users.filter(pk__in=query)
+
     def get_course_name(self):
         '''Return the course name.'''
         return self.course_name
