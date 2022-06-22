@@ -25,22 +25,23 @@ class Course(models.Model):
         verbose_name = _('course')
         verbose_name_plural = _('courses')
 
+    def get_query(self, role):
+        return Registration.objects.filter(
+            courses=self.pk, userRole=role).values_list('users', flat=True)
+
     @property
     def instructors(self):
-        query = Registration.objects.filter(
-            courses=self.pk, userRole=Registration.UserRole.Instructor).values_list('users', flat=True)
+        query = self.get_query(Registration.UserRole.Instructor)
         return self.users.filter(pk__in=query)
 
     @property
     def students(self):
-        query = Registration.objects.filter(
-            courses=self.pk, userRole=Registration.UserRole.Student).values_list('users', flat=True)
+        query = self.get_query(Registration.UserRole.Student)
         return self.users.filter(pk__in=query)
 
     @property
     def TAs(self):
-        query = Registration.objects.filter(
-            courses=self.pk, userRole=Registration.UserRole.TA).values_list('users', flat=True)
+        query = self.get_query(Registration.UserRole.TA)
         return self.users.filter(pk__in=query)
 
     def get_course_name(self):
