@@ -7,14 +7,16 @@ from .registration import Registration
 
 class Course(models.Model):
 
+    course_id = models.CharField(_('course_id'), max_length=150, blank=True)
+
     course_name = models.CharField(
-        _('course name'), max_length=150)
+        _('course name'), max_length=150, blank=True)
 
     syllabus = models.TextField(_('syllabus'), blank=True)
 
     semester = models.CharField(_('semester'), max_length=150, blank=True)
 
-    visible = models.BooleanField(_('visible'), default=True)
+    visible = models.BooleanField(_('visible'), default=False)
 
     users = models.ManyToManyField(CustomUser, through='Registration')
 
