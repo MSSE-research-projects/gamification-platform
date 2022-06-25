@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.shortcuts import redirect, render
 
-from ...forms import SignUpForm, ProfileForm, CourseForm
+from ...forms import SignUpForm, ProfileForm
 
 
 def signup(request):
@@ -58,14 +58,3 @@ def profile(request):
 def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})
-
-def addcourse(request):
-    if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course, label_suffix='')
-
-        if form.is_valid():
-            course = form.save()
-
-    else:
-        form = ProfileForm(instance=course)
-    return render(request, 'addcourse.html', {'course': course})
