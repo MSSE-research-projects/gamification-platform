@@ -104,7 +104,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return full_name.strip()
 
     def __str__(self):
-        return f'{self.get_full_name()}'
+        return f'{self.andrew_id}'
 
     def get_short_name(self):
         '''Return the short name for the user.'''
