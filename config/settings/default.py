@@ -80,6 +80,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+LOGIN_URL = '/signin/'
+
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

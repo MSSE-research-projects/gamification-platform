@@ -1,6 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
-from django.contrib import messages
 from django.shortcuts import redirect, render
 
 from ...forms import SignUpForm, ProfileForm
@@ -20,10 +20,6 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
-def dashboard(request):
-    return render(request, 'dashboard.html')
-
-
 def signin(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -40,6 +36,12 @@ def signin(request):
     return render(request=request, template_name="signin.html", context={"form": form})
 
 
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
+
+@login_required
 def profile(request):
     user = request.user
     if request.method == 'POST':

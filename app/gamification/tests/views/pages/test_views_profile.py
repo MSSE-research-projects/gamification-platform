@@ -160,13 +160,14 @@ class InvalidEditProfileTest(TestCase):
 
     def test_edit_profile_with_anonymous_user(self):
         # Arrange
-        self.profile_url = reverse('profile')
-        self.client.logout  # FIX: Why didn't call this function?
+        signin_url = reverse('signin')
+        redirect_url = "%s?next=%s" % (signin_url, self.url)
+        self.client.logout()
         # Act
         response = self.client.post(self.url, self.data)
         # Assert
-        self.assertEqual(response.status_code, 401)
-        self.assertRedirects(self.response, self.profile_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, redirect_url)
 
     def test_edit_profile_with_invalid_type_of_file(self):
         # Arrange
