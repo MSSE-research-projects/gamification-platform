@@ -217,15 +217,22 @@ components:
     User:
       type: object
       properties:
-        andrewId:
+        andrew_id:
           type: string
         password:
           type: string
-        online:
-          type: boolean
-        active:
-          type: boolean
-        firstName:
+          format: password
+        first_name:
           type: string
-        lastName:
+        last_name:
           type: string
+        email:
+          type: string
+          format: email
+        is_staff:
+          type: boolean
+        is_active:
+          type: boolean
+        date_joined:
+          type: string
+          format: date-time
