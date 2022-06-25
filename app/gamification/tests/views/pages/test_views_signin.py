@@ -67,7 +67,7 @@ class SuccessfulSignInTest(TestCase):
 class InvalidSignInTest(TestCase):
 
     def setUp(self):
-        test_username = "user1"
+        test_username = "jiad"
         test_password = "123"
         user = CustomUser.objects.create(andrew_id='jiad')
         user.set_password('yunshan123')
@@ -82,22 +82,27 @@ class InvalidSignInTest(TestCase):
     def test_signin_with_wrong_password(self):
         response = self.client.post(self.url, self.data)
         form = response.context.get('form')
+        user = response.context.get('user')
         self.assertEqual(form.errors['__all__'][0], 
         'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(user.is_authenticated)
 
     def test_signin_with_no_password(self):
-        self.data['password'] = ' '
+        self.data['password'] = ''
         response = self.client.post(self.url, self.data)
         form = response.context.get('form')
-        self.assertEqual(form.errors['__all__'][0], 
-        'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
+        user = response.context.get('user')
+        self.assertIn('password', form.errors.keys())
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(user.is_authenticated)
         
     def test_signin_with_not_exist_username(self):
         self.data['username'] = 'testUser'
         response = self.client.post(self.url, self.data)
         form = response.context.get('form')
+        user = response.context.get('user')
         self.assertEqual(form.errors['__all__'][0], 
         'Please enter a correct Andrew ID and password. Note that both fields may be case-sensitive.')
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(user.is_authenticated)
