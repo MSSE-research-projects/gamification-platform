@@ -70,9 +70,3 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('email', 'first_name', 'last_name', 'image')
-
-    def save(self, commit=True):
-        user = super().save(commit=True)
-        if commit:
-            user.save()
-        return user

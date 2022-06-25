@@ -50,6 +50,7 @@ def profile(request):
 
         if form.is_valid():
             user = form.save()
+            form = ProfileForm(instance=user)
 
     else:
         form = ProfileForm(instance=user)
