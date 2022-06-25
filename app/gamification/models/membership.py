@@ -7,7 +7,7 @@ from .registration import Registration
 class Membership(models.Model):
     student = models.ForeignKey(Registration, on_delete=models.CASCADE)
 
-    group = models.ForeignKey('Group', on_delete=models.CASCADE)
+    entity = models.ForeignKey('Entity', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'membership'
