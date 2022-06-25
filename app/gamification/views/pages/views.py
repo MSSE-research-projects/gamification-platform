@@ -73,10 +73,15 @@ def course(request):
         courses = Course.objects.all()
         context = {'courses': courses}
         return render(request, 'course.html', context)
-    # else:
-    #    courses = []
-    #    context = {'courses': courses}
-    #    return render(request, 'course.html', context)
+
+
+def delete_course(request, course_id):
+    if request.method == 'GET':
+        course = Course.objects.get(course_id=course_id)
+        course.delete()
+        return render(request, 'course.html')
+    else:
+        return render(request, 'course.html')
 
 
 def edit_course(request, course_id):
