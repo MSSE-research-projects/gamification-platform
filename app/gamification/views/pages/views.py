@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 
 from ...forms import SignUpForm, ProfileForm
@@ -34,6 +34,11 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request=request, template_name="signin.html", context={"form": form})
+
+
+def signout(request):
+    logout(request)
+    return redirect('signin')
 
 
 @login_required

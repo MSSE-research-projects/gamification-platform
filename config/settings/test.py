@@ -9,4 +9,4 @@ DATABASES = {
     },
 }
 
-MEDIA_ROOT = BASE_DIR / 'app/gamfication/tests/media'
+MEDIA_ROOT = BASE_DIR / 'app/gamification/tests/media'
