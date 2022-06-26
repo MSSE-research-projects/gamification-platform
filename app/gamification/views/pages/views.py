@@ -63,6 +63,15 @@ def profile(request):
     return render(request, 'profile.html', {'user': user, 'form': form})
 
 
+@login_required
+def instructor_admin(request):
+    user = request.user
+    if user.is_staff:
+        return render(request, 'instructor_admin.html')
+    else:
+        return redirect('dashboard')
+
+
 def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})

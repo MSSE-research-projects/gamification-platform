@@ -27,8 +27,10 @@ urlpatterns = [
     path('signin/', page_views.signin, name='signin'),
     path('signup/', page_views.signup, name='signup'),
     path('signout/', page_views.signout, name='signout'),
+
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
+    path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
     path('test/', page_views.test, name='test'),
 
     path('api/', include('app.gamification.views.api.urls')),

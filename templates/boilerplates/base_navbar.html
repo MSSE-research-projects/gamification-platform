@@ -308,7 +308,8 @@
           {% if user.image %}
           <img class="img-xs rounded-circle" src="{{ user.image.url }}" alt="Profile image" width="50" height="50">
           {% else %}
-            <img class="img-xs rounded-circle" src="{% static 'images/default.jpg' %}" alt="Profile image" width="50" height="50">
+          <img class="img-xs rounded-circle" src="{% static 'images/default.jpg' %}" alt="Profile image" width="50"
+            height="50">
           {% endif %}
         </a>
         <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
@@ -316,9 +317,10 @@
             {% if user.image %}
             <img class="img-md rounded-circle" src="{{ user.image.url }}" alt="Profile image" width="50" height="50">
             {% else %}
-            <img class="img-md rounded-circle" src="{% static 'images/default.jpg' %}" alt="Profile image" width="50" height="50">
+            <img class="img-md rounded-circle" src="{% static 'images/default.jpg' %}" alt="Profile image" width="50"
+              height="50">
             {% endif %}
-            
+
             <p class="mb-1 mt-3 font-weight-semibold">{{ user.get_full_name }}</p>
             <p class="mb-1 mt-1 font-weight-semibold">{{ user.andrew_id }}</p>
             <p class="fw-light text-muted mb-0">{{ user.email }}</p>
@@ -497,9 +499,9 @@
       </li>
       {% comment %} {% if user.is_staff %} {% endcomment %}
       <li class="nav-item">
-        <a class="nav-link" href="javascript: void(0)">
+        <a class="nav-link" href="{% url 'instructor_admin' %}">
           <i class="menu-icon mdi mdi-settings-outline"></i>
-          <span class="menu-title">Admin</span>
+          <span class="menu-title">Instructor Admin</span>
         </a>
       </li>
       {% comment %} {% endif %} {% endcomment %}
