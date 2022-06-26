@@ -124,9 +124,10 @@ class InvalidEditProfileTest(TestCase):
         # Act
         response = self.client.post(self.url, self.data)
         user = response.context.get('user')
+        form = response.context.get('form')
         # Assert
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(user.email, '')
+        self.assertIn('email', form.errors.keys())
 
     def test_edit_profile_with_no_firstname(self):
         # Arrange

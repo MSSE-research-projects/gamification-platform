@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 
 from ...forms import SignUpForm, ProfileForm
@@ -36,6 +36,11 @@ def signin(request):
     return render(request=request, template_name="signin.html", context={"form": form})
 
 
+def signout(request):
+    logout(request)
+    return redirect('signin')
+
+
 @login_required
 def dashboard(request):
     return render(request, 'dashboard.html')
@@ -56,6 +61,15 @@ def profile(request):
         form = ProfileForm(instance=user)
 
     return render(request, 'profile.html', {'user': user, 'form': form})
+
+
+@login_required
+def instructor_admin(request):
+    user = request.user
+    if user.is_staff:
+        return render(request, 'instructor_admin.html')
+    else:
+        return redirect('dashboard')
 
 
 def test(request):
