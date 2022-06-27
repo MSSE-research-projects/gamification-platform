@@ -1,10 +1,13 @@
+from html import entities
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.shortcuts import redirect, render
+
+from app.gamification.models.entity import Entity, Team
 from ...models import Course
 
-from ...forms import SignUpForm, ProfileForm, CourseForm
+from ...forms import SignUpForm, ProfileForm, CourseForm, TeamForm
 
 
 def signup(request):
@@ -67,7 +70,8 @@ def course(request):
         context = {'courses': courses}
         return render(request, 'course.html', context)
     if request.method == 'POST':
-        form = CourseForm(request.POST, label_suffix='')
+        form = CourseForm(
+            request.POST, instance=request.course, label_suffix='')
         if form.is_valid():
             form.save()
         courses = Course.objects.all()
@@ -82,7 +86,8 @@ def course(request):
 def edit_course(request, course_id):
     course = Course.objects.get(course_id=course_id)
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course, label_suffix='')
+        form = CourseForm(request.POST, request.FILES,
+                          instance=course, label_suffix='')
 
         if form.is_valid():
             course = form.save()
@@ -91,3 +96,18 @@ def edit_course(request, course_id):
         form = CourseForm(instance=course)
 
     return render(request, 'edit_course.html', {'course': course, 'form': form})
+
+
+def team(request):
+    if request.method == 'GET':
+        teams = Team.objects.all()
+        entities = Entity.objects.all()
+        context = {'teams': teams, 'entities': entities}
+        return render(request, 'team.html', context)
+    if request.method == 'POST':
+        form = TeamForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        teams = Team.objects.all()
+        context = {'teams': teams}
+        return render(request, 'team.html', context)

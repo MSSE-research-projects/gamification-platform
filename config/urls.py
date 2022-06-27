@@ -35,6 +35,7 @@ urlpatterns = [
 
     path('api/', include('app.gamification.views.api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('team/', page_views.team, name='team'),
 ]
 
 if settings.DEBUG:

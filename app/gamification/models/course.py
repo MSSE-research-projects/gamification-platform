@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from app.gamification.models.entity import Entity, Team
+
+from app.gamification.models.membership import Membership
 
 from .user import CustomUser
 from .registration import Registration
@@ -43,6 +46,19 @@ class Course(models.Model):
     def TAs(self):
         query = self.get_query(Registration.UserRole.TA)
         return self.users.filter(pk__in=query)
+
+    @property
+    def teams(self):
+        query = Membership.objects.filter(
+            student__in=Registration.objects.filter(
+                courses=self.pk))
+        s = set()
+        for e in query:
+            try:
+                s.add(e.entity.team)
+            except Team.DoesNotExist:
+                pass
+        return s
 
     def get_course_name(self):
         '''Return the course name.'''
