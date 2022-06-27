@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from app.gamification.models import assignment
 
 import app.gamification.views.pages as page_views
 
@@ -31,6 +32,10 @@ urlpatterns = [
     path('delete_course/<str:course_id>', page_views.delete_course, name = 'delete_course'),
     path('course/edit_course/<str:course_id>',
          page_views.edit_course, name='edit_course'),
+    path('assignment/', page_views.assignment, name='assignment'),
+    path('delete_assignment/<str:assignment_id>', page_views.delete_assignment, name = 'delete_assignment'),
+    path('assignment/edit_assignment/<str:assignment_id>',
+         page_views.edit_assignment, name='edit_assignment'),
 ]
 
 if settings.DEBUG:

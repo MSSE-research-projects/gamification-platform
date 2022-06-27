@@ -1,0 +1,62 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Assignment{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <a href="{% url 'assignment' %}"><button type="button" class="btn btn-outline-primary">Back</button></a>
+                <div class="col-lg-12">
+                    <form class="pt-3" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                        <div class="form-group">
+                          {{ field.label_tag }}
+                  
+                          {% if form.is_bound %}
+                            {% if field.errors %}
+                              {% render_field field class="form-control is-invalid" %}
+                              {% for error in field.errors %}
+                              <div class="invalid-feedback">
+                                {{ error }}
+                              </div>
+                              {% endfor %}
+                            {% else %}
+                              {% render_field field class="form-control is-valid" %}
+                            {% endif %}
+                          {% else %}
+                            {% if field.name == 'visible' %}
+                            {% render_field field class="form-check-input" %}
+                            {% else %}
+                            {% render_field field class="form-control" %}
+                            {% endif %}
+                          {% endif %}
+                  
+                          {% if field.help_text %}
+                          <small class="form-text text-muted">
+                            {{ field.help_text|safe }}
+                          </small>
+                          {% endif %}
+                        </div>
+                        {% endfor %}
+                  
+                        <div class="mt-3">
+                          <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" type="submit">Save</button>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock content %}

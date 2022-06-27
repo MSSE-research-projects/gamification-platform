@@ -1,0 +1,128 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Assignment{% endblock %}
+
+{% block content %}
+<div class="container-scroller" style="width: 100%; height: 60%">
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">assignments</h4>
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>
+                            course_id
+                          </th>
+                          <th>
+                            assignment_name
+                          </th>
+                          <th>
+                            description
+                          </th>
+                          <th>
+                            assignment_type
+                          </th>
+                          <th>
+                            submission_type
+                          </th>
+                          <th>
+                            total_score
+                          </th>
+                          <th>
+                            weight
+                          </th>
+                          <th>
+                            date_created
+                          </th>
+                          <th>
+                            date_released
+                          </th>
+                          <th>
+                            date_due
+                          </th>
+                          <th>
+                            review_assign_policy
+                          </th>
+                        </tr>
+                      </thead>
+                        {% csrf_token %}
+                        {% for assignment in assignments %}
+                        <tbody>
+                          <tr>
+                            <td class="py-1">
+                              {{ assignment.course_id}}
+                            </td>
+                            <td>
+                              {{ assignment.assignment_name}}
+                            </td>
+                            <td>
+                              {{ assignment.description}}
+                            </td>
+                            <td>
+                              {{ assignment.assignment_type}}
+                            </td>
+                            <td>
+                              {{ assignment.submission_type}}
+                            </td>
+                            <td>
+                              {{ assignment.total_score}}
+                            </td>
+                            <td>
+                              {{ assignment.weight}}
+                            </td>
+                            <td>
+                              {{ assignment.date_created}}
+                            </td>
+                            <td>
+                              {{ assignment.date_released}}
+                            </td>
+                            <td>
+                              {{ assignment.date_due}}
+                            </td>
+                            <td>
+                              {{ assignment.review_assign_policy}}
+                            </td>
+                            <td>
+                              <a href="{% url 'edit_assignment' assignment.id %}">
+                                <button type = "button" class="btn-sm btn-primary">view</button>
+                              </a>
+                            </td>
+                            <td>
+                            <a href="{% url 'delete_assignment' assignment.id%}">
+                              <button type = "button" class="btn-sm btn-primary">delete</button>
+                            </a>
+                            </td> 
+                          </tr>
+                        </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+              <h4 class="card-title">Add assignment</h4>
+              <div class="form-group">
+                <label for="assignment_name">assignment_name</label>
+                <input type="text" name="assignment_name" class="form-control" id="assignment-name" placeholder="assignment Name">
+              </div>
+              <div class="form-group">
+                <label for="course_id">course_id</label>
+                <input type="text" name="course_id" class="form-control" id="assignment-ID" placeholder="assignment ID">
+              </div>
+              <button type="submit" class="btn btn-primary me-2">Add</button>
+              <button class="btn btn-light">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </div>
+</div>
+{% endblock content %}

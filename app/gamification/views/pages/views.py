@@ -2,9 +2,9 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.shortcuts import redirect, render
-from ...models import Course
+from ...models import Course, Assignment
 
-from ...forms import SignUpForm, ProfileForm, CourseForm
+from ...forms import SignUpForm, ProfileForm, CourseForm, AssignmentForm
 
 
 def signup(request):
@@ -96,3 +96,52 @@ def edit_course(request, course_id):
         form = CourseForm(instance=course)
 
     return render(request, 'edit_course.html', {'course': course, 'form': form})
+
+
+def assignment(request):
+    if request.method == 'GET':
+        assignments = Assignment.objects.all()
+        context = {'assignments': assignments}
+        return render(request, 'assignment.html', context)
+    if request.method == 'POST':
+        form = AssignmentForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        assignments = Assignment.objects.all()
+        context = {'assignments': assignments}
+        return render(request, 'assignment.html', context)
+
+def delete_assignment(request, assignment_id):
+    if request.method == 'GET':
+        assignment = Assignment.objects.get(id=assignment_id)
+        assignment.delete()
+        return redirect('assignment')
+    else:
+        return redirect('assignment')
+
+def edit_assignment(request, assignment_id):
+    assignment = Assignment.objects.get(id=assignment_id)
+    if request.method == 'POST':
+        form = AssignmentForm(request.POST, instance=assignment, label_suffix='')
+
+        if form.is_valid():
+            assignment = form.save()
+
+    else:
+        form = AssignmentForm(instance=assignment)
+
+    return render(request, 'edit_assignment.html', {'assignment': assignment, 'form': form})
+
+# def assignment(request, id):
+#     assignment = Assignment.objects.get(id=id)
+#     if request.method == 'GET':
+#         assignments = Assignment.objects.all()
+#         context = {'assignments': assignments}
+#         return render(request, 'assignment.html', context)
+#     if request.method == 'POST':
+#         form = AssignmentForm(request.POST, instance=assignment, label_suffix='')
+#         if form.is_valid():
+#             form.save()
+#         assignments = Assignment.objects.all()
+#         context = {'assignments': assignments}
+#         return render(request, 'assignment.html', context)
