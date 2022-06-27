@@ -31,6 +31,7 @@ urlpatterns = [
     path('delete_course/<str:course_id>', page_views.delete_course, name = 'delete_course'),
     path('course/edit_course/<str:course_id>',
          page_views.edit_course, name='edit_course'),
+    path('member_list/<str:course_id>', page_views.member_list, name = 'member_list')
 ]
 
 if settings.DEBUG:

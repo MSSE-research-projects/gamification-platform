@@ -3,8 +3,10 @@ from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from ...models import Course
+from ...models import Registration
+from ...models import CustomUser
 
-from ...forms import SignUpForm, ProfileForm, CourseForm
+from ...forms import SignUpForm, ProfileForm, CourseForm, RegistrationForm
 
 
 def signup(request):
@@ -96,3 +98,20 @@ def edit_course(request, course_id):
         form = CourseForm(instance=course)
 
     return render(request, 'edit_course.html', {'course': course, 'form': form})
+
+
+def member_list(request, course_id):
+    if request.method == 'GET':
+        register = Registration.objects.get(courses_id=course_id)
+        users = CustomUser.objects.all()
+        context = {'register': register, 'users' : users}
+        return render(request, 'course_member.html', context)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        register = Registration.objects.get(courses_id=course_id)
+        users = CustomUser.objects.all()
+        context = {'register': register, 'users' : users}
+        return render(request, 'course_member.html', context)
+
