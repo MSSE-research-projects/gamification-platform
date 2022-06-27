@@ -30,6 +30,12 @@ urlpatterns = [
     path('profile/', page_views.profile, name='profile'),
     path('test/', page_views.test, name='test'),
 
+    path('course/', page_views.course, name='course'),
+    path('delete_course/<str:course_id>',
+         page_views.delete_course, name='delete_course'),
+    path('course/edit_course/<str:course_id>',
+         page_views.edit_course, name='edit_course'),
+
     path('api/', include('app.gamification.views.api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
