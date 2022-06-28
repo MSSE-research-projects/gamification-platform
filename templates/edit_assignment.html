@@ -34,6 +34,10 @@
                           {% else %}
                             {% if field.name == 'visible' %}
                             {% render_field field class="form-check-input" %}
+                            {% elif field.name == 'description' %}
+                            {% render_field field class="form-control-lg"%}
+                            {% elif field.name == 'date_created' or 'date_released' or 'date_due' %}
+                            {% render_field field class="form-control" placeholder="yyyy-mm-dd hh:mm:ss"%}
                             {% else %}
                             {% render_field field class="form-control" %}
                             {% endif %}
