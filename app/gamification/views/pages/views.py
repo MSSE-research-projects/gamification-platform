@@ -99,7 +99,7 @@ def course(request):
 def delete_course(request, course_id):
     # TODO: Use 'DELETE' method to delete course
     if request.method == 'GET':
-        course = Course.objects.get(course_id=course_id)
+        course = Course.objects.get(pk=course_id)
         course.delete()
         return redirect('course')
     else:
@@ -108,13 +108,13 @@ def delete_course(request, course_id):
 
 @login_required
 def edit_course(request, course_id):
-    course = Course.objects.get(course_id=course_id)
+    course = Course.objects.get(pk=course_id)
     if request.method == 'POST':
         form = CourseForm(request.POST, instance=course, label_suffix='')
 
         if form.is_valid():
             course = form.save()
-        
+
         return redirect('course')
 
     else:
@@ -126,7 +126,7 @@ def edit_course(request, course_id):
 @login_required
 def member_list(request, course_id):
     if request.method == 'GET':
-        register = Registration.objects.get(courses_id=course_id)
+        register = Registration.objects.get(pk=course_id)
         users = CustomUser.objects.all()
         context = {'register': register, 'users': users}
         return render(request, 'course_member.html', context)
@@ -134,11 +134,11 @@ def member_list(request, course_id):
     if request.method == 'POST':
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
-        course = Course.objects.get(course_id=course_id)
+        course = Course.objects.get(id=id)
         user = CustomUser.objects.get(andrew_id=andrew_id)
         registration = Registration(users=user, courses=course, role=role)
         registration.save()
-        register = Registration.objects.get(courses_id=course_id)
+        register = Registration.objects.get(pk=course_id)
         users = CustomUser.objects.all()
         context = {'register': register, 'users': users}
         return render(request, 'course_member.html', context)

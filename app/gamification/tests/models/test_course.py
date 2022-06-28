@@ -10,7 +10,7 @@ class CourseTest(TestCase):
         # Arrange
         course = Course(
             course_name='Course A',
-            course_id='888',
+            course_number='888',
             syllabus='Syllabus',
             semester='Semester',
         )
@@ -31,7 +31,7 @@ class CourseTest(TestCase):
 
         course = Course(
             course_name='Course A',
-            course_id='888',
+            course_number='888',
             syllabus='Syllabus',
             semester='Semester',
         )
@@ -61,7 +61,7 @@ class CourseTest(TestCase):
 
         course = Course(
             course_name='Course B',
-            course_id='888',
+            course_number='888',
             syllabus='Syllabus',
             semester='Semester',
         )
@@ -91,7 +91,7 @@ class CourseTest(TestCase):
 
         course = Course(
             course_name='Course C',
-            course_id='888',
+            course_number='888',
             syllabus='Syllabus',
             semester='Semester',
         )

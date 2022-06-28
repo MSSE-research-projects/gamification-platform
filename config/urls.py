@@ -35,9 +35,10 @@ urlpatterns = [
 
     path('course/', include([
         path('', page_views.course, name='course'),
-        path('delete/<int:course_id>',
+        path('<int:course_id>/delete/',
              page_views.delete_course, name='delete_course'),
-        path('edit/<int:course_id>', page_views.edit_course, name='edit_course'),
+        path('<int:course_id>/edit/',
+             page_views.edit_course, name='edit_course'),
     ])),
 
     path('member_list/<str:course_id>',

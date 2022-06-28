@@ -76,7 +76,7 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('course_id', 'course_name', 'syllabus',
+        fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
 
 
