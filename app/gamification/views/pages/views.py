@@ -2,11 +2,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
-from ...models import Course
-from ...models import Registration
-from ...models import CustomUser
 
-from ...forms import SignUpForm, ProfileForm, CourseForm, RegistrationForm
+from ...forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm
+from ...models import Assignment, Course, CustomUser, Registration
 
 
 def signup(request):
@@ -142,3 +140,48 @@ def member_list(request, course_id):
         users = CustomUser.objects.all()
         context = {'register': register, 'users': users}
         return render(request, 'course_member.html', context)
+
+
+@login_required
+def assignment(request, course_id):
+    course = Course.objects.get(pk=course_id)
+
+    if request.method == 'GET':
+        assignments = Assignment.objects.filter(course=course)
+        context = {'assignments': assignments, "course_id": course_id}
+        return render(request, 'assignment.html', context)
+
+    if request.method == 'POST':
+        form = AssignmentForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        assignments = Assignment.objects.filter(course=course)
+        context = {'assignments': assignments, "course_id": course_id}
+        return render(request, 'assignment.html', context)
+
+
+@login_required
+def delete_assignment(request, course_id, assignment_id):
+    # TODO: Use 'DELETE' method to delete assignment
+    if request.method == 'GET':
+        assignment = Assignment.objects.get(id=assignment_id)
+        assignment.delete()
+        return redirect('assignment', course_id)
+    else:
+        return redirect('assignment', course_id)
+
+
+@login_required
+def edit_assignment(request, course_id, assignment_id):
+    assignment = Assignment.objects.get(id=assignment_id)
+    if request.method == 'POST':
+        form = AssignmentForm(
+            request.POST, instance=assignment, label_suffix='')
+
+        if form.is_valid():
+            assignment = form.save()
+
+    else:
+        form = AssignmentForm(instance=assignment)
+
+    return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})

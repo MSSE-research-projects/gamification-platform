@@ -45,6 +45,11 @@
                   {{ course.visible}}
                 </td>
                 <td>
+                  <a href="{% url 'assignment' course.id %}">
+                    <button type="button" class="btn-sm btn-primary">Assignments</button>
+                  </a>
+                </td>
+                <td>
                   <a href="{% url 'edit_course' course.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>

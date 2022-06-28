@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import CustomUser, Course, Registration
+from .models import Assignment, CustomUser, Course, Registration
 
 
 class SignUpForm(forms.ModelForm):
@@ -85,3 +85,12 @@ class RegistrationForm(forms.ModelForm):
     class Meta:
         model = Registration
         fields = ('users', 'courses', 'userRole')
+
+
+class AssignmentForm(forms.ModelForm):
+
+    class Meta:
+        model = Assignment
+        fields = ('course', 'assignment_name', 'description',
+                  'assignment_type', 'submission_type', 'total_score',
+                  'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')

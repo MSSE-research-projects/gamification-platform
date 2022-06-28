@@ -35,10 +35,21 @@ urlpatterns = [
 
     path('course/', include([
         path('', page_views.course, name='course'),
-        path('<int:course_id>/delete/',
-             page_views.delete_course, name='delete_course'),
-        path('<int:course_id>/edit/',
-             page_views.edit_course, name='edit_course'),
+
+        path('<int:course_id>/', include([
+            path('delete/', page_views.delete_course, name='delete_course'),
+            path('edit/', page_views.edit_course, name='edit_course'),
+
+            path('assignment/', include([
+                path('', page_views.assignment, name='assignment'),
+                path('<int:assignment_id>/', include([
+                    path('delete/', page_views.delete_assignment,
+                         name='delete_assignment'),
+                    path('edit/', page_views.edit_assignment,
+                         name='edit_assignment'),
+                ]))
+            ]))
+        ])),
     ])),
 
     path('member_list/<str:course_id>',
