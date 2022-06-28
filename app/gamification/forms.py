@@ -1,10 +1,12 @@
+from cmath import e
+import json
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import Assignment, CustomUser, Course, Registration
+from .models import Assignment, CustomUser, Course, Registration, Entity, Team, Membership
 
 
 class SignUpForm(forms.ModelForm):
@@ -74,10 +76,39 @@ class ProfileForm(forms.ModelForm):
 
 class CourseForm(forms.ModelForm):
 
+    file = forms.FileField(label=_('CATME file'), required=False)
+
     class Meta:
         model = Course
         fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
+
+    def save(self, commit=True):
+        course = super().save(commit=True)
+
+        if self.cleaned_data.get('file', None):
+            # Register teams from CATME file
+            data = json.loads(self.cleaned_data['file'].read())
+            for i in data:
+                if(len(CustomUser.objects.filter(andrew_id=i.get('Student ID'))) == 0):
+                    user = CustomUser.objects.create_user(
+                        andrew_id=i.get('Student ID'), email=i.get('Email'))
+                else:
+                    user = CustomUser.objects.get(
+                        andrew_id=i.get('Student ID'))
+                registration = Registration(
+                    users=user, courses=course, userRole=Registration.UserRole.Student)
+                registration.save()
+                if(len(Team.objects.filter(name=i.get('Team Name'))) != 0):
+                    team = Team.objects.get(name=i.get('Team Name'))
+                else:
+                    team = Team(name=i.get('Team Name'))
+                team.save()
+                entity = Entity.objects.get(pk=team.entity_ptr_id)
+                membership = Membership(student=registration, entity=entity)
+                membership.save()
+
+        return course
 
 
 class RegistrationForm(forms.ModelForm):
@@ -94,3 +125,10 @@ class AssignmentForm(forms.ModelForm):
         fields = ('course', 'assignment_name', 'description',
                   'assignment_type', 'submission_type', 'total_score',
                   'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')
+
+
+class TeamForm(forms.ModelForm):
+
+    class Meta:
+        model = Team
+        fields = ('name',)

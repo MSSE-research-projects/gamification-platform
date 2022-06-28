@@ -3,8 +3,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 
-from ...forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm
-from ...models import Assignment, Course, CustomUser, Registration
+from ...forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, TeamForm
+from ...models import Assignment, Course, CustomUser, Registration, Entity, Team
 
 
 def signup(request):
@@ -87,7 +87,9 @@ def course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST, label_suffix='')
         if form.is_valid():
+            print('form is valid')
             form.save()
+        print(form.errors)
         courses = Course.objects.all()
         context = {'courses': courses}
         return render(request, 'course.html', context)
@@ -108,7 +110,8 @@ def delete_course(request, course_id):
 def edit_course(request, course_id):
     course = Course.objects.get(pk=course_id)
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course, label_suffix='')
+        form = CourseForm(request.POST, request.FILES,
+                          instance=course, label_suffix='')
 
         if form.is_valid():
             course = form.save()
@@ -185,3 +188,19 @@ def edit_assignment(request, course_id, assignment_id):
         form = AssignmentForm(instance=assignment)
 
     return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
+
+
+@login_required
+def team(request):
+    if request.method == 'GET':
+        teams = Team.objects.all()
+        entities = Entity.objects.all()
+        context = {'teams': teams, 'entities': entities}
+        return render(request, 'team.html', context)
+    if request.method == 'POST':
+        form = TeamForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        teams = Team.objects.all()
+        context = {'teams': teams}
+        return render(request, 'team.html', context)
