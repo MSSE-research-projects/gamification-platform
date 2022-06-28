@@ -102,19 +102,24 @@ def edit_course(request, course_id):
 
 def member_list(request, course_id):
     if request.method == 'GET':
-        register = Registration.objects.get(courses_id=course_id)
-        users = CustomUser.objects.all()
+        register = Registration.objects.filter(courses_id=course_id)
+        users = []
+        for r in register:
+            user = CustomUser.objects.get(pk=r.users.pk)
+            users.append(user)
         context = {'register': register, 'users' : users}
         return render(request, 'course_member.html', context)
     if request.method == 'POST':
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
-        course = Course.objects.get(course_id=course_id)
+        course = Course.objects.get(pk=course_id)
         user = CustomUser.objects.get(andrew_id=andrew_id)
-        registration = Registration(users=user, courses=course, role = role)
+        registration = Registration(users=user, courses=course, userRole = role)
         registration.save()
-        register = Registration.objects.get(courses_id=course_id)
-        users = CustomUser.objects.all()
+        register = Registration.objects.filter(courses_id=course_id)
+        users = []
+        for r in register:
+            user = CustomUser.objects.get(pk=r.users.pk)
+            users.append(user)
         context = {'register': register, 'users' : users}
         return render(request, 'course_member.html', context)
-
