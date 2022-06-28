@@ -107,9 +107,12 @@ def member_list(request, course_id):
         context = {'register': register, 'users' : users}
         return render(request, 'course_member.html', context)
     if request.method == 'POST':
-        form = RegistrationForm(request.POST, label_suffix='')
-        if form.is_valid():
-            form.save()
+        andrew_id = request.POST['andrew_id']
+        role = request.POST['membershipRadios']
+        course = Course.objects.get(course_id=course_id)
+        user = CustomUser.objects.get(andrew_id=andrew_id)
+        registration = Registration(users=user, courses=course, role = role)
+        registration.save()
         register = Registration.objects.get(courses_id=course_id)
         users = CustomUser.objects.all()
         context = {'register': register, 'users' : users}
