@@ -126,23 +126,35 @@ def edit_course(request, course_id):
 
 @login_required
 def member_list(request, course_id):
-    if request.method == 'GET':
-        register = Registration.objects.get(pk=course_id)
-        users = CustomUser.objects.all()
+
+    def get_member_list(course_id):
+        register = Registration.objects.filter(courses_id=course_id)
+        users = []
+        for r in register:
+            user = CustomUser.objects.get(pk=r.users.pk)
+            users.append(user)
         context = {'register': register, 'users': users}
+        return context
+
+    if request.method == 'GET':
+        context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
 
     if request.method == 'POST':
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
-        course = Course.objects.get(id=id)
+        course = Course.objects.get(pk=course_id)
         user = CustomUser.objects.get(andrew_id=andrew_id)
-        registration = Registration(users=user, courses=course, role=role)
-        registration.save()
-        register = Registration.objects.get(pk=course_id)
-        users = CustomUser.objects.all()
-        context = {'register': register, 'users': users}
-        return render(request, 'course_member.html', context)
+        exist_user = len(Registration.objects.filter(users=user))
+        if exist_user == 0:
+            registration = Registration(
+                users=user, courses=course, userRole=role)
+            registration.save()
+            context = get_member_list(course_id)
+            return render(request, 'course_member.html', context)
+        else:
+            context = get_member_list(course_id)
+            return render(request, 'course_member.html', context)
 
 
 @login_required

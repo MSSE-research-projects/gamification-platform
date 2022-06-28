@@ -15,9 +15,6 @@
                       <thead>
                         <tr>
                           <th>
-                            Name
-                          </th>
-                          <th>
                             Andrew ID
                           </th>
                           <th>
@@ -25,46 +22,23 @@
                           </th>
                         </tr>
                       </thead>
-                        {% csrf_token %}
-                        {% for course in courses %}
-                          {% comment %} <tr>
-                            <td class="py-1">
-                              {{ course.course_name}}
-                            </td>
-                            <td>
-                              {{ course.course_id}}
-                            </td>
-                            <td>
-                              {{ course.semester}}
-                            </td>
-                            <td>
-                              {{ course.visible}}
-                            </td>
-                            <td>
-                              <a href="{% url 'edit_course' course.course_id %}">
-                                <button type = "button" class="btn-sm btn-primary">view</button>
-                              </a>
-                            </td>
-                            <td>
-                            <a href="{% url 'delete_course' course.course_id%}">
-                              <button type = "button" class="btn-sm btn-primary">delete</button>
-                            </a>
-                          </td>
-                          </tr> {% endcomment %}
-                        {% endfor %}
-
                         <tbody>
-                            <tr>
-                                <td class="py-1">
-                                    Jiadong
-                                </td>
-                                <td>
-                                    jiad1
-                                </td>
-                                <td>
-                                    student
-                                </td>
-                            </tr>
+                            {% csrf_token %}
+                            {% for re in register %}
+                                {% for user in users %}
+                                    {% if re.users.pk == user.pk %}
+                                        <tr>
+                                            <td class="py-1">
+                                            {{ user.andrew_id}}
+                                            </td>
+                                            <td>
+                                            {{ re.userRole}}
+                                            </td>
+                                        </td>
+                                        </tr>
+                                    {% endif %} 
+                                {% endfor %}
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -103,8 +77,8 @@
                   <div class="col-sm-4">
                     <div class="form-check">
                       <label class="form-check-label">
-                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2" value="TA">
-                        TA
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2" value="Instructor">
+                        Instructor
                       </label>
                     </div>
                   </div>
