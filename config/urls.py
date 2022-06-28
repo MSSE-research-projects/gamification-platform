@@ -48,17 +48,16 @@ urlpatterns = [
                     path('edit/', page_views.edit_assignment,
                          name='edit_assignment'),
                 ]))
-            ]))
+            ])),
+
+            path('team/', page_views.team, name='team'),
+
+            path('member_list/', page_views.member_list, name='member_list'),
         ])),
     ])),
 
-    path('member_list/<str:course_id>',
-         page_views.member_list, name='member_list'),
-
     path('api/', include('app.gamification.views.api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-    path('team/', page_views.team, name='team'),
 ]
 
 if settings.DEBUG:
