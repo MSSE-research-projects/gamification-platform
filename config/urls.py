@@ -33,6 +33,16 @@ urlpatterns = [
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
     path('test/', page_views.test, name='test'),
 
+    path('course/', include([
+        path('', page_views.course, name='course'),
+        path('delete/<int:course_id>',
+             page_views.delete_course, name='delete_course'),
+        path('edit/<int:course_id>', page_views.edit_course, name='edit_course'),
+    ])),
+
+    path('member_list/<str:course_id>',
+         page_views.member_list, name='member_list'),
+
     path('api/', include('app.gamification.views.api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

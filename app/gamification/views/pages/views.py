@@ -2,8 +2,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
+from ...models import Course
+from ...models import Registration
+from ...models import CustomUser
 
-from ...forms import SignUpForm, ProfileForm
+from ...forms import SignUpForm, ProfileForm, CourseForm, RegistrationForm
 
 
 def signup(request):
@@ -75,3 +78,67 @@ def instructor_admin(request):
 def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})
+
+
+@login_required
+def course(request):
+    if request.method == 'GET':
+        courses = Course.objects.all()
+        context = {'courses': courses}
+        return render(request, 'course.html', context)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, label_suffix='')
+        if form.is_valid():
+            form.save()
+        courses = Course.objects.all()
+        context = {'courses': courses}
+        return render(request, 'course.html', context)
+
+
+@login_required
+def delete_course(request, course_id):
+    # TODO: Use 'DELETE' method to delete course
+    if request.method == 'GET':
+        course = Course.objects.get(course_id=course_id)
+        course.delete()
+        return redirect('course')
+    else:
+        return redirect('course')
+
+
+@login_required
+def edit_course(request, course_id):
+    course = Course.objects.get(course_id=course_id)
+    if request.method == 'POST':
+        form = CourseForm(request.POST, instance=course, label_suffix='')
+
+        if form.is_valid():
+            course = form.save()
+        
+        return redirect('course')
+
+    else:
+        form = CourseForm(instance=course)
+
+    return render(request, 'edit_course.html', {'course': course, 'form': form})
+
+
+@login_required
+def member_list(request, course_id):
+    if request.method == 'GET':
+        register = Registration.objects.get(courses_id=course_id)
+        users = CustomUser.objects.all()
+        context = {'register': register, 'users': users}
+        return render(request, 'course_member.html', context)
+
+    if request.method == 'POST':
+        andrew_id = request.POST['andrew_id']
+        role = request.POST['membershipRadios']
+        course = Course.objects.get(course_id=course_id)
+        user = CustomUser.objects.get(andrew_id=andrew_id)
+        registration = Registration(users=user, courses=course, role=role)
+        registration.save()
+        register = Registration.objects.get(courses_id=course_id)
+        users = CustomUser.objects.all()
+        context = {'register': register, 'users': users}
+        return render(request, 'course_member.html', context)
