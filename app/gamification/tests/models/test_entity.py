@@ -82,7 +82,7 @@ class EntityTest(TestCase):
 
         course = Course(
             course_name='Course C',
-            course_id='888',
+            course_number='888',
             syllabus='Syllabus',
             semester='Semester',
         )
