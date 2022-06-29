@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'app.gamification',
-    # 'app.gamification.apps.GamificationConfig',
 ]
 
 MIDDLEWARE = [
