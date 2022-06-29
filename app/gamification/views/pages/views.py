@@ -83,23 +83,27 @@ def test(request):
 
 @login_required
 def course(request):
+    # TODO: Filter courses by user
     if request.method == 'GET':
         courses = Course.objects.all()
         context = {'courses': courses}
         return render(request, 'course.html', context)
     if request.method == 'POST':
-        form = CourseForm(request.POST, label_suffix='')
-        if form.is_valid():
-            form.save()
+        if request.user.is_staff:
+            form = CourseForm(request.POST, label_suffix='')
+            if form.is_valid():
+                form.save()
         courses = Course.objects.all()
         context = {'courses': courses}
         return render(request, 'course.html', context)
+
+# TODO: Add course detail view
 
 
 @login_required
 def delete_course(request, course_id):
     # TODO: Use 'DELETE' method to delete course
-    if request.method == 'GET':
+    if request.method == 'GET' and request.user.is_staff:
         course = Course.objects.get(pk=course_id)
         course.delete()
         return redirect('course')
@@ -110,7 +114,7 @@ def delete_course(request, course_id):
 @login_required
 def edit_course(request, course_id):
     course = Course.objects.get(pk=course_id)
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_staff:
         form = CourseForm(request.POST, request.FILES,
                           instance=course, label_suffix='')
 
@@ -127,6 +131,9 @@ def edit_course(request, course_id):
 
 @login_required
 def member_list(request, course_id):
+
+    if not request.user.is_staff:
+        return redirect('course')
 
     def get_member_list(course_id):
         course = Course.objects.get(pk=course_id)
@@ -179,7 +186,7 @@ def assignment(request, course_id):
         context = {'assignments': assignments, "course_id": course_id}
         return render(request, 'assignment.html', context)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_staff:
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()
@@ -187,11 +194,13 @@ def assignment(request, course_id):
         context = {'assignments': assignments, "course_id": course_id}
         return render(request, 'assignment.html', context)
 
+# TODO: Add assignment detail view
+
 
 @login_required
 def delete_assignment(request, course_id, assignment_id):
     # TODO: Use 'DELETE' method to delete assignment
-    if request.method == 'GET':
+    if request.method == 'GET' and request.user.is_staff:
         assignment = Assignment.objects.get(id=assignment_id)
         assignment.delete()
         return redirect('assignment', course_id)
@@ -202,7 +211,7 @@ def delete_assignment(request, course_id, assignment_id):
 @login_required
 def edit_assignment(request, course_id, assignment_id):
     assignment = Assignment.objects.get(id=assignment_id)
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_staff:
         form = AssignmentForm(
             request.POST, instance=assignment, label_suffix='')
 
@@ -223,7 +232,7 @@ def team(request, course_id):
         teams = Team.objects.filter(registration__courses=course).distinct()
         context = {'teams': teams}
         return render(request, 'team.html', context)
-    if request.method == 'POST':
+    if request.method == 'POST' and request.user.is_staff:
         form = TeamForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()

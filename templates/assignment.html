@@ -91,11 +91,13 @@
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
+                {% if user.is_staff %}
                 <td>
                   <a href="{% url 'delete_assignment' course_id assignment.id%}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
                   </a>
                 </td>
+                {% endif %}
               </tr>
             </tbody>
             {% endfor %}
@@ -104,6 +106,7 @@
       </div>
     </div>
   </div>
+  {% if user.is_staff %}
   <div class="col-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
@@ -121,5 +124,6 @@
       </div>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock content %}

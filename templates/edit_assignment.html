@@ -52,10 +52,12 @@
                 </div>
                 {% endfor %}
 
+                {% if user.is_staff %}
                 <div class="mt-3">
                   <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
                     type="submit">Save</button>
                 </div>
+                {% endif %}
               </form>
 
             </div>
