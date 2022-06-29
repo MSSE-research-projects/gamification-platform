@@ -90,9 +90,7 @@ def course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST, label_suffix='')
         if form.is_valid():
-            print('form is valid')
             form.save()
-        print(form.errors)
         courses = Course.objects.all()
         context = {'courses': courses}
         return render(request, 'course.html', context)
