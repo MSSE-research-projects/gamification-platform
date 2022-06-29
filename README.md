@@ -2,8 +2,8 @@
 
 This project aims to provide a platform where students can give feedback to 
 their classmates' presentation assignments, with specially designed gamification 
-elements to encourage students' engagement. It is based on Django 3.2 and MySQL 
-server database.
+elements to encourage students' engagement. It is based on Django 3.2 and
+PostgreSQL server database.
 
 # Developer Environment Setup
 
@@ -11,68 +11,80 @@ server database.
 
     It is suggested to create a brand-new virtual environment then `pip install -r requirements.txt`.
    
-    For Mac users, replace `mysqlclient==2.1.0` with `PyMySQL==1.0.2` in `requirements.txt` file. Then add the following lines to `config/__init__.py`
+    > **Deprecated**
+    > 
+    > For Mac users, replace `mysqlclient==2.1.0` with `PyMySQL==1.0.2` in `requirements.txt` file. Then add the following lines to `config/__init__.py`
+    >
+    > ```python
+    > import pymysql
+    > pymysql.install_as_MySQLdb()
+    > ```
+    >
+    > > Note: Don't forget to add `config/__init__.py` to your local 'ignore' file
+    > > list so as not to mess up the repo. Follow instructions in this [link](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files#excluding-local-files-without-creating-a-gitignore-file)
+    > > for how to ignore files locally.
+    >
+    > > What we are doing here is essentially changing the [MySQL driver](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers) for Django,
+    > since `mysqlclient` seems to have some compatiblity issues on Mac while [`PyMySQL`](https://pypi.org/project/PyMySQL/)
+    > is purely based on Python and will work on any platform. But `mysqlclient` is
+    > officially supported by Django in this [list](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers), so we will stick with it on other platforms.
 
-    ```python
-    import pymysql
-    pymysql.install_as_MySQLdb()
-    ```
+2. Install PostgreSQL server locally
 
-    > Note: Don't forget to add `config/__init__.py` to your local 'ignore' file
-    > list so as not to mess up the repo. Follow instructions in this [link](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files#excluding-local-files-without-creating-a-gitignore-file)
-    > for how to ignore files locally.
+    Follow the instructions [here](https://www.postgresql.org/download/) to 
+    install PostgreSQL compatible with your platform. PostgreSQL server's
+    version should be >= 9.6, as is required by Django 3.2.
 
-    > What we are doing here is essentially changing the [MySQL driver](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers) for Django,
-    since `mysqlclient` seems to have some compatiblity issues on Mac while [`PyMySQL`](https://pypi.org/project/PyMySQL/)
-    is purely based on Python and will work on any platform. But `mysqlclient` is
-    officially supported by Django in this [list](https://docs.djangoproject.com/en/3.2/ref/databases/#mysql-db-api-drivers), so we will stick with it on other platforms.
+3. Configure PostgreSQL server
 
-2. Install MySQL server locally
+    - Start PostgreSQL server
 
-    MySQL server's version should be >= 5.7, as is required by `mysqlclient` package.
+      Follow the instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html)
+      to start the local postgres server.
 
-3. Configure MySQL server
-
-    - Run `sudo mysql_secure_installation` if first-time installation of MySQL
-
-      It will take you through a series of prompts where you can make some 
-      changes to your MySQL installation's security options.
-    
-    - Add a user `dbuser`
-
-      Run `sudo mysql` to get into mysql shell. Then execute the following SQL
-      statements to add a user named `dbuser` with password as `dbuser`.
-
-      ```sql
-      CREATE USER 'dbuser'@'localhost' IDENTIFIED BY 'dbuser';
-      GRANT ALL PRIVILEGES ON *.* TO 'dbuser'@'localhost' WITH GRANT OPTION;
-      ```
-
-      After creating new user `dbuser`, we can login into mysql shell as this
-      new user with command `mysql -u dbuser -p` and then enter the password.
-    
     - Create a database `dev`
 
-      Run `sudo mysql` to get into mysql shell as `root` user (or `mysql -u dbuser -p`
-      as `dbuser`). Then execute the following SQL statement to add a new
-      database called `dev`.
+      Run `sudo -u postgres psql` to get into psql shell as `postgres` user.
+      Then execute the following SQL statement to add a new database called `dev`.
 
       ```sql
       CREATE DATABASE dev;
       ```
 
-      You can check the available databases with SQL statement:
+      You can view all available psql commands by tying `\?`. Some common commands are:
+      - `\l`: list all databases;
+      - `\c <DATABASE_NAME>`: connect to a database;
+      - `\dt`: list all tables in current database;
+      - `\d <TABLE_NAME>`: describe table info;
+      - `\q`: quit the shell;
+    
+    - Add a user `dbuser`
+
+      Run `sudo -u postgres psql` to get into psql shell. Then execute the
+      following SQL statements to add a user named `dbuser` with password as
+      `dbuser`, and grant all privileges on table `dev` to `dbuser`.
 
       ```sql
-      SHOW DATABASES;
+      CREATE USER dbuser WITH PASSWORD 'dbuser';
+      GRANT ALL PRIVILEGES ON DATABASE dev TO dbuser;
       ```
 
-      or check the tables inside `dev` database with SQL statement:
+      Afterwards, you can modify a few of the connection parameters for the
+      `dbuser` you just created. This will speed up database operations so that
+      the correct values do not have to be queried and set each time a
+      connection is established.
 
       ```sql
-      USE dev;
-      SHOW TABLES;
+      ALTER ROLE dbuser SET client_encoding TO 'utf8';
+      ALTER ROLE dbuser SET default_transaction_isolation TO 'read committed';
+      ALTER ROLE dbuser SET timezone TO 'UTC';
       ```
+
+      After creating new user `dbuser`, we can login into psql shell as this
+      new user with command `psql -h localhost -d dev -U dbuser` and then enter
+      the password.
+    
+    
 
 4. Configure environment variables
 
