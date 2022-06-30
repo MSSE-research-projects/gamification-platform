@@ -99,23 +99,16 @@ class CourseForm(forms.ModelForm):
                 registration = Registration(
                     users=user, courses=course, userRole=Registration.UserRole.Student)
                 registration.save()
-                if(len(Team.objects.filter(name=i.get('Team Name'))) != 0):
-                    team = Team.objects.get(name=i.get('Team Name'))
-                else:
-                    team = Team(name=i.get('Team Name'))
-                team.save()
-                entity = Entity.objects.get(pk=team.entity_ptr_id)
-                membership = Membership(student=registration, entity=entity)
+                try:
+                    team = Team.objects.get(
+                        course=course, name=i.get('Team Name'))
+                except Team.DoesNotExist:
+                    team = Team(course=course, name=i.get('Team Name'))
+                    team.save()
+                membership = Membership(student=registration, entity=team)
                 membership.save()
 
         return course
-
-
-class RegistrationForm(forms.ModelForm):
-
-    class Meta:
-        model = Registration
-        fields = ('users', 'courses', 'userRole')
 
 
 class AssignmentForm(forms.ModelForm):
@@ -131,4 +124,4 @@ class TeamForm(forms.ModelForm):
 
     class Meta:
         model = Team
-        fields = ('name',)
+        fields = ('name', 'course')

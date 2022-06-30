@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render
 from app.gamification.models import registration
 
 from ...forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, TeamForm
-from ...models import Assignment, Course, CustomUser, Registration, Entity, Team
+from ...models import Assignment, Course, CustomUser, Registration, Entity, Team, Membership
 
 
 def signup(request):
@@ -128,7 +128,6 @@ def edit_course(request, course_id):
 
     return render(request, 'edit_course.html', {'course': course, 'form': form})
 
-
 @login_required
 def member_list(request, course_id):
 
@@ -137,43 +136,65 @@ def member_list(request, course_id):
 
     def get_member_list(course_id):
         course = Course.objects.get(pk=course_id)
-        users = []
-        users.extend(course.students)
-        users.extend(course.TAs)
-        return users
+        registration = Registration.objects.filter(courses=course)
+        membership = []        
+        #andrewID, Role, Team
+        for i in registration:
+            try:
+                if len(Team.objects.filter(registration=i)) > 1:
+                    team = Team.objects.filter(registration=i)[len(Team.objects.filter(registration=i)) - 1].name
+                else:
+                    team = Team.objects.get(registration=i).name
+            except Team.DoesNotExist:
+                team = ''
+            membership.append([i.users.andrew_id, i.userRole, team])
+        context = {'membership': membership}
+        return context
 
     if request.method == 'GET':
-
-        users = get_member_list(course_id)
-        register = Registration.objects.filter(
-            courses__pk=course_id, users__in=users)
-
-        context = {'register': register, 'users': users}
+        context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
 
     if request.method == 'POST':
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
+        team_name = request.POST['team_name']
         course = Course.objects.get(pk=course_id)
-        user = CustomUser.objects.get(andrew_id=andrew_id)
-
-        if user not in get_member_list(course_id):
+        try:
+            user = CustomUser.objects.get(andrew_id=andrew_id)
+        except CustomUser.DoesNotExist:
+            #TODO: print error message
+            print('error')
+        users = []
+        users.extend(course.students)
+        users.extend(course.TAs)
+        if user not in users:
             registration = Registration(
                 users=user, courses=course, userRole=role)
             registration.save()
-
-            users = get_member_list(course_id)
-            register = Registration.objects.filter(
-                courses__pk=course_id, users__in=users)
-            context = {'register': register, 'users': users}
-
+            try:
+                team = Team.objects.get(
+                    course=course, name=team_name)
+            except Team.DoesNotExist:
+                team = Team(course=course, name=team_name)
+                team.save()
+            membership = Membership(student=registration, entity=team)
+            membership.save()
+            # Re-get all members
+            context = get_member_list(course_id)
             return render(request, 'course_member.html', context)
         else:
-            users = get_member_list(course_id)
-            register = Registration.objects.filter(
-                courses__pk=course_id, users__in=users)
-            context = {'register': register, 'users': users}
-
+            registration = Registration.objects.get(users=user, courses=course)
+            try:
+                team = Team.objects.get(
+                    course=course, name=team_name)
+            except Team.DoesNotExist:
+                team = Team(course=course, name=team_name)
+                team.save()
+            membership = Membership(student=registration, entity=team)
+            membership.save()
+            #TODO error message
+            context = get_member_list(course_id)
             return render(request, 'course_member.html', context)
 
 
@@ -224,18 +245,4 @@ def edit_assignment(request, course_id, assignment_id):
     return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
 
 
-@login_required
-def team(request, course_id):
-    course = Course.objects.get(pk=course_id)
 
-    if request.method == 'GET':
-        teams = Team.objects.filter(registration__courses=course).distinct()
-        context = {'teams': teams}
-        return render(request, 'team.html', context)
-    if request.method == 'POST' and request.user.is_staff:
-        form = TeamForm(request.POST, label_suffix='')
-        if form.is_valid():
-            form.save()
-        teams = Team.objects.filter(registration__courses=course).distinct()
-        context = {'teams': teams}
-        return render(request, 'team.html', context)

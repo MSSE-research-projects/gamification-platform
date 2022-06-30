@@ -51,8 +51,6 @@ urlpatterns = [
                 ]))
             ])),
 
-            path('team/', page_views.team, name='team'),
-
             path('member_list/', page_views.member_list, name='member_list'),
         ])),
     ])),

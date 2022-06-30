@@ -7,6 +7,7 @@ from app.gamification.models.registration import Registration
 
 
 class Entity(models.Model):
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
     registration = models.ManyToManyField(Registration, through='Membership')
 
     class Meta:

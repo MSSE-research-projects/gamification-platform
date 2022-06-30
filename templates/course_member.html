@@ -20,24 +20,21 @@
                 <th>
                   Student/TA
                 </th>
+                <th>
+                  Team
+                </th>
               </tr>
             </thead>
             <tbody>
               {% csrf_token %}
-              {% for re in register %}
-              {% for user in users %}
-              {% if re.users.pk == user.pk %}
+              {% for member in membership %}
               <tr>
+                {% for e in member %}
                 <td class="py-1">
-                  {{ user.andrew_id}}
+                  {{ e }}
                 </td>
-                <td>
-                  {{ re.userRole}}
-                </td>
-                </td>
+                {% endfor %}
               </tr>
-              {% endif %}
-              {% endfor %}
               {% endfor %}
             </tbody>
           </table>
@@ -55,6 +52,10 @@
           <div class="form-group">
             <label for="course-name">Andrew ID</label>
             <input type="text" name="andrew_id" class="form-control" id="course-andrew_id" placeholder="Andrew ID">
+          </div>
+          <div class="form-group">
+            <label for="team-name">Team Name</label>
+            <input type="text" name="team_name" class="form-control" id="team_name" placeholder="Team Name(optional)">
           </div>
           <div class="col-md-6">
             <div class="form-group row">

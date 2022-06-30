@@ -51,11 +51,6 @@
                 </td>
                 {% if user.is_staff %}
                 <td>
-                  <a href="{% url 'team' course.id %}">
-                    <button type="button" class="btn-sm btn-primary">Teams</button>
-                  </a>
-                </td>
-                <td>
                   <a href="{% url 'member_list' course.id %}">
                     <button type="button" class="btn-sm btn-primary">Members</button>
                   </a>
