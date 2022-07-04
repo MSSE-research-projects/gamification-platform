@@ -48,7 +48,14 @@
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
-          <h4 class="card-title">Add Member</h4>
+          <h4 class="card-title">Add Member/ Add Team</h4>
+          {% if messages %}
+          <ul class="messages">
+              {% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+              {% endfor %}
+          </ul>
+          {% endif %}
           <div class="form-group">
             <label for="course-name">Andrew ID</label>
             <input type="text" name="andrew_id" class="form-control" id="course-andrew_id" placeholder="Andrew ID">
@@ -60,7 +67,7 @@
           <div class="col-md-6">
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Role</label>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <div class="form-check">
                   <label class="form-check-label">
                     <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1"
@@ -69,7 +76,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-sm-5">
+              <div class="col-sm-3">
                 <div class="form-check">
                   <label class="form-check-label">
                     <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2"
@@ -78,10 +85,10 @@
                   </label>
                 </div>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
                 <div class="form-check">
                   <label class="form-check-label">
-                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2"
+                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios3"
                       value="Instructor">
                     Instructor
                   </label>

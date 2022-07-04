@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
-
+from django.contrib import messages
 from app.gamification.models import registration
 
 from ...forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, TeamForm
@@ -162,40 +162,44 @@ def member_list(request, course_id):
         course = Course.objects.get(pk=course_id)
         try:
             user = CustomUser.objects.get(andrew_id=andrew_id)
+            users = []
+            users.extend(course.students)
+            users.extend(course.TAs)
+            if user not in users:
+                registration = Registration(
+                    users=user, courses=course, userRole=role)
+                registration.save()
+                try:
+                    team = Team.objects.get(
+                        course=course, name=team_name)
+                except Team.DoesNotExist:
+                    team = Team(course=course, name=team_name)
+                    team.save()
+                membership = Membership(student=registration, entity=team)
+                membership.save()
+                # Re-get all members
+                context = get_member_list(course_id)
+                messages.info(request, 'A new mamber has been added')
+                return render(request, 'course_member.html', context)
+            else:
+                registration = Registration.objects.get(users=user, courses=course)
+                try:
+                    team = Team.objects.get(
+                        course=course, name=team_name)
+                except Team.DoesNotExist:
+                    team = Team(course=course, name=team_name)
+                    team.save()
+                membership = Membership(student=registration, entity=team)
+                membership.save()
+                context = get_member_list(course_id)
+                messages.info(request, andrew_id + '\'s team has been added or updated')
+                return render(request, 'course_member.html', context)
         except CustomUser.DoesNotExist:
             #TODO: print error message
-            print('error')
-        users = []
-        users.extend(course.students)
-        users.extend(course.TAs)
-        if user not in users:
-            registration = Registration(
-                users=user, courses=course, userRole=role)
-            registration.save()
-            try:
-                team = Team.objects.get(
-                    course=course, name=team_name)
-            except Team.DoesNotExist:
-                team = Team(course=course, name=team_name)
-                team.save()
-            membership = Membership(student=registration, entity=team)
-            membership.save()
-            # Re-get all members
+            messages.info(request, 'Invalid or unexist andrewID')
             context = get_member_list(course_id)
             return render(request, 'course_member.html', context)
-        else:
-            registration = Registration.objects.get(users=user, courses=course)
-            try:
-                team = Team.objects.get(
-                    course=course, name=team_name)
-            except Team.DoesNotExist:
-                team = Team(course=course, name=team_name)
-                team.save()
-            membership = Membership(student=registration, entity=team)
-            membership.save()
-            #TODO error message
-            context = get_member_list(course_id)
-            return render(request, 'course_member.html', context)
+
 
 
 @login_required
