@@ -128,12 +128,10 @@ def edit_course(request, course_id):
 
     return render(request, 'edit_course.html', {'course': course, 'form': form})
 
+
 @login_required
 def member_list(request, course_id):
-
-    if not request.user.is_staff:
-        return redirect('course')
-
+    
     def get_member_list(course_id):
         course = Course.objects.get(pk=course_id)
         registration = Registration.objects.filter(courses=course)
@@ -148,13 +146,14 @@ def member_list(request, course_id):
             except Team.DoesNotExist:
                 team = ''
             membership.append([i.users.andrew_id, i.userRole, team])
-        context = {'membership': membership}
+        context = {'membership': membership, 'course_id': course_id}
         return context
 
+    if not request.user.is_staff:
+        return redirect('course')
     if request.method == 'GET':
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
-
     if request.method == 'POST':
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
@@ -195,11 +194,21 @@ def member_list(request, course_id):
                 messages.info(request, andrew_id + '\'s team has been added or updated')
                 return render(request, 'course_member.html', context)
         except CustomUser.DoesNotExist:
-            #TODO: print error message
             messages.info(request, 'Invalid or unexist andrewID')
             context = get_member_list(course_id)
             return render(request, 'course_member.html', context)
 
+@login_required
+def delete_member(request, course_id, andrew_id):
+    if request.method == 'GET':
+        user = CustomUser.objects.get(andrew_id=andrew_id)
+        registration = Registration.objects.get(users = user)
+        membership = Membership.objects.filter(student = registration)
+        membership.delete()
+        registration.delete()
+        return redirect('member_list', course_id)
+    else:
+        return redirect('member_list', course_id)
 
 
 @login_required

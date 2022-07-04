@@ -51,7 +51,13 @@ urlpatterns = [
                 ]))
             ])),
 
-            path('member_list/', page_views.member_list, name='member_list'),
+            path('member_list/', include([
+                path('', page_views.member_list, name='member_list'),
+                path('<str:andrew_id>/', include([
+                    path('delete/', page_views.delete_member,
+                         name='delete_member'),
+                ]))
+            ])),
         ])),
     ])),
 
