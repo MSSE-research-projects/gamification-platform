@@ -131,7 +131,7 @@ def edit_course(request, course_id):
 
 @login_required
 def member_list(request, course_id):
-    
+
     def get_member_list(course_id):
         course = Course.objects.get(pk=course_id)
         registration = Registration.objects.filter(courses=course)
@@ -146,6 +146,7 @@ def member_list(request, course_id):
             except Team.DoesNotExist:
                 team = ''
             membership.append([i.users.andrew_id, i.userRole, team])
+        membership = sorted(membership, key=lambda x: x[2])
         context = {'membership': membership, 'course_id': course_id}
         return context
 
