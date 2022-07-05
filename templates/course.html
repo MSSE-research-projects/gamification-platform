@@ -57,10 +57,17 @@
                 </td>
                 {% endif %}
                 <td>
-                  <a href="{% url 'edit_course' course.id %}">
+                  <a href="{% url 'view_course' course.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
+                {% if user.is_staff %}
+                <td>
+                  <a href="{% url 'edit_course' course.id %}">
+                    <button type="button" class="btn-sm btn-primary">edit</button>
+                  </a>
+                </td>
+                {% endif %}
                 {% if user.is_staff %}
                 <td>
                   <a href="{% url 'delete_course' course.id %}">

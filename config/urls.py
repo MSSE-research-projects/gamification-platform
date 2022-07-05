@@ -40,6 +40,7 @@ urlpatterns = [
         path('<int:course_id>/', include([
             path('delete/', page_views.delete_course, name='delete_course'),
             path('edit/', page_views.edit_course, name='edit_course'),
+            path('view/', page_views.view_course, name='view_course'),
 
             path('assignment/', include([
                 path('', page_views.assignment, name='assignment'),

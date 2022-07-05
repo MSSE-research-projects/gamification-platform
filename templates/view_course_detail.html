@@ -1,0 +1,33 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+
+<div class="col-md-6 d-flex align-items-stretch" style="margin-left: 10px;">
+      <div class="col-md-12 grid-margin stretch-card">
+        <div style="position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 100%;
+        word-wrap: break-word;
+        background-color: #fff;
+       ">
+          <div class="card-body">
+            <h2> {{ course.course_name }} {{ course.course_number }}</h2>
+            <p class="card-description">
+              {{ course.semester }}
+            </p>
+            <h3 class="card-title"> Course Syllabus:  </h3>
+            {% for paragraph in syllabus %}
+            <p>
+                {{ paragraph }}
+            </p>
+            {% endfor %}
+          </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

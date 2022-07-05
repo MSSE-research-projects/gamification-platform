@@ -97,8 +97,6 @@ def course(request):
         context = {'courses': courses}
         return render(request, 'course.html', context)
 
-# TODO: Add course detail view
-
 
 @login_required
 def delete_course(request, course_id):
@@ -127,6 +125,14 @@ def edit_course(request, course_id):
         form = CourseForm(instance=course)
 
     return render(request, 'edit_course.html', {'course': course, 'form': form})
+
+@login_required
+def view_course(request, course_id):
+    course = Course.objects.get(pk=course_id)
+    if request.method == 'GET':
+        syllabus = course.syllabus.split('\n')
+        context = {'course': course, 'syllabus': syllabus}
+        return render(request, 'view_course_detail.html', context)
 
 
 @login_required
@@ -195,7 +201,7 @@ def member_list(request, course_id):
                 messages.info(request, andrew_id + '\'s team has been added or updated')
                 return render(request, 'course_member.html', context)
         except CustomUser.DoesNotExist:
-            messages.info(request, 'Invalid or unexist andrewID')
+            messages.info(request, 'AndrewID does not exist')
             context = get_member_list(course_id)
             return render(request, 'course_member.html', context)
 
