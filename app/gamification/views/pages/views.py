@@ -220,8 +220,7 @@ def assignment(request, course_id):
 
 @login_required
 def delete_assignment(request, course_id, assignment_id):
-    # TODO: Use 'DELETE' method to delete assignment
-    if request.method == 'GET' and request.user.is_staff:
+    if request.method == 'DELETE' and request.user.is_staff:
         assignment = Assignment.objects.get(id=assignment_id)
         assignment.delete()
         return redirect('assignment', course_id)
