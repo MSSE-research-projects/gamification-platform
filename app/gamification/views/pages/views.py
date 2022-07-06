@@ -100,7 +100,6 @@ def course(request):
 
 @login_required
 def delete_course(request, course_id):
-    # TODO: Use 'DELETE' method to delete course
     if request.method == 'GET' and request.user.is_staff:
         course = Course.objects.get(pk=course_id)
         course.delete()
