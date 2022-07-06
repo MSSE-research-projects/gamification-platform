@@ -23,7 +23,7 @@ class AddMemberTest(TestCase):
             'course_number': test_course_number,
         }
         self.response = self.client.post(self.url, self.data)
-        self.course_pk = self.response.context.get('courses')[0].pk
+        self.course_pk = self.response.context.get('registration')[0].courses.pk
 
     def test_add_member(self):
         self.url = reverse('member_list', args = [self.course_pk])
@@ -37,9 +37,9 @@ class AddMemberTest(TestCase):
         }
         self.response = self.client.post(self.url, self.data)
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context.get('membership')[0][0], test_member_andrewId)
-        self.assertEqual(self.response.context.get('membership')[0][1], test_member_role)
-        self.assertEqual(self.response.context.get('membership')[0][2], test_member_team)
+        self.assertEqual(self.response.context.get('membership')[1]['andrew_id'], test_member_andrewId)
+        self.assertEqual(self.response.context.get('membership')[1]['userRole'], test_member_role)
+        self.assertEqual(self.response.context.get('membership')[1]['team'], test_member_team)
     
     def test_add_inexistent_member(self):
         self.url = reverse('member_list', args = [self.course_pk])
@@ -53,13 +53,13 @@ class AddMemberTest(TestCase):
         }
         self.response = self.client.post(self.url, self.data)
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context.get('membership'), [])
+        self.assertEqual(self.response.context.get('membership'), [{'andrew_id': 'andrew_id', 'userRole': 'Instructor', 'team': ''}])
     
     def test_add_member_without_team(self):
         #andrewID, Role, Team
         self.url = reverse('member_list', args = [self.course_pk])
         test_member_andrewId = 'exist_id'
-        test_member_team = None
+        test_member_team = ''
         test_member_role = 'Student'
         self.data = {
             'andrew_id': test_member_andrewId,
@@ -68,14 +68,14 @@ class AddMemberTest(TestCase):
         }
         self.response = self.client.post(self.url, self.data)
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context.get('membership')[0][0], test_member_andrewId)
-        self.assertEqual(self.response.context.get('membership')[0][1], test_member_role)
-        self.assertEqual(self.response.context.get('membership')[0][1], test_member_team)
+        self.assertEqual(self.response.context.get('membership')[1]['andrew_id'], test_member_andrewId)
+        self.assertEqual(self.response.context.get('membership')[1]['userRole'], test_member_role)
+        self.assertEqual(self.response.context.get('membership')[1]['team'], test_member_team)
 
-    def test_add_member_without_team(self):
+    def test_add_team_without_andrewID(self):
         #andrewID, Role, Team
         self.url = reverse('member_list', args = [self.course_pk])
-        test_member_andrewId = None
+        test_member_andrewId = ''
         test_member_team = 'T1'
         test_member_role = 'Student'
         self.data = {
@@ -123,7 +123,7 @@ class DeleteMemberTest(TestCase):
             'course_number': test_course_number,
         }
         self.response = self.client.post(self.url, self.data)
-        self.course_pk = self.response.context.get('courses')[0].pk
+        self.course_pk = self.response.context.get('registration')[0].courses.pk
         self.url = reverse('member_list', args = [self.course_pk])
         test_member_andrewId = 'exist_id'
         test_member_team = 'T1'
@@ -139,7 +139,7 @@ class DeleteMemberTest(TestCase):
         self.url = reverse('delete_member', args = [self.course_pk, 'exist_id'])
         self.client.get(self.url)
         registratiton = Registration.objects.all()
-        self.assertEqual(0, len(registratiton))
+        self.assertEqual(1, len(registratiton))
     
     def test_delete_member_not_superuser(self):
         test_andrew_id = 'andrew_id_1'
@@ -149,5 +149,5 @@ class DeleteMemberTest(TestCase):
         self.url = reverse('delete_member', args = [self.course_pk, 'exist_id'])
         self.client.get(self.url)
         registratiton = Registration.objects.all()
-        self.assertEqual(1, len(registratiton))
+        self.assertEqual(2, len(registratiton))
         

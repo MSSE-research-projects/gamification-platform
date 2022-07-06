@@ -29,13 +29,18 @@
               {% csrf_token %}
               {% for member in membership %}
               <tr>
-                {% for e in member %}
                 <td class="py-1">
-                  {{ e }}
+                 {{member.andrew_id}} 
                 </td>
-                {% endfor %}
+                <td class="py-1">
+                  {{member.userRole}}
+                </td>
+                <td class="py-1">
+                  {{member.team}}
+                </td>
+
                 <td>
-                  <a href="{% url 'delete_member' course_id member.0%}">
+                  <a href="{% url 'delete_member' course_id member.andrew_id%}">
                     <button type="button" class="btn-sm btn-primary">Delete</button>
                   </a>
                 </td>
