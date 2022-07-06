@@ -138,7 +138,7 @@ class InvalidAssignmentTest(TestCase):
         self.response = self.client.get(self.url)
         self.assertEqual(self.response.status_code, 404)
         
-    def test_add_assignment_invalid(self):
+    def test_add_assignment_without_assignment_name(self):
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
         self.assignment_data = {
@@ -147,8 +147,18 @@ class InvalidAssignmentTest(TestCase):
         }
         self.response = self.client.post(self.url, data=self.assignment_data)
         self.assertEqual(self.response.status_code, 200)
-        # TO-DO: check for error message
+        # TO-DO: return error message when assignment name is empty
         # self.assertFormError(self.response, 'form', 'assignment_name', 'This field is required.')
+    
+    def test_add_assignment_invalid_course_id(self):
+        course_id = Course.objects.get(course_name='testName').pk
+        course_id += 1 # invalid course id
+        self.url = reverse('assignment', kwargs={'course_id': course_id})
+        self.assignment_data = {
+            'assignment_name': 'testNameAssignment',
+        }
+        self.response = self.client.post(self.url, data=self.assignment_data)
+        self.assertEqual(self.response.status_code, 404)
     
     def test_edit_assignment_with_invalid_date_format(self):
         # add an assignment first
@@ -283,7 +293,36 @@ class InvalidAssignmentTest(TestCase):
         self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignmentEdited').exists())
         
     def test_edit_assignment_with_invalid_submission_type(self):
-        pass
+        # add an assignment first
+        course_id = Course.objects.get(course_name='testName').pk
+        self.url = reverse('assignment', kwargs={'course_id': course_id})
+        self.assignment_data = {
+            'assignment_name': 'testNameAssignment',
+            'course': course_id,
+        }
+        self.response = self.client.post(self.url, data=self.assignment_data)
+        self.assertEqual(self.response.status_code, 200)
+        self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
+        
+        # edit the assignment
+        assignment_id = Assignment.objects.get(assignment_name = 'testNameAssignment').pk
+        self.url = reverse('edit_assignment', kwargs={'course_id': course_id, 'assignment_id': assignment_id})
+        self.edit_assignment_data = {
+            'course': course_id,
+            'assignment_name': 'testNameAssignmentEdited',
+            'description': 'testDescription',
+            'assignment_type': 'Individual',
+            'submission_type': 'InvalidInputTest', # invalid submission type
+            'total_score': '100',
+            'weight': '100',
+            'date_created': '2022-07-06 01:40:03',
+            'date_released': '2022-07-06 01:40:03',
+            'date_due': '2022-07-06 01:40:03',
+            'review_assign_policy': 'A',
+        }
+        self.response = self.client.post(self.url, data=self.edit_assignment_data)
+        self.assertEqual(self.response.status_code, 200)
+        self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignmentEdited').exists())
     
     def test_delete_assignment_not_exist(self):
         # add an assignment first
@@ -304,17 +343,6 @@ class InvalidAssignmentTest(TestCase):
         self.response = self.client.delete(self.url)
         self.assertEqual(self.response.status_code, 404)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
-    
-    
-    def test_add_assignment_invalid_course_id(self):
-        course_id = Course.objects.get(course_name='testName').pk
-        course_id += 1 # invalid course id
-        self.url = reverse('assignment', kwargs={'course_id': course_id})
-        self.assignment_data = {
-            'assignment_name': 'testNameAssignment',
-        }
-        self.response = self.client.post(self.url, data=self.assignment_data)
-        self.assertEqual(self.response.status_code, 404)
         
     def test_delete_assignment_invalid_course_id(self):
         # add an assignment first
