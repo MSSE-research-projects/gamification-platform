@@ -11,10 +11,38 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            <a href="{% url 'assignment' course_id %}"><button type="button"
+            <div class="col-lg-8">
+              <div class="border-bottom text-center pb-4">
+                {% comment %} <h3>course: {{ assignment.id }}</h3> {% endcomment %}
+                <p> </p>
+                {% if assignment.assignment_name %}
+                  <h2>{{ assignment.assignment_name }}</h2>
+                {% else %}
+                  <h2>Course Name Not Exist</h2>
+                {% endif %}
+              </div>
+              <div class="border-bottom text-center pb-4">
+                <p> </p>
+                <p3><b>type:</b> {{ assignment.assignment_type }} <b>submission:</b> {{ assignment.submission_type }}</p>
+                <p4><b>total Score:</b> {{ assignment.total_score }} <b>weight:</b> {{ assignment.weight }}% <b>date due:</b> {{ assignment.date_due }}</p>
+              </div>
+              <div class="border-bottom pb-4">
+                <p> </p>
+                {% comment %} <p><b>Policy:</b> {{ assignment.review_assign_policy }}</p> {% endcomment %}
+                <p3><b>Description:</b></p>
+                <p>{{ assignment.description|linebreaksbr }}</p>
+              </div>
+              <p> </p>
+              <a href="{% url 'assignment' course_id %}"><button type="button"
                 class="btn btn-outline-primary">Back</button></a>
-            <div class="col-lg-12">
-              <p>assignment_id: {{ assignment.id }}</p>
+            </div>
+            <div class="col-lg-4">
+              <div class="border-bottom py-4">
+                <p>Reserved place</p>
+                <div>
+                  <p> Rfsfdfsdfsdfsdfsdfsdf</p>  
+                </div>                                                               
+              </div>
             </div>
           </div>
         </div>
