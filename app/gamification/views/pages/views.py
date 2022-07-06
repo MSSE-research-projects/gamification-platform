@@ -206,7 +206,7 @@ def member_list(request, course_id):
 
 @login_required
 def delete_member(request, course_id, andrew_id):
-    if request.method == 'GET':
+    if request.method == 'GET' and request.user.is_staff:
         user = CustomUser.objects.get(andrew_id=andrew_id)
         registration = Registration.objects.get(users = user)
         membership = Membership.objects.filter(student = registration)
