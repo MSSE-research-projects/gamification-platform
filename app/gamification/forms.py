@@ -93,6 +93,8 @@ class CourseForm(forms.ModelForm):
                 if(len(CustomUser.objects.filter(andrew_id=i.get('Student ID'))) == 0):
                     user = CustomUser.objects.create_user(
                         andrew_id=i.get('Student ID'), email=i.get('Email'))
+                    user.set_password('6666')
+                    user.save()
                 else:
                     user = CustomUser.objects.get(
                         andrew_id=i.get('Student ID'))

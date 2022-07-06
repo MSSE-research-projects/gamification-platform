@@ -32,8 +32,8 @@ class AddCourseTest(TestCase):
         }
         self.response = self.client.post(self.url, self.data)
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(self.response.context.get('courses')[0].course_name, test_course_name)
-        self.assertEqual(self.response.context.get('courses')[0].course_number, test_course_number)
+        self.assertEqual(self.response.context.get('registration')[0].courses.course_name, test_course_name)
+        self.assertEqual(self.response.context.get('registration')[0].courses.course_number, test_course_number)
         
 
 class InvalidAddCourseTest(TestCase):

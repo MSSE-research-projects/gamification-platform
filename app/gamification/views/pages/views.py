@@ -87,16 +87,19 @@ def test(request):
 def course(request):
     # TODO: Filter courses by user
     if request.method == 'GET':
-        courses = Course.objects.all()
-        context = {'courses': courses}
+        registration = Registration.objects.filter(users = request.user)
+        context = {'registration': registration}
         return render(request, 'course.html', context)
     if request.method == 'POST':
         if request.user.is_staff:
             form = CourseForm(request.POST, label_suffix='')
             if form.is_valid():
-                form.save()
-        courses = Course.objects.all()
-        context = {'courses': courses}
+                course = form.save()            
+            registration = Registration(
+                users=request.user, courses=course, userRole='Instructor')
+            registration.save()
+        registration = Registration.objects.filter(users = request.user)
+        context = {'registration': registration}
         return render(request, 'course.html', context)
 
 
@@ -152,8 +155,8 @@ def member_list(request, course_id):
                     team = Team.objects.get(registration=i).name
             except Team.DoesNotExist:
                 team = ''
-            membership.append([i.users.andrew_id, i.userRole, team])
-        membership = sorted(membership, key=lambda x: x[2])
+            membership.append({'andrew_id':i.users.andrew_id, 'userRole':i.userRole, 'team':team})
+        membership = sorted(membership, key=lambda x: x['team'])
         context = {'membership': membership, 'course_id': course_id}
         return context
 
