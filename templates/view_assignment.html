@@ -1,0 +1,25 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Assignment{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <a href="{% url 'assignment' course_id %}"><button type="button"
+                class="btn btn-outline-primary">Back</button></a>
+            <div class="col-lg-12">
+              <p>assignment_id: {{ assignment.id }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

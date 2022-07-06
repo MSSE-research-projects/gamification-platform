@@ -9,6 +9,8 @@ from app.gamification.models import registration
 from ...forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, TeamForm
 from ...models import Assignment, Course, CustomUser, Registration, Entity, Team, Membership
 
+from django.shortcuts import get_object_or_404
+
 
 def signup(request):
     if request.method == 'POST':
@@ -219,7 +221,8 @@ def delete_member(request, course_id, andrew_id):
 
 @login_required
 def assignment(request, course_id):
-    course = Course.objects.get(pk=course_id)
+    course = get_object_or_404(Course, pk=course_id)
+    # course = Course.objects.get(pk=course_id)
 
     if request.method == 'GET':
         assignments = Assignment.objects.filter(course=course)
@@ -239,9 +242,9 @@ def assignment(request, course_id):
 
 @login_required
 def delete_assignment(request, course_id, assignment_id):
-    # TODO: Use 'DELETE' method to delete assignment
-    if request.method == 'GET' and request.user.is_staff:
-        assignment = Assignment.objects.get(id=assignment_id)
+    if request.method == 'DELETE' and request.user.is_staff:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        # assignment = Assignment.objects.get(id=assignment_id)
         assignment.delete()
         return redirect('assignment', course_id)
     else:
@@ -250,18 +253,25 @@ def delete_assignment(request, course_id, assignment_id):
 
 @login_required
 def edit_assignment(request, course_id, assignment_id):
-    assignment = Assignment.objects.get(id=assignment_id)
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    # assignment = Assignment.objects.get(id=assignment_id)
     if request.method == 'POST' and request.user.is_staff:
         form = AssignmentForm(
             request.POST, instance=assignment, label_suffix='')
 
         if form.is_valid():
             assignment = form.save()
-
-    else:
+        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
+    
+    if request.method == 'GET' and request.user.is_staff:
         form = AssignmentForm(instance=assignment)
+        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
+        
+    else:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
 
-    return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
+    
 
 
 
