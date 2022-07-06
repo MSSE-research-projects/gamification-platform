@@ -59,7 +59,7 @@ class AddMemberTest(TestCase):
         #andrewID, Role, Team
         self.url = reverse('member_list', args = [self.course_pk])
         test_member_andrewId = 'exist_id'
-        test_member_team = None
+        test_member_team = ''
         test_member_role = 'Student'
         self.data = {
             'andrew_id': test_member_andrewId,
@@ -70,12 +70,12 @@ class AddMemberTest(TestCase):
         self.assertEqual(self.response.status_code, 200)
         self.assertEqual(self.response.context.get('membership')[0][0], test_member_andrewId)
         self.assertEqual(self.response.context.get('membership')[0][1], test_member_role)
-        self.assertEqual(self.response.context.get('membership')[0][1], test_member_team)
+        self.assertEqual(self.response.context.get('membership')[0][2], test_member_team)
 
-    def test_add_member_without_team(self):
+    def test_add_team_without_andrewId(self):
         #andrewID, Role, Team
         self.url = reverse('member_list', args = [self.course_pk])
-        test_member_andrewId = None
+        test_member_andrewId = ''
         test_member_team = 'T1'
         test_member_role = 'Student'
         self.data = {
