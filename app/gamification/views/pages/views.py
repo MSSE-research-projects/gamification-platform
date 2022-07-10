@@ -179,7 +179,7 @@ def member_list(request, course_id):
                 registration = Registration(
                     users=user, courses=course, userRole=role)
                 registration.save()
-                if team_name != '':
+                if team_name != '' and registration.userRole != 'Student':
                     try:
                         team = Team.objects.get(
                             course=course, name=team_name)
@@ -195,7 +195,7 @@ def member_list(request, course_id):
             else:
                 registration = Registration.objects.get(
                     users=user, courses=course)
-                if team_name != '':
+                if team_name != '' and registration.userRole != 'Student':
                     try:
                         team = Team.objects.get(
                             course=course, name=team_name)
