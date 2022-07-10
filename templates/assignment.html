@@ -9,89 +9,94 @@
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">assignments</h4>
+        <h4 class="card-title">{{ course.course_name}} - {{ course.course_number}} - Assignments</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
-                <th>
+                {% comment %} <th>
                   course_id
-                </th>
+                </th> {% endcomment %}
                 <th>
                   assignment_name
                 </th>
-                <th>
+                {% comment %} <th>
                   description
-                </th>
+                </th> {% endcomment %}
                 <th>
                   assignment_type
                 </th>
-                <th>
+                {% comment %} <th>
                   submission_type
-                </th>
+                </th> {% endcomment %}
                 <th>
                   total_score
                 </th>
                 <th>
                   weight
                 </th>
-                <th>
+                {% comment %} <th>
                   date_created
-                </th>
-                <th>
+                </th> {% endcomment %}
+                {% comment %} <th>
                   date_released
-                </th>
+                </th> {% endcomment %}
                 <th>
                   date_due
                 </th>
-                <th>
+                {% comment %} <th>
                   review_assign_policy
-                </th>
+                </th> {% endcomment %}
               </tr>
             </thead>
             {% csrf_token %}
             {% for assignment in assignments %}
             <tbody>
               <tr>
-                <td class="py-1">
+                {% comment %} <td class="py-1"> 
                   {{ assignment.course_id}}
-                </td>
+                </td> {% endcomment %}
                 <td>
                   {{ assignment.assignment_name}}
                 </td>
-                <td>
+                {% comment %} <td>
                   {{ assignment.description}}
-                </td>
+                </td> {% endcomment %}
                 <td>
                   {{ assignment.assignment_type}}
                 </td>
-                <td>
+                {% comment %} <td>
                   {{ assignment.submission_type}}
-                </td>
+                </td> {% endcomment %}
                 <td>
                   {{ assignment.total_score}}
                 </td>
                 <td>
                   {{ assignment.weight}}
                 </td>
-                <td>
+                {% comment %} <td>
                   {{ assignment.date_created}}
-                </td>
-                <td>
+                </td> {% endcomment %}
+                {% comment %} <td>
                   {{ assignment.date_released}}
-                </td>
+                </td> {% endcomment %}
                 <td>
                   {{ assignment.date_due}}
                 </td>
-                <td>
+                {% comment %} <td>
                   {{ assignment.review_assign_policy}}
-                </td>
+                </td> {% endcomment %}
                 <td>
-                  <a href="{% url 'edit_assignment' course_id assignment.id %}">
+                  <a href="{% url 'view_assignment' course_id assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
                 {% if user.is_staff %}
+                <td>
+                  <a href="{% url 'edit_assignment' course_id assignment.id %}">
+                    <button type="button" class="btn-sm btn-primary">Edit</button>
+                  </a>
+                </td>
                 <td>
                   <a href="{% url 'delete_assignment' course_id assignment.id%}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
