@@ -5,6 +5,7 @@ from app.gamification.forms import SignUpForm
 from app.gamification.models import CustomUser, Course, Registration
 from app.gamification.views.pages import course
 from app.gamification.tests.views.pages.utils import LogInUser 
+from django.contrib.messages import get_messages
 
 class AddMemberTest(TestCase):
     def setUp(self):
@@ -84,8 +85,7 @@ class AddMemberTest(TestCase):
             'membershipRadios': test_member_role,
         }
         self.response = self.client.post(self.url, self.data)
-        self.assertEqual(self.response.status_code, 200)
-        self.assertIn('Andrew Id', self.response.context.get('membership').errors.keys())
+        self.assertEqual(list(get_messages(self.response.wsgi_request))[0].message, 'AndrewID does not exist')
 
     def test_add_member_not_superuser(self):
         test_andrew_id = 'andrew_id_1'
@@ -103,7 +103,8 @@ class AddMemberTest(TestCase):
             'membershipRadios': test_member_role,
         }
         self.response = self.client.post(self.url, self.data)
-        self.assertRedirects(self.response, reverse('course'))
+        registratiton = Registration.objects.all()
+        self.assertEqual(1, len(registratiton))
 
 
 class DeleteMemberTest(TestCase):
