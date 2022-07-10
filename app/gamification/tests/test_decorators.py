@@ -117,7 +117,7 @@ class UserRoleCheckDecoratorTest(TestCase):
     @classmethod
     def setUpTestData(self):
         self.student_andrew_id = 'user1'
-        self.student_password = 'suer1-password'
+        self.student_password = 'user1-password'
         self.ta_andrew_id = 'user4'
         self.ta_password = 'user4-password'
         self.instructor_andrew_id = 'admin1'
