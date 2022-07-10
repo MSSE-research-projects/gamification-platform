@@ -163,7 +163,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Email SMTP Configuration
 # https://docs.djangoproject.com/en/3.2/topics/email/
 EMAIL_BACKEND = os.getenv(
-    'EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.mailgun.org')
 EMAIL_PORT = os.getenv('EMAIL_PORT', '587')
 EMAIL_USE_TLS = True
