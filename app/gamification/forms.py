@@ -1,12 +1,11 @@
-from cmath import e
 import json
 from django import forms
 from django.contrib.auth import password_validation
-from django.contrib.auth.forms import UsernameField
+from django.contrib.auth import forms as auth_forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import Assignment, CustomUser, Course, Registration, Entity, Team, Membership
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership
 
 
 class SignUpForm(forms.ModelForm):
@@ -31,7 +30,7 @@ class SignUpForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('andrew_id', 'email',)
-        field_classes = {'andrew_id': UsernameField}
+        field_classes = {'andrew_id': auth_forms.UsernameField}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,6 +64,22 @@ class SignUpForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class PasswordResetForm(auth_forms.PasswordResetForm):
+    error_messages = {
+        'invalid_email': _("Email does not exist")
+    }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        users = CustomUser.objects.filter(email=email)
+        if len(users) <= 0:
+            raise ValidationError(
+                self.error_messages['invalid_email'],
+            )
+
+        return email
 
 
 class ProfileForm(forms.ModelForm):

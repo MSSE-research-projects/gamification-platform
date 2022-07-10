@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import views as auth_views
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.contrib import messages
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, TeamForm
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Entity, Team, Membership
 
 from django.shortcuts import get_object_or_404
@@ -39,6 +40,11 @@ def signin(request):
         form = AuthenticationForm()
 
     return render(request=request, template_name="signin.html", context={"form": form})
+
+
+class PasswordResetView(auth_views.PasswordResetView):
+    form_class = PasswordResetForm
+    template_name = 'password_reset.html'
 
 
 def signout(request):
