@@ -80,6 +80,8 @@ class CourseForm(forms.ModelForm):
         'invalid_format': _('File format is not correct. Please check the file \
             format. Make sure that the file contains the following columns: \
             Student ID, Email, Team Name.'),
+        'course_name_empty': _("Course name cannot be empty."),
+        'course_number_empty': _("Course number cannot be empty."),
     }
 
     file = forms.FileField(
@@ -92,6 +94,25 @@ class CourseForm(forms.ModelForm):
         model = Course
         fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
+    
+    def clean_course_number(self):
+        course_number = self.cleaned_data.get('course_number')
+        if course_number == '':
+            raise ValidationError(
+                self.error_messages['course_number_empty'],
+                code='course_number_empty',
+            )
+        return course_number
+
+    def clean_course_name(self):
+        course_name = self.cleaned_data.get('course_name')
+        if course_name == '':
+            raise ValidationError(
+                self.error_messages['course_name_empty'],
+                code='course_name_empty',
+            )
+        return course_name
+
 
     def clean_file(self):
         file = self.cleaned_data.get('file')

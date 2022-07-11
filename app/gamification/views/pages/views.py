@@ -82,8 +82,9 @@ def test(request):
 @login_required
 def course(request):
     if request.method == 'GET':
+        form = CourseForm(label_suffix='')
         registration = Registration.objects.filter(users=request.user)
-        context = {'registration': registration}
+        context = {'registration': registration, 'form':form}
         return render(request, 'course.html', context)
     if request.method == 'POST':
         if request.user.is_staff:
@@ -94,7 +95,7 @@ def course(request):
                     users=request.user, courses=course, userRole='Instructor')
                 registration.save()
         registration = Registration.objects.filter(users=request.user)
-        context = {'registration': registration}
+        context = {'registration': registration, 'form':form}
         return render(request, 'course.html', context)
 
 

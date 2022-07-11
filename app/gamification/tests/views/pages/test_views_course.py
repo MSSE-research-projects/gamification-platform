@@ -59,9 +59,9 @@ class InvalidAddCourseTest(TestCase):
             'course_number': test_course_number,
         }
         self.response = self.client.post(self.url, self.data)
+        form = self.response.context.get('form')
         self.assertEqual(self.response.status_code, 200)
-        #TODO: return an error message when empty course_number
-        self.assertIn('name', self.response.context.get('courses').errors.keys())
+        self.assertIn('course_name', form.errors.keys())
 
     def test_add_course_without_course_number(self):
         test_course_name = "course1"
@@ -70,18 +70,19 @@ class InvalidAddCourseTest(TestCase):
             'course_name': test_course_name,
         }
         self.response = self.client.post(self.url, self.data)
+        form = self.response.context.get('form')
         self.assertEqual(self.response.status_code, 200)
-        #TODO: return an error message when empty course_name
-        self.assertIn('number', self.response.context.get('courses').errors.keys())
+        self.assertIn('course_number', form.errors.keys())
 
     def test_add_course_without_any_input(self):
         self.url = reverse('course')
         self.data = {
         }
         self.response = self.client.post(self.url, self.data)
+        form = self.response.context.get('form')
         self.assertEqual(self.response.status_code, 200)
-        #TODO: return an error message when empty course_name and course_number
-        self.assertIn('number', self.response.context.get('courses').errors.keys())
+        self.assertIn('course_number', form.errors.keys())
+        self.assertIn('course_name', form.errors.keys())
 
 
 
