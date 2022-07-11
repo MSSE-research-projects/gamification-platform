@@ -23,65 +23,66 @@
                 <th>
                   Semester
                 </th>
+                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
                 <th>
                   Status
                 </th>
+                {% endif %}
               </tr>
             </thead>
-            <!-- TODO: csrf_token is only used when submitting forms -->
-            {% csrf_token %}
             {% for reg in registration %}
             <!-- TODO: TAs should be able to view invisible course as well -->
-              {% if reg.courses.visible or reg.userRole == 'Instructor' %}
-              <tbody>
-                <tr>
-                  <td class="py-1">
-                    {{ reg.courses.course_name}}
-                  </td>
-                  <td>
-                    {{ reg.courses.course_number}}
-                  </td>
-                  <td>
-                    {{ reg.courses.semester}}
-                  </td>
-                  <td>
-                    <!-- TODO: Student should not be able to view this column -->
-                    {{ reg.courses.visible}}
-                  </td>
-                  <td>
-                    <a href="{% url 'assignment' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">Assignments</button>
-                    </a>
-                  </td>
-                  {% if user.is_staff %}
-                  <td>
-                    <a href="{% url 'member_list' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">Members</button>
-                    </a>
-                  </td>
-                  {% endif %}
-                  <td>
-                    <a href="{% url 'view_course' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">view</button>
-                    </a>
-                  </td>
-                  {% if user.is_staff %}
-                  <td>
-                    <a href="{% url 'edit_course' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">edit</button>
-                    </a>
-                  </td>
-                  {% endif %}
-                  {% if user.is_staff %}
-                  <td>
-                    <a href="{% url 'delete_course' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">delete</button>
-                    </a>
-                  </td>
-                  {% endif %}
-                </tr>
-              </tbody>
-              {% endif %}
+            {% if reg.courses.visible or reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
+            <tbody>
+              <tr>
+                <td class="py-1">
+                  {{ reg.courses.course_name}}
+                </td>
+                <td>
+                  {{ reg.courses.course_number}}
+                </td>
+                <td>
+                  {{ reg.courses.semester}}
+                </td>
+                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
+                <td>
+                  {{ reg.courses.visible}}
+                </td>
+                {% endif %}
+                <td>
+                  <a href="{% url 'assignment' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">Assignments</button>
+                  </a>
+                </td>
+                {% if user.is_staff %}
+                <td>
+                  <a href="{% url 'member_list' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">Members</button>
+                  </a>
+                </td>
+                {% endif %}
+                <td>
+                  <a href="{% url 'view_course' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">view</button>
+                  </a>
+                </td>
+                {% if user.is_staff %}
+                <td>
+                  <a href="{% url 'edit_course' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">edit</button>
+                  </a>
+                </td>
+                {% endif %}
+                {% if user.is_staff %}
+                <td>
+                  <a href="{% url 'delete_course' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">delete</button>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+            </tbody>
+            {% endif %}
             {% endfor %}
           </table>
         </div>

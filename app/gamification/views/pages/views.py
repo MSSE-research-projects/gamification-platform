@@ -90,10 +90,9 @@ def course(request):
             form = CourseForm(request.POST, label_suffix='')
             if form.is_valid():
                 course = form.save()
-            # TODO: Why do these two lines outside of the if statement?
-            registration = Registration(
-                users=request.user, courses=course, userRole='Instructor')
-            registration.save()
+                registration = Registration(
+                    users=request.user, courses=course, userRole='Instructor')
+                registration.save()
         registration = Registration.objects.filter(users=request.user)
         context = {'registration': registration}
         return render(request, 'course.html', context)
@@ -103,8 +102,7 @@ def course(request):
 @user_role_check(user_roles=Registration.UserRole.Instructor)
 def delete_course(request, course_id):
     if request.method == 'GET':
-        # TODO: What if this course does not exist?
-        course = Course.objects.get(pk=course_id)
+        course = get_object_or_404(Course, pk=course_id)
         course.delete()
         return redirect('course')
     else:
@@ -114,8 +112,7 @@ def delete_course(request, course_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_course(request, course_id):
-    # TODO: What if this course does not exist?
-    course = Course.objects.get(pk=course_id)
+    course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES,
                           instance=course, label_suffix='')
@@ -133,31 +130,26 @@ def edit_course(request, course_id):
 
 @login_required
 def view_course(request, course_id):
-    # TODO: What if this course does not exist?
-    course = Course.objects.get(pk=course_id)
+    course = get_object_or_404(Course, pk=course_id)
     if request.method == 'GET':
-        syllabus = course.syllabus.split('\n')
-        context = {'course': course, 'syllabus': syllabus}
+        context = {'course': course}
         return render(request, 'view_course_detail.html', context)
 
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
-# TODO: Refactor this function!!!
 def member_list(request, course_id):
 
     def get_member_list(course_id):
-        # TODO: What if this course does not exist?
-        course = Course.objects.get(pk=course_id)
+        course = get_object_or_404(Course, pk=course_id)
         registration = Registration.objects.filter(courses=course)
         membership = []
-        # andrewID, Role, Team
         for i in registration:
             try:
-                # TODO: Why not simply use a variable to store the filter query?
-                if len(Team.objects.filter(registration=i)) > 1:
-                    team = Team.objects.filter(registration=i)[len(
-                        Team.objects.filter(registration=i)) - 1].name
+                get_registration_team = Team.objects.filter(registration=i)
+                if len(get_registration_team) > 1:
+                    team = get_registration_team[len(
+                        get_registration_team) - 1].name
                 else:
                     team = Team.objects.get(registration=i).name
             except Team.DoesNotExist:
@@ -168,54 +160,57 @@ def member_list(request, course_id):
         context = {'membership': membership, 'course_id': course_id}
         return context
 
+    def get_users_registration(users, request, course_id):
+        course = get_object_or_404(Course, pk=course_id)
+        andrew_id = request.POST['andrew_id']
+        role = request.POST['membershipRadios']
+        if user not in users:
+            registration = Registration(
+                users=user, courses=course, userRole=role)
+            registration.save()
+            message_info = 'A new mamber has been added'
+        else:
+            registration = Registration.objects.get(
+                users=user, courses=course)
+            message_info = andrew_id + '\'s team has been added or updated'
+        return registration, message_info
+
+    def get_users_team(registration, request, course_id):
+        course = get_object_or_404(Course, pk=course_id)
+        team_name = request.POST['team_name']
+        if team_name != '' and registration.userRole != 'Student':
+            try:
+                team = Team.objects.get(
+                    course=course, name=team_name)
+            except Team.DoesNotExist:
+                team = Team(course=course, name=team_name)
+                team.save()
+            membership = Membership(
+                student=registration, entity=team)
+            membership.save()
+
+    def add_users_from_the_same_course(course_id):
+        course = get_object_or_404(Course, pk=course_id)
+        users = []
+        users.extend(course.students)
+        users.extend(course.TAs)
+        users.extend(course.instructors)
+        return users
+
     if request.method == 'GET':
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
     if request.method == 'POST':
         andrew_id = request.POST['andrew_id']
-        role = request.POST['membershipRadios']
-        team_name = request.POST['team_name']
-        course = Course.objects.get(pk=course_id)
         try:
             user = CustomUser.objects.get(andrew_id=andrew_id)
-            users = []
-            users.extend(course.students)
-            users.extend(course.TAs)
-            if user not in users:
-                registration = Registration(
-                    users=user, courses=course, userRole=role)
-                registration.save()
-                if team_name != '' and registration.userRole != 'Student':
-                    try:
-                        team = Team.objects.get(
-                            course=course, name=team_name)
-                    except Team.DoesNotExist:
-                        team = Team(course=course, name=team_name)
-                        team.save()
-                    membership = Membership(
-                        student=registration, entity=team)
-                    membership.save()
-                    # Re-get all members
-                context = get_member_list(course_id)
-                messages.info(request, 'A new mamber has been added')
-                return render(request, 'course_member.html', context)
-            else:
-                registration = Registration.objects.get(
-                    users=user, courses=course)
-                if team_name != '' and registration.userRole != 'Student':
-                    try:
-                        team = Team.objects.get(
-                            course=course, name=team_name)
-                    except Team.DoesNotExist:
-                        team = Team(course=course, name=team_name)
-                        team.save()
-                    membership = Membership(
-                        student=registration, entity=team)
-                    membership.save()
-                context = get_member_list(course_id)
-                messages.info(request, andrew_id +
-                              '\'s team has been added or updated')
-                return render(request, 'course_member.html', context)
+            users = add_users_from_the_same_course(course_id)
+            registration, message_info = get_users_registration(
+                users, request, course_id)
+            get_users_team(registration, request, course_id)
+            context = get_member_list(course_id)
+            messages.info(request, message_info)
+            return render(request, 'course_member.html', context)
         except CustomUser.DoesNotExist:
             messages.info(request, 'AndrewID does not exist')
             context = get_member_list(course_id)

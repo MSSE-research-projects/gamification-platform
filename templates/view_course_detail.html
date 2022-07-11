@@ -1,33 +1,50 @@
 {% extends 'boilerplates/base_navbar.html' %}
-{% load static %}
-{% load widget_tweaks %}
+{% load static widget_tweaks %}
 
-<!-- TODO: Change this title here -->
-{% block title %}Profile{% endblock %}
+{% block title %}{{ course.course_name }}{% endblock %}
 
 {% block content %}
 
 <!-- TODO: Reference templates used in assignment detail -->
-<div class="col-md-6 d-flex align-items-stretch" style="margin-left: 10px;">
-  <div class="col-md-12 grid-margin stretch-card">
-    <div style="position: relative;
-        display: flex;
-        flex-direction: column;
-        min-width: 100%;
-        word-wrap: break-word;
-        background-color: #fff;
-       ">
-      <div class="card-body">
-        <h2> {{ course.course_name }} {{ course.course_number }}</h2>
-        <p class="card-description">
-          {{ course.semester }}
-        </p>
-        <h3 class="card-title"> Course Syllabus: </h3>
-        {% for paragraph in syllabus %}
-        <p>
-          {{ paragraph }}
-        </p>
-        {% endfor %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="border-bottom text-center pb-4">
+                {% comment %} <h3>course: {{ assignment.id }}</h3> {% endcomment %}
+                <p> </p>
+                {% if course.course_name %}
+                <h2>{{ course.course_name }}</h2>
+                <h4>{{ course.course_number }}</h4>
+                <p class="card-description">
+                  {{ course.semester }}
+                </p>
+                {% else %}
+                <h2>Empty Course Name</h2>
+                {% endif %}
+              </div>
+              <div class="border-bottom pb-4">
+                <p> </p>
+                {% comment %} <p><b>Policy:</b> {{ assignment.review_assign_policy }}</p> {% endcomment %}
+                <p3><b>Course Syllabus:</b></p>
+                  <p>{{ course.syllabus|linebreaksbr }}</p>
+              </div>
+              <p> </p>
+              <a href="{% url 'course' %}"><button type="button" class="btn btn-outline-primary">Back</button></a>
+            </div>
+            <div class="col-lg-4">
+              <div class="border-bottom py-4">
+                <p>Reserved place</p>
+                <div>
+                  <p> Rfsfdfsdfsdfsdfsdfsdf</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
