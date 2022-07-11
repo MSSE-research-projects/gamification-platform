@@ -1,4 +1,3 @@
-from cmath import e
 import json
 from django import forms
 from django.contrib.auth import password_validation
@@ -6,7 +5,7 @@ from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import Assignment, CustomUser, Course, Registration, Entity, Team, Membership
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership
 
 
 class SignUpForm(forms.ModelForm):
@@ -83,29 +82,31 @@ class CourseForm(forms.ModelForm):
         fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
 
+    # TODO: Add validation for file format and file content
+
     def save(self, commit=True):
         course = super().save(commit=True)
 
         if self.cleaned_data.get('file', None):
             # Register teams from CATME file
             data = json.loads(self.cleaned_data['file'].read())
-            for i in data:
-                if(len(CustomUser.objects.filter(andrew_id=i.get('Student ID'))) == 0):
+            for row in data:
+                if(len(CustomUser.objects.filter(andrew_id=row.get('Student ID'))) == 0):
                     user = CustomUser.objects.create_user(
-                        andrew_id=i.get('Student ID'), email=i.get('Email'))
+                        andrew_id=row.get('Student ID'), email=row.get('Email'))
                     user.set_password('6666')
                     user.save()
                 else:
                     user = CustomUser.objects.get(
-                        andrew_id=i.get('Student ID'))
+                        andrew_id=row.get('Student ID'))
                 registration = Registration(
                     users=user, courses=course, userRole=Registration.UserRole.Student)
                 registration.save()
                 try:
                     team = Team.objects.get(
-                        course=course, name=i.get('Team Name'))
+                        course=course, name=row.get('Team Name'))
                 except Team.DoesNotExist:
-                    team = Team(course=course, name=i.get('Team Name'))
+                    team = Team(course=course, name=row.get('Team Name'))
                     team.save()
                 membership = Membership(student=registration, entity=team)
                 membership.save()

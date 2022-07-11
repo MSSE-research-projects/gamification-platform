@@ -81,7 +81,6 @@ def test(request):
 
 @login_required
 def course(request):
-    # TODO: Filter courses by user
     if request.method == 'GET':
         registration = Registration.objects.filter(users=request.user)
         context = {'registration': registration}
@@ -91,6 +90,7 @@ def course(request):
             form = CourseForm(request.POST, label_suffix='')
             if form.is_valid():
                 course = form.save()
+            # TODO: Why do these two lines outside of the if statement?
             registration = Registration(
                 users=request.user, courses=course, userRole='Instructor')
             registration.save()
@@ -103,6 +103,7 @@ def course(request):
 @user_role_check(user_roles=Registration.UserRole.Instructor)
 def delete_course(request, course_id):
     if request.method == 'GET':
+        # TODO: What if this course does not exist?
         course = Course.objects.get(pk=course_id)
         course.delete()
         return redirect('course')
@@ -113,6 +114,7 @@ def delete_course(request, course_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_course(request, course_id):
+    # TODO: What if this course does not exist?
     course = Course.objects.get(pk=course_id)
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES,
@@ -131,6 +133,7 @@ def edit_course(request, course_id):
 
 @login_required
 def view_course(request, course_id):
+    # TODO: What if this course does not exist?
     course = Course.objects.get(pk=course_id)
     if request.method == 'GET':
         syllabus = course.syllabus.split('\n')
@@ -140,15 +143,18 @@ def view_course(request, course_id):
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+# TODO: Refactor this function!!!
 def member_list(request, course_id):
 
     def get_member_list(course_id):
+        # TODO: What if this course does not exist?
         course = Course.objects.get(pk=course_id)
         registration = Registration.objects.filter(courses=course)
         membership = []
-        #andrewID, Role, Team
+        # andrewID, Role, Team
         for i in registration:
             try:
+                # TODO: Why not simply use a variable to store the filter query?
                 if len(Team.objects.filter(registration=i)) > 1:
                     team = Team.objects.filter(registration=i)[len(
                         Team.objects.filter(registration=i)) - 1].name
@@ -186,7 +192,8 @@ def member_list(request, course_id):
                     except Team.DoesNotExist:
                         team = Team(course=course, name=team_name)
                         team.save()
-                    membership = Membership(student=registration, entity=team)
+                    membership = Membership(
+                        student=registration, entity=team)
                     membership.save()
                     # Re-get all members
                 context = get_member_list(course_id)
@@ -202,7 +209,8 @@ def member_list(request, course_id):
                     except Team.DoesNotExist:
                         team = Team(course=course, name=team_name)
                         team.save()
-                    membership = Membership(student=registration, entity=team)
+                    membership = Membership(
+                        student=registration, entity=team)
                     membership.save()
                 context = get_member_list(course_id)
                 messages.info(request, andrew_id +

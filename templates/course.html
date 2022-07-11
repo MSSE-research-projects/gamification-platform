@@ -28,8 +28,10 @@
                 </th>
               </tr>
             </thead>
+            <!-- TODO: csrf_token is only used when submitting forms -->
             {% csrf_token %}
             {% for reg in registration %}
+            <!-- TODO: TAs should be able to view invisible course as well -->
               {% if reg.courses.visible or reg.userRole == 'Instructor' %}
               <tbody>
                 <tr>
@@ -43,6 +45,7 @@
                     {{ reg.courses.semester}}
                   </td>
                   <td>
+                    <!-- TODO: Student should not be able to view this column -->
                     {{ reg.courses.visible}}
                   </td>
                   <td>
