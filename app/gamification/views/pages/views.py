@@ -172,13 +172,17 @@ def member_list(request, course_id):
         else:
             registration = Registration.objects.get(
                 users=user, courses=course)
+            registration.delete()
+            registration = Registration(
+                users=user, courses=course, userRole=role)
+            registration.save()
             message_info = andrew_id + '\'s team has been added or updated'
         return registration, message_info
 
     def get_users_team(registration, request, course_id):
         course = get_object_or_404(Course, pk=course_id)
         team_name = request.POST['team_name']
-        if team_name != '' and registration.userRole != 'Student':
+        if team_name != '' and registration.userRole == 'Student':
             try:
                 team = Team.objects.get(
                     course=course, name=team_name)
@@ -197,6 +201,14 @@ def member_list(request, course_id):
         users.extend(course.instructors)
         return users
 
+    def delete_memebership_after_switch_to_TA_or_instructor(registration):
+        if registration.userRole == 'Student' or registration.userRole == 'Instructor':
+            membership = Membership.objects.filter(student=registration)
+            if len(membership) > 0:
+                team = Team.objects.filter(registration=registration)
+                team.delete()
+                membership.delete()
+
     if request.method == 'GET':
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
@@ -207,6 +219,7 @@ def member_list(request, course_id):
             users = add_users_from_the_same_course(course_id)
             registration, message_info = get_users_registration(
                 users, request, course_id)
+            delete_memebership_after_switch_to_TA_or_instructor(registration)
             get_users_team(registration, request, course_id)
             context = get_member_list(course_id)
             messages.info(request, message_info)
