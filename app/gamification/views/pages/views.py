@@ -213,8 +213,6 @@ def member_list(request, course_id):
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
     if request.method == 'POST' and userRole != 'Student':
-        print(userRole)
-        print('111111')
         andrew_id = request.POST['andrew_id']
         try:
             user = CustomUser.objects.get(andrew_id=andrew_id)
