@@ -1,3 +1,4 @@
+from email import message
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
@@ -138,11 +139,12 @@ def view_course(request, course_id):
 
 
 @login_required
-@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def member_list(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    userRole = Registration.objects.get(
+        users=request.user, courses=course).userRole
 
     def get_member_list(course_id):
-        course = get_object_or_404(Course, pk=course_id)
         registration = Registration.objects.filter(courses=course)
         membership = []
         for i in registration:
@@ -158,11 +160,11 @@ def member_list(request, course_id):
             membership.append({'andrew_id': i.users.andrew_id,
                               'userRole': i.userRole, 'team': team})
         membership = sorted(membership, key=lambda x: x['team'])
-        context = {'membership': membership, 'course_id': course_id}
+        context = {'membership': membership,
+                   'course_id': course_id, 'userRole': userRole}
         return context
 
-    def get_users_registration(users, request, course_id):
-        course = get_object_or_404(Course, pk=course_id)
+    def get_users_registration(users, request):
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
         if user not in users:
@@ -180,8 +182,7 @@ def member_list(request, course_id):
             message_info = andrew_id + '\'s team has been added or updated'
         return registration, message_info
 
-    def get_users_team(registration, request, course_id):
-        course = get_object_or_404(Course, pk=course_id)
+    def get_users_team(registration, request):
         team_name = request.POST['team_name']
         if team_name != '' and registration.userRole == 'Student':
             try:
@@ -194,8 +195,7 @@ def member_list(request, course_id):
                 student=registration, entity=team)
             membership.save()
 
-    def add_users_from_the_same_course(course_id):
-        course = get_object_or_404(Course, pk=course_id)
+    def add_users_from_the_same_course():
         users = []
         users.extend(course.students)
         users.extend(course.TAs)
@@ -213,22 +213,21 @@ def member_list(request, course_id):
     if request.method == 'GET':
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
-    if request.method == 'POST':
+    if request.method == 'POST' and userRole != 'Student':
         andrew_id = request.POST['andrew_id']
         try:
             user = CustomUser.objects.get(andrew_id=andrew_id)
-            users = add_users_from_the_same_course(course_id)
+            users = add_users_from_the_same_course()
             registration, message_info = get_users_registration(
-                users, request, course_id)
-            delete_memebership_after_switch_to_TA_or_instructor(registration)
-            get_users_team(registration, request, course_id)
-            context = get_member_list(course_id)
-            messages.info(request, message_info)
-            return render(request, 'course_member.html', context)
+                users, request)
+            delete_memebership_after_switch_to_TA_or_instructor(
+                registration)
+            get_users_team(registration, request)
         except CustomUser.DoesNotExist:
-            messages.info(request, 'AndrewID does not exist')
-            context = get_member_list(course_id)
-            return render(request, 'course_member.html', context)
+            message_info = 'AndrewID does not exist'
+        messages.info(request, message_info)
+        context = get_member_list(course_id)
+        return render(request, 'course_member.html', context)
 
 
 @login_required

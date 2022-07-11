@@ -13,7 +13,7 @@
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
-              <tr>
+              <tr style="height: 70px">
                 <th>
                   Andrew ID
                 </th>
@@ -28,7 +28,7 @@
             <tbody>
               {% csrf_token %}
               {% for member in membership %}
-              <tr>
+              <tr style="height: 70px">
                 <td class="py-1">
                  {{member.andrew_id}} 
                 </td>
@@ -38,12 +38,13 @@
                 <td class="py-1">
                   {{member.team}}
                 </td>
-
-                <td>
-                  <a href="{% url 'delete_member' course_id member.andrew_id%}">
-                    <button type="button" class="btn-sm btn-primary">Delete</button>
-                  </a>
-                </td>
+                {% if userRole != 'Student' %}
+                  <td>
+                    <a href="{% url 'delete_member' course_id member.andrew_id%}">
+                      <button type="button" class="btn-sm btn-primary">Delete</button>
+                    </a>
+                  </td>
+                {% endif %}
               </tr>
               {% endfor %}
             </tbody>
@@ -52,7 +53,7 @@
       </div>
     </div>
   </div>
-  {% if user.is_staff %}
+  {% if userRole != 'Student' %}
   <div class="col-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
