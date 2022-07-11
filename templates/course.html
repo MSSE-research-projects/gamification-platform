@@ -54,26 +54,24 @@
                     <button type="button" class="btn-sm btn-primary">Assignments</button>
                   </a>
                 </td>
-                {% if user.is_staff %}
                 <td>
                   <a href="{% url 'member_list' reg.courses.id %}">
                     <button type="button" class="btn-sm btn-primary">Members</button>
                   </a>
                 </td>
-                {% endif %}
                 <td>
                   <a href="{% url 'view_course' reg.courses.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
-                {% if user.is_staff %}
+                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
                 <td>
                   <a href="{% url 'edit_course' reg.courses.id %}">
                     <button type="button" class="btn-sm btn-primary">edit</button>
                   </a>
                 </td>
                 {% endif %}
-                {% if user.is_staff %}
+                {% if reg.userRole == 'Instructor' %}
                 <td>
                   <a href="{% url 'delete_course' reg.courses.id %}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
