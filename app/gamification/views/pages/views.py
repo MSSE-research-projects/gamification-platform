@@ -133,9 +133,11 @@ def edit_course(request, course_id):
 @login_required
 def view_course(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
-    if request.method == 'GET':
+    if request.method == 'GET' and course.visible:
         context = {'course': course}
         return render(request, 'view_course_detail.html', context)
+    else:
+        return redirect('course')
 
 
 @login_required
