@@ -1,3 +1,4 @@
+from email import message
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -87,21 +88,21 @@ def test(request):
 
 @login_required
 def course(request):
-    # TODO: Filter courses by user
     if request.method == 'GET':
+        form = CourseForm(label_suffix='')
         registration = Registration.objects.filter(users=request.user)
-        context = {'registration': registration}
+        context = {'registration': registration, 'form': form}
         return render(request, 'course.html', context)
     if request.method == 'POST':
         if request.user.is_staff:
             form = CourseForm(request.POST, label_suffix='')
             if form.is_valid():
                 course = form.save()
-            registration = Registration(
-                users=request.user, courses=course, userRole='Instructor')
-            registration.save()
+                registration = Registration(
+                    users=request.user, courses=course, userRole='Instructor')
+                registration.save()
         registration = Registration.objects.filter(users=request.user)
-        context = {'registration': registration}
+        context = {'registration': registration, 'form': form}
         return render(request, 'course.html', context)
 
 
@@ -109,7 +110,7 @@ def course(request):
 @user_role_check(user_roles=Registration.UserRole.Instructor)
 def delete_course(request, course_id):
     if request.method == 'GET':
-        course = Course.objects.get(pk=course_id)
+        course = get_object_or_404(Course, pk=course_id)
         course.delete()
         return redirect('course')
     else:
@@ -119,7 +120,7 @@ def delete_course(request, course_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_course(request, course_id):
-    course = Course.objects.get(pk=course_id)
+    course = get_object_or_404(Course, pk=course_id)
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES,
                           instance=course, label_suffix='')
@@ -137,27 +138,29 @@ def edit_course(request, course_id):
 
 @login_required
 def view_course(request, course_id):
-    course = Course.objects.get(pk=course_id)
-    if request.method == 'GET':
-        syllabus = course.syllabus.split('\n')
-        context = {'course': course, 'syllabus': syllabus}
+    course = get_object_or_404(Course, pk=course_id)
+    if request.method == 'GET' and course.visible:
+        context = {'course': course}
         return render(request, 'view_course_detail.html', context)
+    else:
+        return redirect('course')
 
 
 @login_required
-@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def member_list(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    userRole = Registration.objects.get(
+        users=request.user, courses=course).userRole
 
     def get_member_list(course_id):
-        course = Course.objects.get(pk=course_id)
         registration = Registration.objects.filter(courses=course)
         membership = []
-        #andrewID, Role, Team
         for i in registration:
             try:
-                if len(Team.objects.filter(registration=i)) > 1:
-                    team = Team.objects.filter(registration=i)[len(
-                        Team.objects.filter(registration=i)) - 1].name
+                get_registration_team = Team.objects.filter(registration=i)
+                if len(get_registration_team) > 1:
+                    team = get_registration_team[len(
+                        get_registration_team) - 1].name
                 else:
                     team = Team.objects.get(registration=i).name
             except Team.DoesNotExist:
@@ -165,59 +168,72 @@ def member_list(request, course_id):
             membership.append({'andrew_id': i.users.andrew_id,
                               'userRole': i.userRole, 'team': team})
         membership = sorted(membership, key=lambda x: x['team'])
-        context = {'membership': membership, 'course_id': course_id}
+        context = {'membership': membership,
+                   'course_id': course_id, 'userRole': userRole}
         return context
+
+    def get_users_registration(users, request):
+        andrew_id = request.POST['andrew_id']
+        role = request.POST['membershipRadios']
+        if user not in users:
+            registration = Registration(
+                users=user, courses=course, userRole=role)
+            registration.save()
+            message_info = 'A new mamber has been added'
+        else:
+            registration = Registration.objects.get(
+                users=user, courses=course)
+            registration.userRole = role
+            registration.save()
+            message_info = andrew_id + '\'s team has been added or updated'
+        return registration, message_info
+
+    def get_users_team(registration, request):
+        team_name = request.POST['team_name']
+        if team_name != '' and registration.userRole == 'Student':
+            try:
+                team = Team.objects.get(
+                    course=course, name=team_name)
+            except Team.DoesNotExist:
+                team = Team(course=course, name=team_name)
+                team.save()
+            membership = Membership(
+                student=registration, entity=team)
+            membership.save()
+
+    def add_users_from_the_same_course():
+        users = []
+        users.extend(course.students)
+        users.extend(course.TAs)
+        users.extend(course.instructors)
+        return users
+
+    def delete_memebership_after_switch_to_TA_or_instructor(registration):
+        if registration.userRole == 'TA' or registration.userRole == 'Instructor':
+            membership = Membership.objects.filter(student=registration)
+            if len(membership) == 1:
+                team = Team.objects.filter(registration=registration)
+                team.delete()
+            membership.delete()
 
     if request.method == 'GET':
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
-    if request.method == 'POST':
+    if request.method == 'POST' and userRole != 'Student':
         andrew_id = request.POST['andrew_id']
-        role = request.POST['membershipRadios']
-        team_name = request.POST['team_name']
-        course = Course.objects.get(pk=course_id)
         try:
             user = CustomUser.objects.get(andrew_id=andrew_id)
-            users = []
-            users.extend(course.students)
-            users.extend(course.TAs)
-            if user not in users:
-                registration = Registration(
-                    users=user, courses=course, userRole=role)
-                registration.save()
-                if team_name != '':
-                    try:
-                        team = Team.objects.get(
-                            course=course, name=team_name)
-                    except Team.DoesNotExist:
-                        team = Team(course=course, name=team_name)
-                        team.save()
-                    membership = Membership(student=registration, entity=team)
-                    membership.save()
-                    # Re-get all members
-                context = get_member_list(course_id)
-                messages.info(request, 'A new mamber has been added')
-                return render(request, 'course_member.html', context)
-            else:
-                registration = Registration.objects.get(
-                    users=user, courses=course)
-                if team_name != '':
-                    try:
-                        team = Team.objects.get(
-                            course=course, name=team_name)
-                    except Team.DoesNotExist:
-                        team = Team(course=course, name=team_name)
-                        team.save()
-                    membership = Membership(student=registration, entity=team)
-                    membership.save()
-                context = get_member_list(course_id)
-                messages.info(request, andrew_id +
-                              '\'s team has been added or updated')
-                return render(request, 'course_member.html', context)
+            users = add_users_from_the_same_course()
+            registration, message_info = get_users_registration(
+                users, request)
+            delete_memebership_after_switch_to_TA_or_instructor(
+                registration)
+            get_users_team(registration, request)
         except CustomUser.DoesNotExist:
-            messages.info(request, 'AndrewID does not exist')
-            context = get_member_list(course_id)
-            return render(request, 'course_member.html', context)
+            message_info = 'AndrewID does not exist'
+        messages.info(request, message_info)
+        context = get_member_list(course_id)
+        return render(request, 'course_member.html', context)
 
 
 @login_required
