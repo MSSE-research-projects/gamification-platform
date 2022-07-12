@@ -1,15 +1,12 @@
-from ast import arg
-from unicodedata import name
-from django.test import TestCase
-from django.urls import resolve, reverse
-
-from app.gamification.forms import SignUpForm
-from app.gamification.models import CustomUser, Course, Registration, registration
-from app.gamification.models.entity import Entity, Team
-from app.gamification.models.membership import Membership
-from app.gamification.views.pages import course
-from app.gamification.tests.views.pages.utils import LogInUser 
 from django.contrib.messages import get_messages
+from django.test import TestCase
+from django.urls import reverse
+
+from app.gamification.models import CustomUser, Course, Registration
+from app.gamification.models.entity import Team
+from app.gamification.models.membership import Membership
+from app.gamification.tests.views.pages.utils import LogInUser 
+
 
 
 class GetMemberTest(TestCase):
