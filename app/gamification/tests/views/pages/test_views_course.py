@@ -1,15 +1,9 @@
-from atexit import register
-from urllib import request
 from django.test import TestCase
 from django.urls import resolve, reverse
-from django.http import HttpResponse
 
-from app.gamification.forms import SignUpForm
 from app.gamification.models import CustomUser, Course, Registration
 from app.gamification.views.pages import course
-from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.tests.views.pages.utils import LogInUser
-from django.test.client import RequestFactory
 
 
 class GetCourseTest(TestCase):
