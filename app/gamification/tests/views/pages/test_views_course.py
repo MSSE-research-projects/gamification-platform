@@ -281,23 +281,11 @@ class CourseViewTest(TestCase):
     def setUpTestData(self):
         self.student_andrew_id = 'user1'
         self.student_password = 'user1-password'
-        self.ta_andrew_id = 'user4'
-        self.ta_password = 'user4-password'
-        self.instructor_andrew_id = 'admin1'
-        self.instructor_password = 'admin1-password'
-        self.admin_andrew_id = 'admin2'
-        self.admin_password = 'admin2-password'
-
         self.course = Course.objects.get(
             course_number='18652', semester='Fall 2021'
         )
-
         self.student = CustomUser.objects.get(
-            andrew_id=self.student_andrew_id)  # pk = 3
-        self.ta = CustomUser.objects.get(andrew_id=self.ta_andrew_id)
-        self.instructor = CustomUser.objects.get(
-            andrew_id=self.instructor_andrew_id)
-        self.admin = CustomUser.objects.get(andrew_id=self.admin_andrew_id)
+            andrew_id=self.student_andrew_id)
 
     def test_get_course_info(self):
         EXIST_COURSE = 1
