@@ -10,6 +10,8 @@ from app.gamification.models import Assignment, Course, CustomUser, Registration
 
 from django.shortcuts import get_object_or_404
 
+from django.core.exceptions import PermissionDenied
+
 
 def signup(request):
     if request.method == 'POST':
@@ -227,16 +229,28 @@ def delete_member(request, course_id, andrew_id):
     else:
         return redirect('member_list', course_id)
 
+def check_user_permission(request, course_id):
+    # course = Course.objects.get(pk=course_id)
+    course = get_object_or_404(Course, pk=course_id)
+    registration = Registration.objects.filter(users=request.user)
+    for i in registration:
+        if i.courses == course:
+            return True
+    return False
 
 @login_required
 def assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
-    # course = Course.objects.get(pk=course_id)
     if request.method == 'GET':
         assignments = Assignment.objects.filter(course=course)
-        context = {'assignments': assignments,
-                   "course_id": course_id, "course": course}
-        return render(request, 'assignment.html', context)
+        if check_user_permission(request, course_id):
+            context = {'assignments': assignments,
+                    "course_id": course_id, "course": course}
+            return render(request, 'assignment.html', context)
+        else:
+            raise PermissionDenied
+            # messages.error(request, 'You do not have permission to view this page')
+            # return redirect('course')
 
     if request.method == 'POST' and request.user.is_staff:
         form = AssignmentForm(request.POST, label_suffix='')
@@ -246,24 +260,30 @@ def assignment(request, course_id):
         context = {'assignments': assignments,
                    "course_id": course_id, "course": course}
         return render(request, 'assignment.html', context)
+    
+    else:
+        raise PermissionDenied
+        # messages.error(request, 'You do not have permission to add assignment')
 
 
 @login_required
-# @user_role_check(user_roles=Registration.UserRole.Instructor)
+@user_role_check(user_roles=Registration.UserRole.Instructor)
 def delete_assignment(request, course_id, assignment_id):
-    if request.method == 'GET':
+    if request.method == 'GET' and check_user_permission(request, course_id):
         assignment = get_object_or_404(Assignment, pk=assignment_id)
         assignment.delete()
         return redirect('assignment', course_id)
     else:
-        return redirect('assignment', course_id)
+        raise PermissionDenied
+        # messages.error(request, 'You do not have permission to delete assignment')
+        # return redirect('assignment', course_id)
 
 
 @login_required
-# @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
-    if request.method == 'POST' and request.user.is_staff:
+    if request.method == 'POST' and request.user.is_staff and check_user_permission(request, course_id):
         form = AssignmentForm(
             request.POST, instance=assignment, label_suffix='')
 
@@ -271,17 +291,23 @@ def edit_assignment(request, course_id, assignment_id):
             assignment = form.save()
         return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
 
-    if request.method == 'GET' and request.user.is_staff:
+    if request.method == 'GET' and request.user.is_staff and check_user_permission(request, course_id):
         form = AssignmentForm(instance=assignment)
         return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
 
     else:
-        return redirect('assignment', course_id)
+        raise PermissionDenied
+        # messages.error(request, 'You do not have permission to edit assignment')
+        # return redirect('assignment', course_id)
 
 # TO-DO - user_role_check
 
 
 @login_required
 def view_assignment(request, course_id, assignment_id):
-    assignment = get_object_or_404(Assignment, pk=assignment_id)
-    return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+    if check_user_permission(request, course_id):
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+    else:
+        raise PermissionDenied
+        # return redirect('course')

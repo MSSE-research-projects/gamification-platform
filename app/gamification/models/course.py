@@ -63,3 +63,6 @@ class Course(models.Model):
     def get_course_name(self):
         '''Return the course name.'''
         return self.course_name
+
+    def __str__(self):
+            return f'{self.course_name + " - " + self.course_number}'

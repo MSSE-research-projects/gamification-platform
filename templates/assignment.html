@@ -9,7 +9,8 @@
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">{{ course.course_name}} - {{ course.course_number}} - Assignments</h4>
+        <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button" class="btn btn-outline-primary">Back</button></a>
+          &nbsp&nbsp&nbsp&nbsp&nbsp{{ course.course_name}} - {{ course.course_number}} - Assignments</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -18,22 +19,22 @@
                   course_id
                 </th> {% endcomment %}
                 <th>
-                  assignment_name
+                  Assignment Name
                 </th>
                 {% comment %} <th>
                   description
                 </th> {% endcomment %}
                 <th>
-                  assignment_type
+                  Assignment Type
                 </th>
                 {% comment %} <th>
                   submission_type
                 </th> {% endcomment %}
                 <th>
-                  total_score
+                  Total Score
                 </th>
                 <th>
-                  weight
+                  Weight
                 </th>
                 {% comment %} <th>
                   date_created
@@ -42,7 +43,7 @@
                   date_released
                 </th> {% endcomment %}
                 <th>
-                  date_due
+                  Due
                 </th>
                 {% comment %} <th>
                   review_assign_policy

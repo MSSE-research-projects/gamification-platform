@@ -8,7 +8,6 @@ from django.utils.translation import gettext, gettext_lazy as _
 
 from .models import Assignment, CustomUser, Course, Registration, Entity, Team, Membership
 
-
 class SignUpForm(forms.ModelForm):
 
     error_messages = {
@@ -120,6 +119,9 @@ class AssignmentForm(forms.ModelForm):
         fields = ('course', 'assignment_name', 'description',
                   'assignment_type', 'submission_type', 'total_score',
                   'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')
+        widgets = {
+            'course': forms.HiddenInput(),
+        }
 
 
 class TeamForm(forms.ModelForm):

@@ -11,8 +11,12 @@
 
 {% for field in form %}
 <div class="form-group">
-  {{ field.label_tag }}
-
+  {% if field.label_tag == '<label for="id_course">Course:</label>' %}
+    {% comment %} <p>{{ field.value }}</p> {% endcomment %}
+  {% else %}
+    {{ field.label_tag }}
+  {% endif %}
+  
   {% render_field field class=field|input_class style=field|input_style %}
   {% for error in field.errors %}
   <div class="invalid-feedback">
