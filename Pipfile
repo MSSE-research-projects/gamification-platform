@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==3.2"
+django-widget-tweaks = "==1.4.12"
+djangorestframework = "==3.13.1"
+dj-database-url = "==0.5.0"
+gunicorn = "==20.1.0"
+pillow = "==9.1.1"
+psycopg2 = "==2.9.3"
+python-dotenv = "==0.20.0"
+coverage = "==6.4.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"

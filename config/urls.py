@@ -50,6 +50,8 @@ urlpatterns = [
                          name='delete_assignment'),
                     path('edit/', page_views.edit_assignment,
                          name='edit_assignment'),
+                    path('view/', page_views.view_assignment,
+                         name='view_assignment'),
                 ]))
             ])),
 

@@ -185,29 +185,31 @@ def member_list(request, course_id):
                 registration = Registration(
                     users=user, courses=course, userRole=role)
                 registration.save()
-                try:
-                    team = Team.objects.get(
-                        course=course, name=team_name)
-                except Team.DoesNotExist:
-                    team = Team(course=course, name=team_name)
-                    team.save()
-                membership = Membership(student=registration, entity=team)
-                membership.save()
-                # Re-get all members
+                if team_name != '':
+                    try:
+                        team = Team.objects.get(
+                            course=course, name=team_name)
+                    except Team.DoesNotExist:
+                        team = Team(course=course, name=team_name)
+                        team.save()
+                    membership = Membership(student=registration, entity=team)
+                    membership.save()
+                    # Re-get all members
                 context = get_member_list(course_id)
                 messages.info(request, 'A new mamber has been added')
                 return render(request, 'course_member.html', context)
             else:
                 registration = Registration.objects.get(
                     users=user, courses=course)
-                try:
-                    team = Team.objects.get(
-                        course=course, name=team_name)
-                except Team.DoesNotExist:
-                    team = Team(course=course, name=team_name)
-                    team.save()
-                membership = Membership(student=registration, entity=team)
-                membership.save()
+                if team_name != '':
+                    try:
+                        team = Team.objects.get(
+                            course=course, name=team_name)
+                    except Team.DoesNotExist:
+                        team = Team(course=course, name=team_name)
+                        team.save()
+                    membership = Membership(student=registration, entity=team)
+                    membership.save()
                 context = get_member_list(course_id)
                 messages.info(request, andrew_id +
                               '\'s team has been added or updated')
@@ -236,10 +238,10 @@ def delete_member(request, course_id, andrew_id):
 def assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     # course = Course.objects.get(pk=course_id)
-
     if request.method == 'GET':
         assignments = Assignment.objects.filter(course=course)
-        context = {'assignments': assignments, "course_id": course_id}
+        context = {'assignments': assignments,
+                   "course_id": course_id, "course": course}
         return render(request, 'assignment.html', context)
 
     if request.method == 'POST' and request.user.is_staff:
@@ -247,18 +249,16 @@ def assignment(request, course_id):
         if form.is_valid():
             form.save()
         assignments = Assignment.objects.filter(course=course)
-        context = {'assignments': assignments, "course_id": course_id}
+        context = {'assignments': assignments,
+                   "course_id": course_id, "course": course}
         return render(request, 'assignment.html', context)
-
-# TODO: Add assignment detail view
 
 
 @login_required
-@user_role_check(user_roles=Registration.UserRole.Instructor)
+# @user_role_check(user_roles=Registration.UserRole.Instructor)
 def delete_assignment(request, course_id, assignment_id):
-    if request.method == 'DELETE':
+    if request.method == 'GET':
         assignment = get_object_or_404(Assignment, pk=assignment_id)
-        # assignment = Assignment.objects.get(id=assignment_id)
         assignment.delete()
         return redirect('assignment', course_id)
     else:
@@ -269,7 +269,6 @@ def delete_assignment(request, course_id, assignment_id):
 # @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
-    # assignment = Assignment.objects.get(id=assignment_id)
     if request.method == 'POST' and request.user.is_staff:
         form = AssignmentForm(
             request.POST, instance=assignment, label_suffix='')
@@ -283,5 +282,12 @@ def edit_assignment(request, course_id, assignment_id):
         return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
 
     else:
-        assignment = get_object_or_404(Assignment, pk=assignment_id)
-        return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+        return redirect('assignment', course_id)
+
+# TO-DO - user_role_check
+
+
+@login_required
+def view_assignment(request, course_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})

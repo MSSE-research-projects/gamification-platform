@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 from pathlib import Path
 
 import dj_database_url
@@ -136,9 +137,21 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+# USE_L10N = True
 
 USE_TZ = True
+
+DATETIME_INPUT_FORMATS += [
+    '%Y-%m-%d, %I:%M:%S %p',     # '2006-10-25 14:30:59'
+    '%Y-%m-%d, %I:%M:%S.%f %p',  # '2006-10-25 14:30:59.000200'
+    '%Y-%m-%d, %I:%M %p',        # '2006-10-25 14:30'
+    '%m/%d/%Y, %I:%M:%S %p',     # '10/25/2006 14:30:59'
+    '%m/%d/%Y, %I:%M:%S.%f %p',  # '10/25/2006 14:30:59.000200'
+    '%m/%d/%Y, %I:%M %p',        # '10/25/2006 14:30'
+    '%m/%d/%y, %I:%M:%S %p',     # '10/25/06 14:30:59'
+    '%m/%d/%y, %I:%M:%S.%f %p',  # '10/25/06 14:30:59.000200'
+    '%m/%d/%y, %I:%M %p',        # '10/25/06 14:30'
+]
 
 
 # Static files (CSS, JavaScript, Images)
