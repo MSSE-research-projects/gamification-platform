@@ -85,7 +85,7 @@ def course(request):
     if request.method == 'GET':
         form = CourseForm(label_suffix='')
         registration = Registration.objects.filter(users=request.user)
-        context = {'registration': registration, 'form':form}
+        context = {'registration': registration, 'form': form}
         return render(request, 'course.html', context)
     if request.method == 'POST':
         if request.user.is_staff:
@@ -96,7 +96,7 @@ def course(request):
                     users=request.user, courses=course, userRole='Instructor')
                 registration.save()
         registration = Registration.objects.filter(users=request.user)
-        context = {'registration': registration, 'form':form}
+        context = {'registration': registration, 'form': form}
         return render(request, 'course.html', context)
 
 
@@ -175,9 +175,7 @@ def member_list(request, course_id):
         else:
             registration = Registration.objects.get(
                 users=user, courses=course)
-            registration.delete()
-            registration = Registration(
-                users=user, courses=course, userRole=role)
+            registration.userRole = role
             registration.save()
             message_info = andrew_id + '\'s team has been added or updated'
         return registration, message_info
@@ -203,12 +201,12 @@ def member_list(request, course_id):
         return users
 
     def delete_memebership_after_switch_to_TA_or_instructor(registration):
-        if registration.userRole == 'Student' or registration.userRole == 'Instructor':
+        if registration.userRole == 'TA' or registration.userRole == 'Instructor':
             membership = Membership.objects.filter(student=registration)
-            if len(membership) > 0:
+            if len(membership) == 1:
                 team = Team.objects.filter(registration=registration)
                 team.delete()
-                membership.delete()
+            membership.delete()
 
     if request.method == 'GET':
         context = get_member_list(course_id)
