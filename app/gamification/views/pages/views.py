@@ -176,8 +176,8 @@ def member_list(request, course_id):
             registration.save()
             message_info = 'A new mamber has been added'
         else:
-            registration = Registration.objects.get(
-                users=user, courses=course)
+            registration = get_object_or_404(
+                Registration, users=user, courses=course)
             registration.userRole = role
             registration.save()
             message_info = andrew_id + '\'s team has been added or updated'
@@ -238,7 +238,8 @@ def member_list(request, course_id):
 def delete_member(request, course_id, andrew_id):
     if request.method == 'GET':
         user = CustomUser.objects.get(andrew_id=andrew_id)
-        registration = Registration.objects.get(users=user)
+        registration = get_object_or_404(
+            Registration, users=user)
         membership = Membership.objects.filter(student=registration)
         membership.delete()
         registration.delete()
