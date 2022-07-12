@@ -252,7 +252,7 @@ def assignment(request, course_id):
             # messages.error(request, 'You do not have permission to view this page')
             # return redirect('course')
 
-    if request.method == 'POST' and request.user.is_staff:
+    if request.method == 'POST' and request.user.is_staff and check_user_permission(request, course_id):
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()

@@ -39,10 +39,10 @@
                     </div>
                   </div>
                 </div>
-                <p class="w-75 mx-auto mb-3">This is my Bio. </p>
+                {% comment %} <p class="w-75 mx-auto mb-3">This is my Bio. </p>
                 <div class="d-flex justify-content-center">
                   <button class="btn btn-success">Message</button>
-                </div>
+                </div> {% endcomment %}
               </div>
               <div class="border-bottom py-4">
                 <p>Badges</p>
@@ -55,14 +55,14 @@
                 </div>
               </div>
               <div class="border-bottom py-4">
-                <p>Score</p>
+                <p>Credit: 11/20</p>
                 <div class="d-flex mb-3">
                   <div class="progress progress-md flex-grow">
                     <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="55" style="width: 55%"
                       aria-valuemin="0" aria-valuemax="100"></div>
                   </div>
                 </div>
-                <p>Projects Completed</p>
+                <p>XXX</p>
                 <div class="d-flex">
                   <div class="progress progress-md flex-grow">
                     <div class="progress-bar bg-success" role="progressbar" aria-valuenow="75" style="width: 75%"
@@ -71,28 +71,33 @@
                 </div>
               </div>
               <div class="py-4">
-                <p class="clearfix">
+                {% comment %} <p class="clearfix">
                   <span class="float-left">
                     Active:
                   </span>
                   <span class="float-right text-muted">
                     {{ user.is_active }}
                   </span>
-                </p>
+                </p> {% endcomment %}
                 <p class="clearfix">
                   <span class="float-left">
                     Staff:
                   </span>
                   <span class="float-right text-muted">
-                    {{ user.is_staff }}
+                    {% if user.is_staff == True %}
+                    Yes
+                    {% else %}
+                    No
+                    {% endif %}
+                    {% comment %} {{ user.is_staff }} {% endcomment %}
                   </span>
                 </p>
                 <p class="clearfix">
                   <span class="float-left">
-                    Phone:
+                    Date Joined:
                   </span>
                   <span class="float-right text-muted">
-                    650-000-0000
+                    {{ user.date_joined }}
                   </span>
                 </p>
                 <p class="clearfix">
@@ -104,7 +109,7 @@
                   </span>
                 </p>
               </div>
-              <button class="btn btn-primary btn-block mb-2">Preview</button>
+              {% comment %} <button class="btn btn-primary btn-block mb-2">Preview</button> {% endcomment %}
             </div>
             <div class="col-lg-8">
               <div class="d-block d-md-flex justify-content-between mt-4 mt-md-0">
@@ -122,19 +127,19 @@
                   <li class="nav-item">
                     <a class="nav-link" href="#">
                       <i class="ti-receipt"></i>
-                      Feedback
+                      XXX
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">
                       <i class="ti-calendar"></i>
-                      Course List
+                      XXX
                     </a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">
                       <i class="ti-clip"></i>
-                      Artifacts
+                      XXX
                     </a>
                   </li>
                 </ul>

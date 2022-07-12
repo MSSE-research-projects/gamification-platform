@@ -23,12 +23,13 @@ class AssignmentTest(TestCase):
         }
         self.url = reverse('course')
         self.response = self.client.post(self.url, data=self.course_data)
-        
+        self.assertEqual(self.response.status_code, 200)
         # get assignment list
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
         # print(self.url)
         self.response = self.client.get(self.url)
+        self.assertEqual(self.response.status_code, 200)
         # print(self.response)
     
     def test_assignment_status_code(self):
@@ -105,8 +106,8 @@ class AssignmentTest(TestCase):
         # delete the assignment
         assignment_id = Assignment.objects.get(assignment_name = 'testNameAssignment').pk
         self.url = reverse('delete_assignment', kwargs={'course_id': course_id, 'assignment_id': assignment_id})
-        self.response = self.client.delete(self.url)
-        self.assertEqual(self.response.status_code, 302) # TO-DO: 302?
+        self.response = self.client.get(self.url)
+        self.assertEqual(self.response.status_code, 302) 
         self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
     
         
@@ -341,7 +342,7 @@ class InvalidAssignmentTest(TestCase):
         assignment_id += 1 # invalid assignment id
         self.url = reverse('delete_assignment', kwargs={'course_id': course_id, 'assignment_id': assignment_id})
         self.response = self.client.delete(self.url)
-        self.assertEqual(self.response.status_code, 404)
+        self.assertEqual(self.response.status_code, 403)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
         
     def test_delete_assignment_invalid_course_id(self):
@@ -361,7 +362,7 @@ class InvalidAssignmentTest(TestCase):
         assignment_id += 1 # invalid assignment id
         self.url = reverse('delete_assignment', kwargs={'course_id': course_id, 'assignment_id': assignment_id})
         self.response = self.client.delete(self.url)
-        self.assertEqual(self.response.status_code, 404) 
+        self.assertEqual(self.response.status_code, 403) 
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
         
         
