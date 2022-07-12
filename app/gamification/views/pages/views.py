@@ -143,8 +143,9 @@ def view_course(request, course_id):
 @login_required
 def member_list(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
-    userRole = Registration.objects.get(
-        users=request.user, courses=course).userRole
+    registration = get_object_or_404(
+        Registration, users=request.user, courses=course)
+    userRole = registration.userRole
 
     def get_member_list(course_id):
         registration = Registration.objects.filter(courses=course)
@@ -213,7 +214,7 @@ def member_list(request, course_id):
     if request.method == 'GET':
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
-    if request.method == 'POST' and userRole != 'Student':
+    elif request.method == 'POST' and userRole != 'Student':
         andrew_id = request.POST['andrew_id']
         try:
             user = CustomUser.objects.get(andrew_id=andrew_id)
@@ -228,6 +229,8 @@ def member_list(request, course_id):
         messages.info(request, message_info)
         context = get_member_list(course_id)
         return render(request, 'course_member.html', context)
+    else:
+        return redirect('member_list', course_id)
 
 
 @login_required
