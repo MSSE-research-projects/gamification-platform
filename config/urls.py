@@ -30,6 +30,8 @@ urlpatterns = [
     path('signup/', page_views.signup, name='signup'),
     path('signout/', page_views.signout, name='signout'),
 
+    path('email_user/<str:andrew_id>/', page_views.email_user, name='email_user'),
+
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
