@@ -9,33 +9,23 @@
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button" class="btn btn-outline-primary">Back</button></a>
+        <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button"
+              class="btn btn-outline-primary">Back</button></a>
           &nbsp&nbsp&nbsp&nbsp&nbsp{{ course.course_name}} - {{ course.course_number}} - Assignments</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
-                {% comment %} <th>
-                  course_id
-                </th> {% endcomment %}
                 <th>
                   Assignment Name
                 </th>
-                {% comment %} <th>
-                  description
-                </th> {% endcomment %}
                 <th>
                   Assignment Type
                 </th>
-                {% comment %} <th>
-                  submission_type
-                </th> {% endcomment %}
                 <th>
                   Total Score
                 </th>
-                <th>
-                  Weight
-                </th>
+
                 {% comment %} <th>
                   date_created
                 </th> {% endcomment %}
@@ -45,16 +35,13 @@
                 <th>
                   Due
                 </th>
-                {% comment %} <th>
-                  review_assign_policy
-                </th> {% endcomment %}
               </tr>
             </thead>
             {% csrf_token %}
             {% for assignment in assignments %}
             <tbody>
               <tr>
-                {% comment %} <td class="py-1"> 
+                {% comment %} <td class="py-1">
                   {{ assignment.course_id}}
                 </td> {% endcomment %}
                 <td>
@@ -72,9 +59,6 @@
                 <td>
                   {{ assignment.total_score}}
                 </td>
-                <td>
-                  {{ assignment.weight}}
-                </td>
                 {% comment %} <td>
                   {{ assignment.date_created}}
                 </td> {% endcomment %}
@@ -84,9 +68,6 @@
                 <td>
                   {{ assignment.date_due}}
                 </td>
-                {% comment %} <td>
-                  {{ assignment.review_assign_policy}}
-                </td> {% endcomment %}
                 <td>
                   <a href="{% url 'view_assignment' course_id assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
