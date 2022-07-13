@@ -95,6 +95,9 @@ class SuccessfulEditProfileTest(TestCase):
 class InvalidEditProfileTest(TestCase):
 
     def setUp(self):
+        if(os.path.exists(settings.MEDIA_ROOT)):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
         self.test_andrew_id = 'andrew_id'
         self.test_password = '1234'
         LogInUser.createAndLogInUser(
@@ -117,6 +120,11 @@ class InvalidEditProfileTest(TestCase):
 
         }
         # self.response = self.client.post(self.url, self.data)
+
+    def tearDown(self):
+        # Remove MEDIA directory after tests finish
+        if(os.path.exists(settings.MEDIA_ROOT)):
+            shutil.rmtree(settings.MEDIA_ROOT)
 
     def test_edit_profile_with_no_email(self):
         # Arrange
