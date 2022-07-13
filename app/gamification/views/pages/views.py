@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -54,13 +55,14 @@ def signout(request):
 
 @admin_required
 def email_user(request, andrew_id):
+    current_site = get_current_site(request)
     if request.method == 'POST':
         user = get_object_or_404(CustomUser, andrew_id=andrew_id)
 
         subject = 'Gamification: Activate your account'
         message = 'Please click the link below to reset your password, '\
             'and then login into the system to activate your account:\n\n'
-        message += 'http://' + request.get_host() + reverse('password_reset') + '\n\n'
+        message += f'http://{current_site.domain}{reverse("password_reset")}\n\n'
         message += 'Your Andrew ID: ' + user.andrew_id + '\n\n'
         message += 'If you did not request this, please ignore this email.\n'
 
@@ -292,15 +294,17 @@ def delete_member(request, course_id, andrew_id):
     else:
         return redirect('member_list', course_id)
 
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
-    userRole = Registration.objects.get(users=request.user, courses=course).userRole
+    userRole = Registration.objects.get(
+        users=request.user, courses=course).userRole
     if request.method == 'GET':
         assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,
-                   "course_id": course_id, 
+                   "course_id": course_id,
                    "course": course,
                    "userRole": userRole}
         return render(request, 'assignment.html', context)
@@ -311,7 +315,7 @@ def assignment(request, course_id):
             form.save()
         assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,
-                   "course_id": course_id, 
+                   "course_id": course_id,
                    "course": course,
                    "userRole": userRole}
         return render(request, 'assignment.html', context)
@@ -335,7 +339,8 @@ def delete_assignment(request, course_id, assignment_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
-    userRole = Registration.objects.get(users=request.user, courses=course_id).userRole
+    userRole = Registration.objects.get(
+        users=request.user, courses=course_id).userRole
     if request.method == 'POST':
         form = AssignmentForm(
             request.POST, instance=assignment, label_suffix='')
@@ -350,6 +355,7 @@ def edit_assignment(request, course_id, assignment_id):
 
     else:
         return redirect('assignment', course_id)
+
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])

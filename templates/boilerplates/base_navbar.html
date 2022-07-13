@@ -212,7 +212,13 @@
   <div class="navbar-menu-wrapper d-flex align-items-top">
     <ul class="navbar-nav">
       <li class="nav-item font-weight-semibold d-none d-lg-block ms-0">
-        <h1 class="welcome-text">Hello, <span class="text-black fw-bold">{{ user.andrew_id }}</span></h1>
+        <h1 class="welcome-text">Hello, <span class="text-black fw-bold">
+            {% if user.get_full_name == '' %}
+            {{ user.andrew_id }}
+            {% else %}
+            {{ user.get_full_name }}
+            {% endif %}
+          </span></h1>
         <h3 class="welcome-sub-text">Welcome to gamification platform </h3>
       </li>
     </ul>
@@ -357,7 +363,7 @@
 <!-- navbar ends -->
 <div class="container-fluid page-body-wrapper">
   <!-- partial:partials/_settings-panel.html -->
-  <div class="theme-setting-wrapper">
+  <!-- <div class="theme-setting-wrapper">
     <div id="settings-trigger"><i class="ti-settings"></i></div>
     <div id="theme-settings" class="settings-panel">
       <i class="settings-close ti-close"></i>
@@ -378,7 +384,7 @@
         <div class="tiles default"></div>
       </div>
     </div>
-  </div>
+  </div> -->
   <!-- partial -->
   <!-- partial:partials/_sidebar.html -->
   <nav class="sidebar sidebar-offcanvas" id="sidebar">
