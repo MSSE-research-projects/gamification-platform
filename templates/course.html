@@ -32,7 +32,6 @@
               </tr>
             </thead>
             {% for reg in registration %}
-            <!-- TODO: TAs should be able to view invisible course as well -->
             {% if reg.courses.visible or reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
             <tbody>
               <tr>
