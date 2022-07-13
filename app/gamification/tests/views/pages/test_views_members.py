@@ -451,6 +451,12 @@ class DeleteMemberTest(TestCase):
 
         self.assertEqual(0, len(membership))
         self.assertEqual(1, len(registratiton))
+
+    def test_deletet_not_existing_member(self):
+        NOT_EXISTING_USER = 'user5'
+        self.url = reverse('delete_member', args = [self.course_pk, NOT_EXISTING_USER])
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 404)
     
     def test_student_cannot_delete_member(self):
         user = CustomUser.objects.get(andrew_id='exist_id')

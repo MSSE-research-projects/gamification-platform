@@ -249,7 +249,7 @@ def member_list(request, course_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def delete_member(request, course_id, andrew_id):
     if request.method == 'GET':
-        user = CustomUser.objects.get(andrew_id=andrew_id)
+        user = get_object_or_404(CustomUser, andrew_id=andrew_id)
         registration = get_object_or_404(
             Registration, users=user)
         membership = Membership.objects.filter(student=registration)
