@@ -2,17 +2,16 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator
-from app.gamification.models.assignment import Assignment
-
-from app.gamification.models.course import Course
 
 from .entity import Entity
 from .assignment import Assignment
 
 class Artifact(models.Model):
-
+    
     file_extension_validator = FileExtensionValidator(
-        allowed_extensions=['png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'])
+        allowed_extensions=['png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip',
+                            'rar', '7z', 'gz', 'tar', 'bz2', 'bzip2', 'bz', 'bzip', 'bzp', 'bzt', 'bz2', 'bz3'])
+                            
     
     # TO-DO - consider about on_delete setting here
     entity =  models.ForeignKey(Entity, on_delete=models.CASCADE)
