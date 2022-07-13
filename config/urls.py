@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 import app.gamification.views.pages as page_views
@@ -29,13 +30,15 @@ urlpatterns = [
     path('signup/', page_views.signup, name='signup'),
     path('signout/', page_views.signout, name='signout'),
 
+    path('email_user/<str:andrew_id>/', page_views.email_user, name='email_user'),
+
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
     path('test/', page_views.test, name='test'),
 
     path('course/', include([
-        path('', page_views.course, name='course'),
+        path('', page_views.course_list, name='course'),
 
         path('<int:course_id>/', include([
             path('delete/', page_views.delete_course, name='delete_course'),
@@ -49,6 +52,8 @@ urlpatterns = [
                          name='delete_assignment'),
                     path('edit/', page_views.edit_assignment,
                          name='edit_assignment'),
+                    path('view/', page_views.view_assignment,
+                         name='view_assignment'),
                 ]))
             ])),
 
@@ -64,6 +69,15 @@ urlpatterns = [
 
     path('api/', include('app.gamification.views.api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    path('reset_password/', page_views.PasswordResetView.as_view(),
+         name='password_reset'),
+    path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'),
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),
+         name='password_reset_confirm'),
+    path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'),
+         name='password_reset_complete'),
 ]
 
 if settings.DEBUG:

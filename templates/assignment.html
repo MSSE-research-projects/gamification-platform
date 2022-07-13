@@ -9,73 +9,41 @@
   <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">
-        <h4 class="card-title">assignments</h4>
+        <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button"
+              class="btn btn-outline-primary">Back</button></a>
+          &nbsp&nbsp&nbsp&nbsp&nbsp{{ course.course_name}} - {{ course.course_number}} - Assignments - {{ userRole }}</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
               <tr>
                 <th>
-                  course_id
+                  Assignment Name
                 </th>
                 <th>
-                  assignment_name
+                  Assignment Type
                 </th>
                 <th>
-                  description
-                </th>
-                <th>
-                  assignment_type
-                </th>
-                <th>
-                  submission_type
-                </th>
-                <th>
-                  total_score
-                </th>
-                <th>
-                  weight
-                </th>
-                <th>
-                  date_created
+                  Total Score
                 </th>
                 <th>
                   date_released
                 </th>
                 <th>
-                  date_due
-                </th>
-                <th>
-                  review_assign_policy
+                  Due
                 </th>
               </tr>
             </thead>
-            {% csrf_token %}
             {% for assignment in assignments %}
             <tbody>
               <tr>
-                <td class="py-1">
-                  {{ assignment.course_id}}
-                </td>
                 <td>
                   {{ assignment.assignment_name}}
-                </td>
-                <td>
-                  {{ assignment.description}}
                 </td>
                 <td>
                   {{ assignment.assignment_type}}
                 </td>
                 <td>
-                  {{ assignment.submission_type}}
-                </td>
-                <td>
                   {{ assignment.total_score}}
-                </td>
-                <td>
-                  {{ assignment.weight}}
-                </td>
-                <td>
-                  {{ assignment.date_created}}
                 </td>
                 <td>
                   {{ assignment.date_released}}
@@ -84,14 +52,17 @@
                   {{ assignment.date_due}}
                 </td>
                 <td>
-                  {{ assignment.review_assign_policy}}
-                </td>
-                <td>
-                  <a href="{% url 'edit_assignment' course_id assignment.id %}">
+                  <a href="{% url 'view_assignment' course_id assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
-                {% if user.is_staff %}
+                
+                {% if userRole == 'Instructor' or userRole == 'TA' %}
+                <td>
+                  <a href="{% url 'edit_assignment' course_id assignment.id %}">
+                    <button type="button" class="btn-sm btn-primary">Edit</button>
+                  </a>
+                </td>
                 <td>
                   <a href="{% url 'delete_assignment' course_id assignment.id%}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
@@ -106,7 +77,7 @@
       </div>
     </div>
   </div>
-  {% if user.is_staff %}
+  {% if userRole == 'Instructor' or userRole == 'TA' %}
   <div class="col-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">

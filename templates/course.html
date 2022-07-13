@@ -1,6 +1,7 @@
 {% extends 'boilerplates/base_navbar.html' %}
 {% load static %}
 {% load widget_tweaks %}
+{% load widget_tweaks form_tags %}
 
 {% block title %}Course List{% endblock %}
 
@@ -23,62 +24,63 @@
                 <th>
                   Semester
                 </th>
+                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
                 <th>
                   Status
                 </th>
+                {% endif %}
               </tr>
             </thead>
-            {% csrf_token %}
             {% for reg in registration %}
-              {% if reg.courses.visible or reg.userRole == 'Instructor' %}
-              <tbody>
-                <tr>
-                  <td class="py-1">
-                    {{ reg.courses.course_name}}
-                  </td>
-                  <td>
-                    {{ reg.courses.course_number}}
-                  </td>
-                  <td>
-                    {{ reg.courses.semester}}
-                  </td>
-                  <td>
-                    {{ reg.courses.visible}}
-                  </td>
-                  <td>
-                    <a href="{% url 'assignment' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">Assignments</button>
-                    </a>
-                  </td>
-                  {% if user.is_staff %}
-                  <td>
-                    <a href="{% url 'member_list' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">Members</button>
-                    </a>
-                  </td>
-                  {% endif %}
-                  <td>
-                    <a href="{% url 'view_course' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">view</button>
-                    </a>
-                  </td>
-                  {% if user.is_staff %}
-                  <td>
-                    <a href="{% url 'edit_course' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">edit</button>
-                    </a>
-                  </td>
-                  {% endif %}
-                  {% if user.is_staff %}
-                  <td>
-                    <a href="{% url 'delete_course' reg.courses.id %}">
-                      <button type="button" class="btn-sm btn-primary">delete</button>
-                    </a>
-                  </td>
-                  {% endif %}
-                </tr>
-              </tbody>
-              {% endif %}
+            {% if reg.courses.visible or reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
+            <tbody>
+              <tr>
+                <td class="py-1">
+                  {{ reg.courses.course_name}}
+                </td>
+                <td>
+                  {{ reg.courses.course_number}}
+                </td>
+                <td>
+                  {{ reg.courses.semester}}
+                </td>
+                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
+                <td>
+                  {{ reg.courses.visible}}
+                </td>
+                {% endif %}
+                <td>
+                  <a href="{% url 'assignment' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">Assignments</button>
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'member_list' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">Members</button>
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'view_course' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">view</button>
+                  </a>
+                </td>
+                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
+                <td>
+                  <a href="{% url 'edit_course' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">edit</button>
+                  </a>
+                </td>
+                {% endif %}
+                {% if reg.userRole == 'Instructor' %}
+                <td>
+                  <a href="{% url 'delete_course' reg.courses.id %}">
+                    <button type="button" class="btn-sm btn-primary">delete</button>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+            </tbody>
+            {% endif %}
             {% endfor %}
           </table>
         </div>
@@ -91,20 +93,42 @@
       <div class="card-body">
         <form method="post">
           {% csrf_token %}
+          
           <h4 class="card-title">Add Course</h4>
-          <div class="form-group">
-            <label for="course-name">Course Name</label>
-            <input type="text" name="course_name" class="form-control" id="course-name" placeholder="Course Name">
-          </div>
-          <div class="form-group">
-            <label for="course-number">Course Number</label>
-            <input type="text" name="course_number" class="form-control" id="course-number" placeholder="Course Number">
-          </div>
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+              {% for error in form.non_field_errors %}
+              <p{% if forloop.last %} class="mb-0" {% endif %}>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% for field in form %}
+            {% if field.name == 'course_name' or field.name == 'course_number'%}
+            <div class="form-group">
+              {{ field.label_tag }}
+
+              {% render_field field class=field|input_class style=field|input_style %}
+              {% for error in field.errors %}
+              <div class="invalid-feedback">
+                {{ error }}
+              </div>
+              {% endfor %}
+
+              {% if field.help_text %}
+              <small class="form-text text-muted">
+                {{ field.help_text|safe }}
+              </small>
+              {% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
           <button type="submit" class="btn btn-primary me-2">Add</button>
         </form>
       </div>
     </div>
   </div>
+  
   {% endif %}
 </div>
 {% endblock content %}

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 from pathlib import Path
 
 import dj_database_url
@@ -136,9 +137,21 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+# USE_L10N = True
 
 USE_TZ = True
+
+DATETIME_INPUT_FORMATS += [
+    '%Y-%m-%d, %I:%M:%S %p',     # '2006-10-25 14:30:59'
+    '%Y-%m-%d, %I:%M:%S.%f %p',  # '2006-10-25 14:30:59.000200'
+    '%Y-%m-%d, %I:%M %p',        # '2006-10-25 14:30'
+    '%m/%d/%Y, %I:%M:%S %p',     # '10/25/2006 14:30:59'
+    '%m/%d/%Y, %I:%M:%S.%f %p',  # '10/25/2006 14:30:59.000200'
+    '%m/%d/%Y, %I:%M %p',        # '10/25/2006 14:30'
+    '%m/%d/%y, %I:%M:%S %p',     # '10/25/06 14:30:59'
+    '%m/%d/%y, %I:%M:%S.%f %p',  # '10/25/06 14:30:59.000200'
+    '%m/%d/%y, %I:%M %p',        # '10/25/06 14:30'
+]
 
 
 # Static files (CSS, JavaScript, Images)
@@ -153,7 +166,19 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email SMTP Configuration
+# https://docs.djangoproject.com/en/3.2/topics/email/
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = os.getenv('EMAIL_PORT', '587')
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')

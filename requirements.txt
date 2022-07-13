@@ -9,3 +9,4 @@ python-dotenv==0.20.0
 
 # Dev requirements
 coverage==6.4.1
+tblib==1.7.0

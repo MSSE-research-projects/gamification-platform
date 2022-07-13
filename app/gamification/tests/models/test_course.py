@@ -1,6 +1,8 @@
 from django.test import TestCase
 
-from app.gamification.models import Course, Registration, registration
+from app.gamification.models import Course, Registration, membership, registration
+from app.gamification.models.membership import Membership
+from app.gamification.models.entity import Team
 from app.gamification.models.user import CustomUser
 
 
@@ -110,3 +112,74 @@ class CourseTest(TestCase):
         # Assert
         self.assertEqual(len(TAs), 1)
         self.assertEqual(TAs[0].andrew_id, 'test3')
+
+    def test_get_team(self):
+        # Arrange
+        user = CustomUser.objects.create_user(
+            andrew_id='test3',
+            email='test3@example.com',
+            password='arbitary-password',
+        )
+
+        course = Course(
+            course_name='Course C',
+            course_number='888',
+            syllabus='Syllabus',
+            semester='Semester',
+        )
+        course.save()
+
+        registration = Registration(
+            users=user,
+            courses=course,
+            userRole=Registration.UserRole.TA,
+        )
+        registration.save()
+
+        team = Team(course=course, name='T1',)
+        team.save()
+
+        membership = Membership(entity=team, student=registration)
+        membership.save()
+
+        # Act
+        teams = course.teams
+
+        # Assert
+        self.assertEqual(len(teams), 1)
+        self.assertEqual(teams[0].name, 'T1')
+
+    def test_get_query(self):
+        # Arrange
+        user = CustomUser.objects.create_user(
+            andrew_id='test3',
+            email='test3@example.com',
+            password='arbitary-password',
+        )
+
+        course = Course(
+            course_name='Course C',
+            course_number='888',
+            syllabus='Syllabus',
+            semester='Semester',
+        )
+        course.save()
+
+        registration = Registration(
+            users=user,
+            courses=course,
+            userRole=Registration.UserRole.TA,
+        )
+        registration.save()
+
+        team = Team(course=course, name='T1',)
+        team.save()
+
+        membership = Membership(entity=team, student=registration)
+        membership.save()
+
+        # Act
+        querys = course.get_query(Registration.UserRole.TA)
+
+        # Assert
+        self.assertEqual(len(querys), 1)
