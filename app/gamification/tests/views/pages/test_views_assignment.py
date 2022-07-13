@@ -8,8 +8,8 @@ from django.conf import settings
 from app.gamification.models import Assignment, Course
 
 # TO-DO test with a user that is not an instructor
-class AssignmentTest(TestCase):
 
+class AssignmentAddTest(TestCase):
     def setUp(self):
         test_andrew_id = 'andrew_id'
         test_password = '1234'
@@ -23,13 +23,11 @@ class AssignmentTest(TestCase):
         }
         self.url = reverse('course')
         self.response = self.client.post(self.url, data=self.course_data)
-        self.assertEqual(self.response.status_code, 200)
         # get assignment list
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
         # print(self.url)
         self.response = self.client.get(self.url)
-        self.assertEqual(self.response.status_code, 200)
         # print(self.response)
     
     def test_assignment_status_code(self):
@@ -58,7 +56,28 @@ class AssignmentTest(TestCase):
         self.response = self.client.post(self.url, data=self.assignment_data)
         self.assertEqual(self.response.status_code, 200)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
+    
+class AssignmentEditTest(TestCase):
+    def setUp(self):
+        test_andrew_id = 'andrew_id'
+        test_password = '1234'
+        LogInUser.createAndLogInUser(
+            self.client, test_andrew_id, test_password, is_superuser=True)
         
+        # create a course first before creating an assignment
+        self.course_data = {
+            'course_name': 'testName',
+            'course_number': '18652',
+        }
+        self.url = reverse('course')
+        self.response = self.client.post(self.url, data=self.course_data)
+        # get assignment list
+        course_id = Course.objects.get(course_name='testName').pk
+        self.url = reverse('assignment', kwargs={'course_id': course_id})
+        # print(self.url)
+        self.response = self.client.get(self.url)
+        # print(self.response)
+    
     def test_edit_assignment(self):
         # add an assignment first
         course_id = Course.objects.get(course_name='testName').pk
@@ -90,7 +109,28 @@ class AssignmentTest(TestCase):
         self.response = self.client.post(self.url, data=self.edit_assignment_data)
         self.assertEqual(self.response.status_code, 200)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignmentEdited').exists())
+    
+class AssignmentDeleteTest(TestCase):
+    def setUp(self):
+        test_andrew_id = 'andrew_id'
+        test_password = '1234'
+        LogInUser.createAndLogInUser(
+            self.client, test_andrew_id, test_password, is_superuser=True)
         
+        # create a course first before creating an assignment
+        self.course_data = {
+            'course_name': 'testName',
+            'course_number': '18652',
+        }
+        self.url = reverse('course')
+        self.response = self.client.post(self.url, data=self.course_data)
+        # get assignment list
+        course_id = Course.objects.get(course_name='testName').pk
+        self.url = reverse('assignment', kwargs={'course_id': course_id})
+        # print(self.url)
+        self.response = self.client.get(self.url)
+        # print(self.response)
+    
     def test_delete_assignment(self):
         # add an assignment first
         course_id = Course.objects.get(course_name='testName').pk
@@ -110,9 +150,7 @@ class AssignmentTest(TestCase):
         self.assertEqual(self.response.status_code, 302) 
         self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
     
-        
-class InvalidAssignmentTest(TestCase):
-    
+class InvalidAddAssignmentTest(TestCase):
     def setUp(self):
         test_andrew_id = 'andrew_id'
         test_password = '1234'
@@ -160,6 +198,25 @@ class InvalidAssignmentTest(TestCase):
         }
         self.response = self.client.post(self.url, data=self.assignment_data)
         self.assertEqual(self.response.status_code, 404)
+class InvalidEditAssignmentTest(TestCase):
+    def setUp(self):
+        test_andrew_id = 'andrew_id'
+        test_password = '1234'
+        LogInUser.createAndLogInUser(
+            self.client, test_andrew_id, test_password, is_superuser=True)
+        
+        # create a course first before creating an assignment
+        self.course_data = {
+            'course_name': 'testName',
+            'course_number': '18652',
+        }
+        self.url = reverse('course')
+        self.response = self.client.post(self.url, data=self.course_data)
+        
+        # get assignment list
+        course_id = Course.objects.get(course_name='testName').pk
+        self.url = reverse('assignment', kwargs={'course_id': course_id})
+        self.response = self.client.get(self.url)
     
     def test_edit_assignment_with_invalid_date_format(self):
         # add an assignment first
@@ -324,7 +381,26 @@ class InvalidAssignmentTest(TestCase):
         self.response = self.client.post(self.url, data=self.edit_assignment_data)
         self.assertEqual(self.response.status_code, 200)
         self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignmentEdited').exists())
-    
+class InvalidDeleteAssignmentTest(TestCase):
+    def setUp(self):
+        test_andrew_id = 'andrew_id'
+        test_password = '1234'
+        LogInUser.createAndLogInUser(
+            self.client, test_andrew_id, test_password, is_superuser=True)
+        
+        # create a course first before creating an assignment
+        self.course_data = {
+            'course_name': 'testName',
+            'course_number': '18652',
+        }
+        self.url = reverse('course')
+        self.response = self.client.post(self.url, data=self.course_data)
+        
+        # get assignment list
+        course_id = Course.objects.get(course_name='testName').pk
+        self.url = reverse('assignment', kwargs={'course_id': course_id})
+        self.response = self.client.get(self.url)
+        
     def test_delete_assignment_not_exist(self):
         # add an assignment first
         course_id = Course.objects.get(course_name='testName').pk
@@ -342,7 +418,7 @@ class InvalidAssignmentTest(TestCase):
         assignment_id += 1 # invalid assignment id
         self.url = reverse('delete_assignment', kwargs={'course_id': course_id, 'assignment_id': assignment_id})
         self.response = self.client.delete(self.url)
-        self.assertEqual(self.response.status_code, 403)
+        self.assertEqual(self.response.status_code, 302)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
         
     def test_delete_assignment_invalid_course_id(self):
@@ -362,8 +438,16 @@ class InvalidAssignmentTest(TestCase):
         assignment_id += 1 # invalid assignment id
         self.url = reverse('delete_assignment', kwargs={'course_id': course_id, 'assignment_id': assignment_id})
         self.response = self.client.delete(self.url)
-        self.assertEqual(self.response.status_code, 403) 
+        self.assertEqual(self.response.status_code, 302) 
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
+                
+    
+        
+    
+    
+    
+    
+    
         
         
     

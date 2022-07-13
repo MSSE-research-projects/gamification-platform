@@ -11,7 +11,7 @@
       <div class="card-body">
         <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button"
               class="btn btn-outline-primary">Back</button></a>
-          &nbsp&nbsp&nbsp&nbsp&nbsp{{ course.course_name}} - {{ course.course_number}} - Assignments</h4>
+          &nbsp&nbsp&nbsp&nbsp&nbsp{{ course.course_name}} - {{ course.course_number}} - Assignments - {{ userRole }}</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -25,46 +25,29 @@
                 <th>
                   Total Score
                 </th>
-
-                {% comment %} <th>
-                  date_created
-                </th> {% endcomment %}
-                {% comment %} <th>
+                <th>
                   date_released
-                </th> {% endcomment %}
+                </th>
                 <th>
                   Due
                 </th>
               </tr>
             </thead>
-            {% csrf_token %}
             {% for assignment in assignments %}
             <tbody>
               <tr>
-                {% comment %} <td class="py-1">
-                  {{ assignment.course_id}}
-                </td> {% endcomment %}
                 <td>
                   {{ assignment.assignment_name}}
                 </td>
-                {% comment %} <td>
-                  {{ assignment.description}}
-                </td> {% endcomment %}
                 <td>
                   {{ assignment.assignment_type}}
                 </td>
-                {% comment %} <td>
-                  {{ assignment.submission_type}}
-                </td> {% endcomment %}
                 <td>
                   {{ assignment.total_score}}
                 </td>
-                {% comment %} <td>
-                  {{ assignment.date_created}}
-                </td> {% endcomment %}
-                {% comment %} <td>
+                <td>
                   {{ assignment.date_released}}
-                </td> {% endcomment %}
+                </td>
                 <td>
                   {{ assignment.date_due}}
                 </td>
@@ -73,7 +56,8 @@
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
-                {% if user.is_staff %}
+                
+                {% if userRole == 'Instructor' or userRole == 'TA' %}
                 <td>
                   <a href="{% url 'edit_assignment' course_id assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">Edit</button>
@@ -93,7 +77,7 @@
       </div>
     </div>
   </div>
-  {% if user.is_staff %}
+  {% if userRole == 'Instructor' or userRole == 'TA' %}
   <div class="col-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body">

@@ -10,8 +10,6 @@ from app.gamification.models import Assignment, Course, CustomUser, Registration
 
 from django.shortcuts import get_object_or_404
 
-from django.core.exceptions import PermissionDenied
-
 
 def signup(request):
     if request.method == 'POST':
@@ -233,10 +231,14 @@ def delete_member(request, course_id, andrew_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
+    userRole = Registration.objects.get(users=request.user, courses=course).userRole
+    print("userRole: " + userRole)
     if request.method == 'GET':
         assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,
-                   "course_id": course_id, "course": course}
+                   "course_id": course_id, 
+                   "course": course,
+                   "userRole": userRole}
         return render(request, 'assignment.html', context)
 
     if request.method == 'POST':
@@ -245,12 +247,13 @@ def assignment(request, course_id):
             form.save()
         assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,
-                   "course_id": course_id, "course": course}
+                   "course_id": course_id, 
+                   "course": course,
+                   "userRole": userRole}
         return render(request, 'assignment.html', context)
 
     else:
-        raise PermissionDenied
-        # messages.error(request, 'You do not have permission to add assignment')
+        return redirect('assignment', course_id)
 
 
 @login_required
@@ -261,34 +264,28 @@ def delete_assignment(request, course_id, assignment_id):
         assignment.delete()
         return redirect('assignment', course_id)
     else:
-        raise PermissionDenied
-        # messages.error(request, 'You do not have permission to delete assignment')
-        # return redirect('assignment', course_id)
+        return redirect('assignment', course_id)
 
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def edit_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
+    userRole = Registration.objects.get(users=request.user, courses=course_id).userRole
     if request.method == 'POST':
         form = AssignmentForm(
             request.POST, instance=assignment, label_suffix='')
 
         if form.is_valid():
             assignment = form.save()
-        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
+        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form, 'userRole': userRole})
 
     if request.method == 'GET':
         form = AssignmentForm(instance=assignment)
-        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form})
+        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form, 'userRole': userRole})
 
     else:
-        raise PermissionDenied
-        # messages.error(request, 'You do not have permission to edit assignment')
-        # return redirect('assignment', course_id)
-
-# TO-DO - user_role_check
-
+        return redirect('assignment', course_id)
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
