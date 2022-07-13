@@ -27,6 +27,7 @@ class Feedback(models.Model):
     def replies(self):
         return Feedback.objects.filter(parent_node=self)
     
+    # TO-DO: using 'user' instead of 'registration' might be confusing
     @property
     def user(self):
         return self.review_id.user

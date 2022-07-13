@@ -7,6 +7,7 @@ from .entity import Entity
 from .assignment import Assignment
 from .feedback import Feedback
 from .artifact_review import ArtifactReview
+from app.gamification.models import artifact_review
 
 class Artifact(models.Model):
     
@@ -33,14 +34,14 @@ class Artifact(models.Model):
     def artifact_reviews(self):
         return ArtifactReview.objects.filter(artifact=self)
     
-    # TO-DO - feedback is not implemented yet
-    # @property
-    # def feedback(self):
-    #     return 
+    # TO-DO - consider about the logic of this function
+    @property
+    def feedback(self):
+        return Feedback.objects.filter(review_id=ArtifactReview.objects.filter(artifact=self))
     
-    # TO-DO - review is not implemented yet
-    # @property
-    # def reviewers(self):
+    @property
+    def reviewers(self):
+        return [artifact_review.user for artifact_review in self.artifact_reviews]
 
     
     class Meta:
