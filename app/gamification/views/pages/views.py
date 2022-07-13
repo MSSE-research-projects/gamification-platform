@@ -81,10 +81,19 @@ def test(request):
 
 
 @login_required
-def course(request):
+def course_list(request):
+    def get_registrations(user):
+        registration = []
+        for reg in Registration.objects.filter(users=user):
+            if reg.userRole == Registration.UserRole.Student and reg.courses.visible == False:
+                continue
+            else:
+                registration.append(reg)
+        return registration
+
     if request.method == 'GET':
         form = CourseForm(label_suffix='')
-        registration = Registration.objects.filter(users=request.user)
+        registration = get_registrations(request.user)
         context = {'registration': registration, 'form': form}
         return render(request, 'course.html', context)
     if request.method == 'POST':
@@ -93,9 +102,12 @@ def course(request):
             if form.is_valid():
                 course = form.save()
                 registration = Registration(
-                    users=request.user, courses=course, userRole='Instructor')
+                    users=request.user, courses=course, userRole=Registration.UserRole.Instructor)
                 registration.save()
-        registration = Registration.objects.filter(users=request.user)
+        else:
+            form = CourseForm(label_suffix='')
+
+        registration = get_registrations(request.user)
         context = {'registration': registration, 'form': form}
         return render(request, 'course.html', context)
 
@@ -122,8 +134,6 @@ def edit_course(request, course_id):
         if form.is_valid():
             course = form.save()
 
-        return redirect('course')
-
     else:
         form = CourseForm(instance=course)
 
@@ -131,6 +141,7 @@ def edit_course(request, course_id):
 
 
 @login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_course(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     if request.method == 'GET' and course.visible:
@@ -141,6 +152,7 @@ def view_course(request, course_id):
 
 
 @login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def member_list(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     registration = get_object_or_404(

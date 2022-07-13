@@ -4,9 +4,10 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import resolve_url
 
-from app.gamification.models import Registration
+from app.gamification.models import Course, Registration
 
 
 def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME, **decorator_kwargs):
@@ -73,9 +74,15 @@ def user_role_check(user_roles, raise_exception=True):
     def func(user, course_id, user_roles, **kwargs):
         if user.is_staff:
             return True
+
+        try:
+            course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            raise Http404("Course does not exist.")
+
         try:
             registration = Registration.objects.get(
-                users=user, courses__pk=course_id)
+                users=user, courses=course)
             if registration.userRole in user_roles:
                 return True
         except Registration.DoesNotExist:

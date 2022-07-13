@@ -35,7 +35,7 @@ urlpatterns = [
     path('test/', page_views.test, name='test'),
 
     path('course/', include([
-        path('', page_views.course, name='course'),
+        path('', page_views.course_list, name='course'),
 
         path('<int:course_id>/', include([
             path('delete/', page_views.delete_course, name='delete_course'),

@@ -159,28 +159,113 @@ class AddMemberTest(TestCase):
         self.response = self.client.post(self.url, self.data)
         self.assertEqual(list(get_messages(self.response.wsgi_request))[0].message, 'AndrewID does not exist')
 
-    def test_add_member_not_superuser(self):
-        test_andrew_id = 'andrew_id_1'
-        test_password = '12345'
-        LogInUser.createAndLogInUser(
-            self.client, test_andrew_id, test_password, is_superuser=False)
-        user = CustomUser.objects.get(andrew_id=test_andrew_id)
-        course = Course.objects.get(id=1)
-        registration = Registration(courses=course, users=user, userRole=Registration.UserRole.Student)
-        registration.save()
-        self.url = reverse('member_list', args = [self.course_pk])
+class AddMemberPermissionTest(TestCase):
+
+    fixtures = ['users.json', 'courses.json', 'registration.json', 'membership.json', 'entities.json']
+
+    @classmethod
+    def setUpTestData(self):
+        self.student_andrew_id = 'user1'
+        self.student_password = 'user1-password'
+        self.ta_andrew_id = 'user4'
+        self.ta_password = 'user4-password'
+        self.instructor_andrew_id = 'admin1'
+        self.instructor_password = 'admin1-password'
+        self.admin_andrew_id = 'admin2'
+        self.admin_password = 'admin2-password'
+
+        self.invisible_course = Course.objects.get(
+            course_number='18749', semester='Summer 2024')
+        self.course = Course.objects.get(
+            course_number='18652', semester='Fall 2021'
+        )
+
+        self.student = CustomUser.objects.get(
+            andrew_id=self.student_andrew_id)  # pk = 3
+        self.ta = CustomUser.objects.get(andrew_id=self.ta_andrew_id)
+        self.instructor = CustomUser.objects.get(
+            andrew_id=self.instructor_andrew_id)
+        self.admin = CustomUser.objects.get(andrew_id=self.admin_andrew_id)
+
+    def test_user_not_in_this_course_cannot_add_member(self):
+        course = Course.objects.filter(course_number='18749').first()
+        self.client.login(username=self.student_andrew_id, password=self.student_password)
+        url = reverse('member_list', args=[course.pk])
+        data = {
+            'andrew_id': 'user2',
+            'team_name': 'T1',
+            'membershipRadios': 'Student',
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 403)
+
+    def test_student_cannot_add_member(self):
+        self.client.login(username=self.student_andrew_id, password=self.student_password)
+        url = reverse('member_list', args=[self.course.pk])
+
         test_member_andrewId = 'Andrew_id'
         test_member_team = 'T1'
         test_member_role = 'Student'
-        self.data = {
+        data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
             'membershipRadios': test_member_role,
         }
-        self.response = self.client.post(self.url, self.data)
-        registratiton = Registration.objects.all()
-        self.assertEqual(2, len(registratiton))
-        self.assertRedirects(self.response, reverse('member_list', args = [self.course_pk]))
+
+        response = self.client.post(url, data)
+        self.assertRedirects(response, reverse('member_list', args = [self.course.pk]))
+    
+    def test_TA_can_add_member(self):
+        self.client.login(username=self.ta_andrew_id, password=self.ta_password)
+        url = reverse('member_list', args=[self.course.pk])
+
+        test_member_andrewId = 'user2'
+        test_member_team = 'Team1'
+        test_member_role = 'Student'
+        data = {
+            'andrew_id': test_member_andrewId,
+            'team_name': test_member_team,
+            'membershipRadios': test_member_role,
+        }
+        user = CustomUser.objects.get(andrew_id=test_member_andrewId)
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(test_member_andrewId, list(get_messages(response.wsgi_request))[0].message)
+
+        team = Team.objects.filter(name=test_member_team).first()
+        registration = Registration.objects.filter(
+            users__andrew_id=test_member_andrewId, courses=self.course).first()
+        membership = Membership.objects.filter(
+            entity=team, student=registration).first()
+        self.assertIn(user, team.members)
+
+    def test_instructor_can_add_member(self):
+        self.client.login(username=self.instructor_andrew_id, password=self.instructor_password)
+        url = reverse('member_list', args=[self.course.pk])
+
+        test_member_andrewId = 'user2'
+        test_member_team = 'Team1'
+        test_member_role = 'Student'
+        data = {
+            'andrew_id': test_member_andrewId,
+            'team_name': test_member_team,
+            'membershipRadios': test_member_role,
+        }
+        user = CustomUser.objects.get(andrew_id=test_member_andrewId)
+
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(test_member_andrewId, list(get_messages(response.wsgi_request))[0].message)
+
+        team = Team.objects.filter(name=test_member_team).first()
+        registration = Registration.objects.filter(
+            users__andrew_id=test_member_andrewId, courses=self.course).first()
+        membership = Membership.objects.filter(
+            entity=team, student=registration).first()
+        self.assertIn(user, team.members)
 
 
 class EditMemberTest(TestCase):
@@ -210,7 +295,10 @@ class EditMemberTest(TestCase):
             andrew_id=self.instructor_andrew_id)
         self.admin = CustomUser.objects.get(andrew_id=self.admin_andrew_id)
 
-    def test_edit_an_exist_team(self):
+    def test_add_student_to_an_existing_team(self):
+        '''
+        Test that a student can be added to an existing team
+        '''
         NEW_TEAM = 'T2'
         self.client.login(
             andrew_id=self.ta_andrew_id,
@@ -228,7 +316,11 @@ class EditMemberTest(TestCase):
         self.assertIn(self.student_andrew_id, members)
         self.assertEqual(2, len(members))
 
-    def test_edit_non_existing_team(self):
+    def test_add_student_to_a_non_existing_team(self):
+        '''
+        Test that a student can be added to a team that does not exist, and that
+        the team is created.
+        '''
         NEW_TEAM = 'T3'
         self.client.login(
             andrew_id=self.ta_andrew_id,
@@ -246,7 +338,10 @@ class EditMemberTest(TestCase):
         self.assertIn(self.student_andrew_id, members)
         self.assertEqual(1, len(members))
 
-    def test_edit_ta_with_a_team(self):
+    def test_add_TA_to_an_existing_team(self):
+        '''
+        Test that a TA can be added to an existing team.
+        '''
         NEW_TEAM = 'T2'
         self.client.login(
             andrew_id=self.ta_andrew_id,
@@ -264,7 +359,10 @@ class EditMemberTest(TestCase):
         self.assertNotIn(self.student_andrew_id, members)
         self.assertEqual(1, len(members))
 
-    def test_edit_user_role(self):
+    def test_update_user_role(self):
+        '''
+        Test that the user role is updated when the user is added to an existing team.
+        '''
         NEW_TEAM = 'T2'
         self.client.login(
             andrew_id=self.ta_andrew_id,
@@ -284,7 +382,11 @@ class EditMemberTest(TestCase):
         self.assertIn(self.ta_andrew_id, members)
         self.assertEqual(2, len(members))
 
-    def test_membership_after_role_changed(self):
+    def test_membership_will_be_deleted_after_role_changed(self):
+        '''
+        Test that the membership will be deleted after the user role is changed
+        from Student to TA/Instructor.
+        '''
         NEW_TEAM = 'T2'
         self.client.login(
             andrew_id=self.ta_andrew_id,
@@ -336,6 +438,7 @@ class DeleteMemberTest(TestCase):
             'membershipRadios': self.test_member_role,
         }
         self.client.post(self.url, self.data)
+
     def test_delete_member(self):
         user = CustomUser.objects.get(andrew_id='exist_id')
         registration = Registration.objects.get(users=user, courses=self.course)
@@ -349,13 +452,17 @@ class DeleteMemberTest(TestCase):
         self.assertEqual(0, len(membership))
         self.assertEqual(1, len(registratiton))
     
-    def test_delete_member_not_superuser(self):
-        test_andrew_id = 'andrew_id_1'
-        test_password = '12345'
-        LogInUser.createAndLogInUser(
-            self.client, test_andrew_id, test_password, is_superuser=False)
+    def test_student_cannot_delete_member(self):
+        user = CustomUser.objects.get(andrew_id='exist_id')
+        registration = Registration.objects.get(users=user, courses=self.course, userRole=Registration.UserRole.Student)
+        team = Team.objects.get(course=self.course, name=self.test_member_team)
+        membership = Membership.objects.filter(entity=team, student=registration)
+
+        self.client.login(andrew_id='exist_id', password='123')
+
         self.url = reverse('delete_member', args = [self.course_pk, 'exist_id'])
         self.client.get(self.url)
         registratiton = Registration.objects.all()
+
         self.assertEqual(2, len(registratiton))
         
