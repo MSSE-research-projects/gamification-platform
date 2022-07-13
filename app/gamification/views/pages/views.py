@@ -175,7 +175,14 @@ def edit_course(request, course_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_course(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
-    if request.method == 'GET' and course.visible:
+    if request.method == 'GET':
+
+        registration = get_object_or_404(
+            Registration, users=request.user, courses=course)
+
+        if course.visible == False and registration.userRole == Registration.UserRole.Student:
+            return redirect('course')
+
         context = {'course': course}
         return render(request, 'view_course_detail.html', context)
     else:
@@ -186,6 +193,7 @@ def view_course(request, course_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def member_list(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
+    # TODO: rethink about permission control for staff(superuser) and instructor
     registration = get_object_or_404(
         Registration, users=request.user, courses=course)
     userRole = registration.userRole
@@ -286,7 +294,7 @@ def delete_member(request, course_id, andrew_id):
     if request.method == 'GET':
         user = get_object_or_404(CustomUser, andrew_id=andrew_id)
         registration = get_object_or_404(
-            Registration, users=user)
+            Registration, users=user, courses=course_id)
         membership = Membership.objects.filter(student=registration)
         membership.delete()
         registration.delete()
