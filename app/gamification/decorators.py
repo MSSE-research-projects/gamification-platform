@@ -53,8 +53,11 @@ def admin_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login
     Decorator for views that checks that the logged in user is a staff member,
     redirecting to the log-in page if necessary.
     """
+    def func(user, **kwargs):
+        return user.is_staff
+    
     actual_decorator = user_passes_test(
-        lambda u: u.is_staff,
+        func,
         login_url=login_url,
         redirect_field_name=redirect_field_name
     )

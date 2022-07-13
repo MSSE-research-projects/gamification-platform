@@ -1,15 +1,15 @@
-from email import message
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import views as auth_views
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import redirect, render
 from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, TeamForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Entity, Team, Membership
-
-from django.shortcuts import get_object_or_404
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership
 
 
 def signup(request):
@@ -42,9 +42,38 @@ def signin(request):
     return render(request=request, template_name="signin.html", context={"form": form})
 
 
+class PasswordResetView(auth_views.PasswordResetView):
+    form_class = PasswordResetForm
+    template_name = 'password_reset.html'
+
+
 def signout(request):
     logout(request)
     return redirect('signin')
+
+
+@admin_required
+def email_user(request, andrew_id):
+    if request.method == 'POST':
+        user = get_object_or_404(CustomUser, andrew_id=andrew_id)
+
+        subject = 'Gamification: Activate your account'
+        message = 'Please click the link below to reset your password, '\
+            'and then login into the system to activate your account:\n\n'
+        message += 'http://' + request.get_host() + reverse('password_reset') + '\n\n'
+        message += 'Your Andrew ID: ' + user.andrew_id + '\n\n'
+        message += 'If you did not request this, please ignore this email.\n'
+
+        user.email_user(subject, message)
+
+        redirect_path = request.POST.get('next', reverse('dashboard'))
+        messages.info(request, f'An email has been sent to {user.andrew_id}.')
+    elif request.method == 'GET':
+        redirect_path = request.GET.get('next', reverse('dashboard'))
+    else:
+        redirect_path = reverse('dashboard')
+
+    return redirect(redirect_path)
 
 
 @login_required
@@ -172,8 +201,12 @@ def member_list(request, course_id):
                     team = Team.objects.get(registration=i).name
             except Team.DoesNotExist:
                 team = ''
-            membership.append({'andrew_id': i.users.andrew_id,
-                              'userRole': i.userRole, 'team': team})
+            membership.append({
+                'andrew_id': i.users.andrew_id,
+                'userRole': i.userRole,
+                'team': team,
+                'is_activated': i.users.is_activated,
+            })
         membership = sorted(membership, key=lambda x: x['team'])
         context = {'membership': membership,
                    'course_id': course_id, 'userRole': userRole}

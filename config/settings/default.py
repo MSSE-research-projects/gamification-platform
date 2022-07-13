@@ -166,7 +166,19 @@ STATICFILES_DIRS = [
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email SMTP Configuration
+# https://docs.djangoproject.com/en/3.2/topics/email/
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = os.getenv('EMAIL_PORT', '587')
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
