@@ -113,7 +113,7 @@ class CourseTest(TestCase):
         self.assertEqual(len(TAs), 1)
         self.assertEqual(TAs[0].andrew_id, 'test3')
 
-    def test_get_query(self):
+    def test_get_team(self):
         # Arrange
         user = CustomUser.objects.create_user(
             andrew_id='test3',
@@ -149,7 +149,7 @@ class CourseTest(TestCase):
         self.assertEqual(len(teams), 1)
         self.assertEqual(teams[0].name, 'T1')
 
-    def test_get_team(self):
+    def test_get_query(self):
         # Arrange
         user = CustomUser.objects.create_user(
             andrew_id='test3',
