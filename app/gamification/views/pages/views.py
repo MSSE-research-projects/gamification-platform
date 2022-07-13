@@ -232,7 +232,6 @@ def delete_member(request, course_id, andrew_id):
 def assignment(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     userRole = Registration.objects.get(users=request.user, courses=course).userRole
-    print("userRole: " + userRole)
     if request.method == 'GET':
         assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,

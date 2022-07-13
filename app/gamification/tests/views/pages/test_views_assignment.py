@@ -17,12 +17,12 @@ class AssignmentAddTest(TestCase):
             self.client, test_andrew_id, test_password, is_superuser=True)
         test_andrew_id_TA = 'andrew_id_TA'
         test_password_TA = '1234_TA'
-        LogInUser.create_user(
-            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
-        test_andrew_id_student = 'andrew_id_student'
-        test_password_student = '1234_student_student'
-        LogInUser.create_user(
-            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        # test_andrew_id_student = 'andrew_id_student'
+        # test_password_student = '1234_student_student'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -79,14 +79,14 @@ class AssignmentEditTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
-        test_andrew_id_TA = 'andrew_id_TA'
-        test_password_TA = '1234_TA'
-        LogInUser.create_user(
-            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
-        test_andrew_id_student = 'andrew_id_student'
-        test_password_student = '1234_student_student'
-        LogInUser.create_user(
-            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
+        # test_andrew_id_TA = 'andrew_id_TA'
+        # test_password_TA = '1234_TA'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        # test_andrew_id_student = 'andrew_id_student'
+        # test_password_student = '1234_student_student'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -146,14 +146,14 @@ class AssignmentDeleteTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
-        test_andrew_id_TA = 'andrew_id_TA'
-        test_password_TA = '1234_TA'
-        LogInUser.create_user(
-            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
-        test_andrew_id_student = 'andrew_id_student'
-        test_password_student = '1234_student_student'
-        LogInUser.create_user(
-            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
+        # test_andrew_id_TA = 'andrew_id_TA'
+        # test_password_TA = '1234_TA'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        # test_andrew_id_student = 'andrew_id_student'
+        # test_password_student = '1234_student_student'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -200,14 +200,14 @@ class InvalidAddAssignmentTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
-        test_andrew_id_TA = 'andrew_id_TA'
-        test_password_TA = '1234_TA'
-        LogInUser.create_user(
-            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
-        test_andrew_id_student = 'andrew_id_student'
-        test_password_student = '1234_student_student'
-        LogInUser.create_user(
-            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
+        # test_andrew_id_TA = 'andrew_id_TA'
+        # test_password_TA = '1234_TA'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        # test_andrew_id_student = 'andrew_id_student'
+        # test_password_student = '1234_student_student'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -291,14 +291,14 @@ class InvalidEditAssignmentTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
-        test_andrew_id_TA = 'andrew_id_TA'
-        test_password_TA = '1234_TA'
-        LogInUser.create_user(
-            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
-        test_andrew_id_student = 'andrew_id_student'
-        test_password_student = '1234_student_student'
-        LogInUser.create_user(
-            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
+        # test_andrew_id_TA = 'andrew_id_TA'
+        # test_password_TA = '1234_TA'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        # test_andrew_id_student = 'andrew_id_student'
+        # test_password_student = '1234_student_student'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -520,14 +520,14 @@ class InvalidDeleteAssignmentTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
-        test_andrew_id_TA = 'andrew_id_TA'
-        test_password_TA = '1234_TA'
-        LogInUser.create_user(
-            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
-        test_andrew_id_student = 'andrew_id_student'
-        test_password_student = '1234_student_student'
-        LogInUser.create_user(
-            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
+        # test_andrew_id_TA = 'andrew_id_TA'
+        # test_password_TA = '1234_TA'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        # test_andrew_id_student = 'andrew_id_student'
+        # test_password_student = '1234_student_student'
+        # LogInUser.create_user(
+        #     self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -617,12 +617,4 @@ class InvalidDeleteAssignmentTest(TestCase):
         # return error message
         pass
     
-        
-    
-    
-    
-    
-    
-        
-        
     
