@@ -15,6 +15,14 @@ class AssignmentAddTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
+        test_andrew_id_TA = 'andrew_id_TA'
+        test_password_TA = '1234_TA'
+        LogInUser.create_user(
+            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        test_andrew_id_student = 'andrew_id_student'
+        test_password_student = '1234_student_student'
+        LogInUser.create_user(
+            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -26,9 +34,7 @@ class AssignmentAddTest(TestCase):
         # get assignment list
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
-        # print(self.url)
         self.response = self.client.get(self.url)
-        # print(self.response)
     
     def test_assignment_status_code(self):
         self.assertEqual(self.response.status_code, 200)
@@ -46,7 +52,8 @@ class AssignmentAddTest(TestCase):
         '''
         self.assertContains(self.response, 'name="assignment_name"', 1)
     
-    def test_add_assignment(self):
+    def test_instructor_add_assignment(self):
+        
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
         self.assignment_data = {
@@ -56,6 +63,15 @@ class AssignmentAddTest(TestCase):
         self.response = self.client.post(self.url, data=self.assignment_data)
         self.assertEqual(self.response.status_code, 200)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
+        
+    def test_TA_add_assignment(self):
+         
+        # add a TA to the course
+        
+        # logout first
+        # login as a TA
+        # add an assignment as a TA
+        pass
     
 class AssignmentEditTest(TestCase):
     def setUp(self):
@@ -63,6 +79,14 @@ class AssignmentEditTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
+        test_andrew_id_TA = 'andrew_id_TA'
+        test_password_TA = '1234_TA'
+        LogInUser.create_user(
+            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        test_andrew_id_student = 'andrew_id_student'
+        test_password_student = '1234_student_student'
+        LogInUser.create_user(
+            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -74,11 +98,9 @@ class AssignmentEditTest(TestCase):
         # get assignment list
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
-        # print(self.url)
         self.response = self.client.get(self.url)
-        # print(self.response)
     
-    def test_edit_assignment(self):
+    def test_instructor_edit_assignment(self):
         # add an assignment first
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
@@ -109,6 +131,14 @@ class AssignmentEditTest(TestCase):
         self.response = self.client.post(self.url, data=self.edit_assignment_data)
         self.assertEqual(self.response.status_code, 200)
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignmentEdited').exists())
+        
+    def test_TA_edit_assignment(self):
+         
+        # add a TA to the course
+        # logout first
+        # login as a TA
+        # edit an assignment as a TA
+        pass
     
 class AssignmentDeleteTest(TestCase):
     def setUp(self):
@@ -116,6 +146,14 @@ class AssignmentDeleteTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
+        test_andrew_id_TA = 'andrew_id_TA'
+        test_password_TA = '1234_TA'
+        LogInUser.create_user(
+            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        test_andrew_id_student = 'andrew_id_student'
+        test_password_student = '1234_student_student'
+        LogInUser.create_user(
+            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -127,11 +165,9 @@ class AssignmentDeleteTest(TestCase):
         # get assignment list
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
-        # print(self.url)
         self.response = self.client.get(self.url)
-        # print(self.response)
     
-    def test_delete_assignment(self):
+    def test_instructor_delete_assignment(self):
         # add an assignment first
         course_id = Course.objects.get(course_name='testName').pk
         self.url = reverse('assignment', kwargs={'course_id': course_id})
@@ -149,6 +185,14 @@ class AssignmentDeleteTest(TestCase):
         self.response = self.client.get(self.url)
         self.assertEqual(self.response.status_code, 302) 
         self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
+        
+    def test_TA_delete_assignment(self):
+         
+        # add a TA to the course
+        # logout first
+        # login as a TA
+        # delete an assignment as a TA
+        pass
     
 class InvalidAddAssignmentTest(TestCase):
     def setUp(self):
@@ -156,6 +200,14 @@ class InvalidAddAssignmentTest(TestCase):
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
+        test_andrew_id_TA = 'andrew_id_TA'
+        test_password_TA = '1234_TA'
+        LogInUser.create_user(
+            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        test_andrew_id_student = 'andrew_id_student'
+        test_password_student = '1234_student_student'
+        LogInUser.create_user(
+            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -198,12 +250,55 @@ class InvalidAddAssignmentTest(TestCase):
         }
         self.response = self.client.post(self.url, data=self.assignment_data)
         self.assertEqual(self.response.status_code, 404)
+        
+    def test_student_cannot_add_assignment(self):
+         
+        # add a student to the course
+        # logout first
+        # login as a student
+        # add an assignment as a student
+        pass
+    
+    def test_Instructor_of_another_course_cannot_add_assignment(self):
+         
+        # add a instructor to another course
+        # logout first
+        # login as the new instructor
+        # add an assignment as the new instructor
+        # return error message
+        pass
+    
+    def test_TA_of_another_course_cannot_add_assignment(self):
+         
+        # add a TA to another course
+        # logout first
+        # login as the new TA
+        # add an assignment as the new TA
+        # return error message
+        pass
+    
+    def test_student_of_another_course_cannot_add_assignment(self):
+         
+        # add a student to another course
+        # logout first
+        # login as the new student
+        # add an assignment as the new student
+        # return error message
+        pass
 class InvalidEditAssignmentTest(TestCase):
     def setUp(self):
         test_andrew_id = 'andrew_id'
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
+        test_andrew_id_TA = 'andrew_id_TA'
+        test_password_TA = '1234_TA'
+        LogInUser.create_user(
+            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        test_andrew_id_student = 'andrew_id_student'
+        test_password_student = '1234_student_student'
+        LogInUser.create_user(
+            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -381,12 +476,58 @@ class InvalidEditAssignmentTest(TestCase):
         self.response = self.client.post(self.url, data=self.edit_assignment_data)
         self.assertEqual(self.response.status_code, 200)
         self.assertFalse(Assignment.objects.filter(assignment_name = 'testNameAssignmentEdited').exists())
+
+    def test_student_cannot_edit_assignment(self):
+         
+        # add a student to the course
+        # logout first
+        # login as the new student
+        # edit an assignment as the new student
+        # return error message
+        pass
+    
+    def test_instructor_of_another_course_cannot_edit_assignment(self):
+         
+        # add a instructor to another course
+        # logout first
+        # login as the new instructor
+        # edit an assignment as the new instructor
+        # return error message
+        pass
+    
+    def test_TA_of_another_course_cannot_edit_assignment(self):
+         
+        # add a TA to another course
+        # logout first
+        # login as the new TA
+        # edit an assignment as the new TA
+        # return error message
+        pass
+    
+    def test_student_of_another_course_cannot_edit_assignment(self):
+         
+        # add a student to another course
+        # logout first
+        # login as the new student
+        # edit an assignment as the new student
+        # return error message
+        pass
+    
+        
 class InvalidDeleteAssignmentTest(TestCase):
     def setUp(self):
         test_andrew_id = 'andrew_id'
         test_password = '1234'
         LogInUser.createAndLogInUser(
             self.client, test_andrew_id, test_password, is_superuser=True)
+        test_andrew_id_TA = 'andrew_id_TA'
+        test_password_TA = '1234_TA'
+        LogInUser.create_user(
+            self.client, test_andrew_id_TA, test_password_TA, is_superuser=False)
+        test_andrew_id_student = 'andrew_id_student'
+        test_password_student = '1234_student_student'
+        LogInUser.create_user(
+            self.client, test_andrew_id_student, test_password_student, is_superuser=False)
         
         # create a course first before creating an assignment
         self.course_data = {
@@ -441,6 +582,40 @@ class InvalidDeleteAssignmentTest(TestCase):
         self.assertEqual(self.response.status_code, 302) 
         self.assertTrue(Assignment.objects.filter(assignment_name = 'testNameAssignment').exists())
                 
+    def test_student_cannot_delete_assignment(self):
+        # add a student to the course
+        
+        # logout first
+        # login as the new student
+        # delete an assignment as the new student
+        # return error message
+        pass
+    
+    def test_instructor_of_another_course_cannot_delete_assignment(self):
+        # add a instructor to another course
+        # logout first
+        # login as the new instructor
+        # delete an assignment as the new instructor
+        # return error message
+        pass
+
+    def test_TA_of_another_course_cannot_delete_assignment(self):
+         
+        # add a TA to another course
+        # logout first
+        # login as the new TA
+        # delete an assignment as the new TA
+        # return error message
+        pass
+    
+    def test_student_of_another_course_cannot_delete_assignment(self):
+         
+        # add a student to another course
+        # logout first
+        # login as the new student
+        # delete an assignment as the new student
+        # return error message
+        pass
     
         
     
