@@ -5,6 +5,8 @@ from django.core.validators import FileExtensionValidator
 
 from .entity import Entity
 from .assignment import Assignment
+from .feedback import Feedback
+from .artifact_review import ArtifactReview
 
 class Artifact(models.Model):
     
@@ -27,9 +29,14 @@ class Artifact(models.Model):
         blank=True,
         validators=[file_extension_validator],)
     
+    @property
+    def artifact_reviews(self):
+        return ArtifactReview.objects.filter(artifact=self)
+    
     # TO-DO - feedback is not implemented yet
     # @property
     # def feedback(self):
+    #     return 
     
     # TO-DO - review is not implemented yet
     # @property

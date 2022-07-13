@@ -15,7 +15,7 @@ class Feedback(models.Model):
 
     review_id = models.ForeignKey(ArtifactReview, on_delete=models.CASCADE)
     
-    comment = models.TextField(blank=True)
+    comment = models.TextField(max_length=800, blank=True)
     
     timestamp = models.DateTimeField(default=now)
     
@@ -23,12 +23,21 @@ class Feedback(models.Model):
     
     permission_level = models.TextField(choices=PermissionLevel.choices, default=PermissionLevel.Public)
     
-    # TO-DO - is user a foreign key?
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    
+    @property
     def replies(self):
         return Feedback.objects.filter(parent_node=self)
-
+    
+    @property
+    def user(self):
+        return self.review_id.user
+    
+    def can_view(self, user):
+        if self.permission_level == Feedback.PermissionLevel.Public:
+            return True
+        elif self.permission_level == Feedback.PermissionLevel.Private:
+            return self.user == user
+        else:
+            return False
     class Meta:
         db_table = 'feedback'
         verbose_name = _('feedback')
