@@ -1,12 +1,12 @@
-from cmath import e
 import json
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UsernameField
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import Assignment, CustomUser, Course, Registration, Entity, Team, Membership
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership
 
 class SignUpForm(forms.ModelForm):
 
@@ -75,39 +75,119 @@ class ProfileForm(forms.ModelForm):
 
 class CourseForm(forms.ModelForm):
 
-    file = forms.FileField(label=_('CATME file'), required=False)
+    error_messages = {
+        'invalid_format': _('File format is not correct. Please check the file \
+            format. Make sure that the file contains the following columns: \
+            Student ID, Email, Team Name.'),
+        'course_name_empty': _("Course name cannot be empty."),
+        'course_number_empty': _("Course number cannot be empty."),
+    }
+
+    file = forms.FileField(
+        label=_('CATME file'),
+        required=False,
+        validators=[FileExtensionValidator(allowed_extensions=['json'])]
+    )
 
     class Meta:
         model = Course
         fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
+    
+    def clean_course_number(self):
+        course_number = self.cleaned_data.get('course_number')
+        if course_number == '':
+            raise ValidationError(
+                self.error_messages['course_number_empty'],
+                code='course_number_empty',
+            )
+        return course_number
+
+    def clean_course_name(self):
+        course_name = self.cleaned_data.get('course_name')
+        if course_name == '':
+            raise ValidationError(
+                self.error_messages['course_name_empty'],
+                code='course_name_empty',
+            )
+        return course_name
+
+
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+
+        if file is None:
+            return file
+
+        data = json.loads(file.read())
+        for row in data:
+            if 'Student ID' not in row or 'Email' not in row or 'Team Name' not in row:
+                raise ValidationError(
+                    self.error_messages['invalid_format'],
+                    code='invalid_format'
+                )
+
+        return file
+
+    def _register_teams(self, course):
+        # Register teams from CATME file
+        file = self.cleaned_data.get('file')
+        if file is None:
+            return
+
+        data = json.loads(file.read())
+
+        for row in data:
+            name = row.get('Name', None).strip()
+            andrew_id = row['Student ID'].strip()
+            email = row['Email'].strip()
+            team_name = row['Team Name'].strip()
+
+            # Get user or create one
+            try:
+                user = CustomUser.objects.get(andrew_id=andrew_id)
+            except CustomUser.DoesNotExist:
+                if name:
+                    first_name, last_name = name.split(' ')
+                else:
+                    first_name = last_name = ''
+                user = CustomUser.objects.create_user(
+                    andrew_id=andrew_id,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+
+                password = CustomUser.objects.make_random_password()
+                user.set_password(password)
+                user.save()
+
+            # Register this user to the course
+            registration = Registration(
+                users=user,
+                courses=course,
+                userRole=Registration.UserRole.Student
+            )
+            registration.save()
+
+            # Do not create team if the name is empty
+            if team_name == '':
+                continue
+
+            # Get team or create one
+            try:
+                team = Team.objects.get(course=course, name=team_name)
+            except Team.DoesNotExist:
+                team = Team(course=course, name=team_name)
+                team.save()
+
+            # Register this user to the team
+            membership = Membership(student=registration, entity=team)
+            membership.save()
 
     def save(self, commit=True):
         course = super().save(commit=True)
-
-        if self.cleaned_data.get('file', None):
-            # Register teams from CATME file
-            data = json.loads(self.cleaned_data['file'].read())
-            for i in data:
-                if(len(CustomUser.objects.filter(andrew_id=i.get('Student ID'))) == 0):
-                    user = CustomUser.objects.create_user(
-                        andrew_id=i.get('Student ID'), email=i.get('Email'))
-                    user.set_password('6666')
-                    user.save()
-                else:
-                    user = CustomUser.objects.get(
-                        andrew_id=i.get('Student ID'))
-                registration = Registration(
-                    users=user, courses=course, userRole=Registration.UserRole.Student)
-                registration.save()
-                try:
-                    team = Team.objects.get(
-                        course=course, name=i.get('Team Name'))
-                except Team.DoesNotExist:
-                    team = Team(course=course, name=i.get('Team Name'))
-                    team.save()
-                membership = Membership(student=registration, entity=team)
-                membership.save()
+        self._register_teams(course)
 
         return course
 
