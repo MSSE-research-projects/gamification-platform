@@ -93,6 +93,8 @@ def profile(request):
         if form.is_valid():
             user = form.save()
             form = ProfileForm(instance=user)
+        else:
+            user = CustomUser.objects.get(andrew_id=user.andrew_id)
 
     else:
         form = ProfileForm(instance=user)
