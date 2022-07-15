@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import Assignment, CustomUser, Course, Registration, Team, Membership
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership, Artifact
 
 class SignUpForm(forms.ModelForm):
 
@@ -225,3 +225,13 @@ class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = ('name', 'course')
+
+class ArtifactForm(forms.ModelForm):
+
+    class Meta:
+        model = Artifact
+        fields = ('entity', 'assignment', 'upload_time', 'file')
+        widgets = {
+            'entity': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }

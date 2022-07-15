@@ -37,3 +37,6 @@ class Team(Entity):
         db_table = 'teams'
         verbose_name = _('team')
         verbose_name_plural = _('teams')
+        
+    def __str__(self):
+        return f'{self.name}'

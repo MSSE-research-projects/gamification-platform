@@ -4,3 +4,4 @@ from .registration import *
 from .assignment import *
 from .membership import *
 from .entity import *
+from .artifact import *

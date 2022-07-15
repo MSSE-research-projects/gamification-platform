@@ -54,6 +54,8 @@ urlpatterns = [
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
+                    path('upload/', page_views.upload_assignment,
+                         name='upload_assignment'),
                 ]))
             ])),
 

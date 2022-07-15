@@ -1,11 +1,10 @@
 from xml.etree.ElementTree import Comment
-from MySQLdb import Timestamp
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from .artifact_review import ArtifactReview
-from .user import CustomUser
+# from .artifact_review import ArtifactReview
+# from .user import CustomUser
 
 class Feedback(models.Model):
     

@@ -1,3 +1,5 @@
+from ctypes import sizeof
+from webbrowser import get
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -9,8 +11,8 @@ from django.urls import reverse
 
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact, entity
 
 
 def signup(request):
@@ -372,3 +374,73 @@ def edit_assignment(request, course_id, assignment_id):
 def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def upload_assignment(request, course_id, assignment_id):
+    course = get_object_or_404(Course, pk=course_id)
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    # TODO: rethink about permission control for staff(superuser) and instructor
+    registration = get_object_or_404(
+        Registration, users=request.user, courses=course)
+    print("registration.userRole: ", registration.userRole)
+    userRole = registration.userRole
+    try:
+        # team = Team.objects.filter(registration=registration)
+        # team = get_object_or_404(Team, registration=registration)
+        team = Team.objects.get(registration=registration, course=course)
+        print("team: ", team)
+    except Team.DoesNotExist:
+        print("Team does not exist")
+        return redirect('assignment', course_id)
+    
+    if request.method == 'POST':
+        form = ArtifactForm(request.POST, request.FILES, label_suffix='')
+        if form.is_valid():
+            form.save()
+        else:
+            print("form is not valid")
+        artifacts = Artifact.objects.filter(assignment=assignment, entity=team)
+        # assignment_name = assignment.assignment_name
+        context = {'artifacts': artifacts,
+                   "course_id": course_id,
+                   "course": course,
+                   "userRole": userRole,
+                   "assignment": assignment,
+                    "entity": team}
+        return render(request, 'upload_assignment.html', context)
+
+    if request.method == 'GET':
+        # entity = Entity.objects.filter(course=course_id, members=request.user)
+        artifacts = Artifact.objects.filter(assignment=assignment, entity=team)
+        # assignment_name = assignment.assignment_name
+        context = {'artifacts': artifacts,
+                   "course_id": course_id,
+                   "course": course,
+                   "userRole": userRole,
+                   "assignment": assignment,
+                   "entity": team}
+        return render(request, 'upload_assignment.html', context)
+
+    else:
+        return redirect('assignment', course_id)
+    
+    
+    
+    # def profile(request):
+    # user = request.user
+    # if request.method == 'POST':
+    #     form = ProfileForm(request.POST, request.FILES,
+    #                        instance=user, label_suffix='')
+
+    #     if form.is_valid():
+    #         user = form.save()
+    #         form = ProfileForm(instance=user)
+    #     else:
+    #         user = CustomUser.objects.get(andrew_id=user.andrew_id)
+
+    # else:
+    #     form = ProfileForm(instance=user)
+
+    # return render(request, 'profile.html', {'user': user, 'form': form})
