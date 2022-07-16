@@ -44,7 +44,7 @@
               <p> </p>
               <a href="{% url 'assignment' course_id %}"><button type="button"
                   class="btn btn-outline-primary">Back</button></a>
-              {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
+              {% if userRole == 'Student'%}
               <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
                 class="btn btn-outline-primary">Upload Artifact</button></a>
               {% endif %}

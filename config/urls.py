@@ -54,7 +54,7 @@ urlpatterns = [
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
-                    path('upload/', include([
+                    path('artifact/', include([
                         path('', page_views.artifact, name='artifact'),
                         path('admin/', page_views.artifact_admin,
                                 name='artifact_admin'),

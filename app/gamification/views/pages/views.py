@@ -358,6 +358,7 @@ def edit_assignment(request, course_id, assignment_id):
             request.POST, instance=assignment, label_suffix='')
 
         if form.is_valid():
+            # TO-DO: upload_time
             assignment = form.save()
         return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form, 'userRole': userRole})
 
@@ -405,6 +406,7 @@ def artifact(request, course_id, assignment_id):
         # team = get_object_or_404(Team, registration=registration)
         team = Team.objects.get(registration=registration, course=course)
         print("team: ", team)
+        #TO-DO : blank team
     except Team.DoesNotExist:
         print("Team does not exist")
         return redirect('assignment', course_id)
