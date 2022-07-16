@@ -17,8 +17,8 @@ class Question(models.Model):
 
     is_required = models.BooleanField(default=False)
 
-    question_type = models.TextChoices(
-        choice=Question_type.choices, default=Question_type.TEXT)
+    question_type = models.TextField(
+        choices=Question_type.choices, default=Question_type.TEXT)
 
     class Meta:
         db_table = 'question'
