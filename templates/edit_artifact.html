@@ -11,10 +11,10 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            <a href="{% url 'artifact' course_id %}"><button type="button"
+            <a href="{% url 'assignment' course_id %}"><button type="button"
                 class="btn btn-outline-primary">Back</button></a>
             <div class="col-lg-12">
-              {% if userRole == 'Instructor' or userRole == 'TA'%}
+              {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student' %}
               <form class="pt-3" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% include 'boilerplates/form.html' %}
@@ -24,7 +24,7 @@
                 </div>
               </form>
               {% else %}
-                <p>You are not authorized to edit this artifact.</p>
+                <p>You are not authorized to edit this assignment.</p>
               {% endif %}
             </div>
           </div>

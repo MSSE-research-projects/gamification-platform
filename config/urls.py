@@ -54,8 +54,19 @@ urlpatterns = [
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
-                    path('upload/', page_views.upload_assignment,
-                         name='upload_assignment'),
+                    path('upload/', include([
+                        path('', page_views.artifact, name='artifact'),
+                        path('<int:artifact_id>/', include([
+                            path('delete/', page_views.delete_artifact,
+                                name='delete_artifact'),
+                            path('edit/', page_views.edit_artifact,
+                                name='edit_artifact'),
+                            path('view/', page_views.view_artifact,
+                                name='view_artifact'),
+                        ])),
+                    ])),
+                         
+                    
                 ]))
             ])),
 

@@ -375,10 +375,19 @@ def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
 
+def check_artifact_permisssion(request, artifact_id):
+    artifact = get_object_or_404(Artifact, pk=artifact_id)
+    if artifact.course.instructors.filter(id=request.user.id).exists():
+        return True
+    if artifact.course.TAs.filter(id=request.user.id).exists():
+        return True
+    if artifact.course.students.filter(id=request.user.id).exists():
+        return True
+    return False
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
-def upload_assignment(request, course_id, assignment_id):
+def artifact(request, course_id, assignment_id):
     course = get_object_or_404(Course, pk=course_id)
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     # TODO: rethink about permission control for staff(superuser) and instructor
@@ -409,7 +418,7 @@ def upload_assignment(request, course_id, assignment_id):
                    "userRole": userRole,
                    "assignment": assignment,
                     "entity": team}
-        return render(request, 'upload_assignment.html', context)
+        return render(request, 'artifact.html', context)
 
     if request.method == 'GET':
         # entity = Entity.objects.filter(course=course_id, members=request.user)
@@ -421,26 +430,49 @@ def upload_assignment(request, course_id, assignment_id):
                    "userRole": userRole,
                    "assignment": assignment,
                    "entity": team}
-        return render(request, 'upload_assignment.html', context)
+        return render(request, 'artifact.html', context)
 
     else:
         return redirect('assignment', course_id)
-    
-    
-    
-    # def profile(request):
-    # user = request.user
-    # if request.method == 'POST':
-    #     form = ProfileForm(request.POST, request.FILES,
-    #                        instance=user, label_suffix='')
 
-    #     if form.is_valid():
-    #         user = form.save()
-    #         form = ProfileForm(instance=user)
-    #     else:
-    #         user = CustomUser.objects.get(andrew_id=user.andrew_id)
+# TO-DO : permission control
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def view_artifact(request, course_id, assignment_id, artifact_id):
+    artifact = get_object_or_404(Artifact, pk=artifact_id)
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment':assignment, 'artifact': artifact})
 
-    # else:
-    #     form = ProfileForm(instance=user)
+# TO-DO : permission control
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def delete_artifact(request, course_id, assignment_id, artifact_id):
+    if request.method == 'GET':
+        artifact = get_object_or_404(Artifact, pk=artifact_id)
+        artifact.delete()
+        # Also delete the artifact from the database
+        return redirect('artifact', course_id, assignment_id)
+    else:
+        return redirect('artifact', course_id, assignment_id)
 
-    # return render(request, 'profile.html', {'user': user, 'form': form})
+# TO-DO : permission control
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def edit_artifact(request, course_id, assignment_id, artifact_id):
+    artifact = get_object_or_404(Artifact, pk=artifact_id)
+    userRole = Registration.objects.get(
+        users=request.user, courses=course_id).userRole
+    print("userRole: ", userRole)
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    if request.method == 'POST':
+        form = ArtifactForm(request.POST, request.FILES, instance=artifact, label_suffix='')
+        if form.is_valid():
+            artifact = form.save()
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
+
+    if request.method == 'GET':
+        form = ArtifactForm(instance=artifact)
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
+
+    else:
+        return redirect('artifact', course_id, assignment_id)

@@ -234,4 +234,5 @@ class ArtifactForm(forms.ModelForm):
         widgets = {
             'entity': forms.TextInput(attrs={'readonly': 'readonly'}),
             'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
         }

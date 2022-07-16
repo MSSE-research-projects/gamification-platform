@@ -18,6 +18,9 @@
             <thead>
               <tr>
                 <th>
+                  id
+                </th>
+                <th>
                   File
                 </th>
                 <th>
@@ -29,25 +32,28 @@
             <tbody>
               <tr>
                 <td>
+                  <p> {{ artifact.id }}</p>
+                </td>
+                <td>
                   {{ artifact.file}}
                 </td>
                 <td>
                   {{ artifact.upload_time}}
                 </td>
                 <td>
-                  <a href="{% url 'view_assignment' course_id assignment.id %}">
+                  <a href="{% url 'view_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
 
                 {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
                 <td>
-                  <a href="{% url 'edit_assignment' course_id assignment.id %}">
+                  <a href="{% url 'edit_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">Edit</button>
                   </a>
                 </td>
                 <td>
-                  <a href="{% url 'delete_assignment' course_id assignment.id%}">
+                  <a href="{% url 'delete_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
                   </a>
                 </td>
