@@ -56,6 +56,8 @@ urlpatterns = [
                          name='view_assignment'),
                     path('upload/', include([
                         path('', page_views.artifact, name='artifact'),
+                        path('admin/', page_views.artifact_admin,
+                                name='artifact_admin'),
                         path('<int:artifact_id>/', include([
                             path('delete/', page_views.delete_artifact,
                                 name='delete_artifact'),
@@ -63,6 +65,8 @@ urlpatterns = [
                                 name='edit_artifact'),
                             path('view/', page_views.view_artifact,
                                 name='view_artifact'),
+                            path('download/', page_views.download_artifact,
+                                name='download_artifact'),
                         ])),
                     ])),
                          

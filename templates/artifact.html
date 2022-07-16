@@ -40,13 +40,17 @@
                 <td>
                   {{ artifact.upload_time}}
                 </td>
+                {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
                 <td>
                   <a href="{% url 'view_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
-
-                {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
+                <td>
+                  <a href="{% url 'download_artifact' course_id assignment.id artifact.id %}">
+                    <button type="button" class="btn-sm btn-primary">Download</button>
+                  </a>
+                </td>
                 <td>
                   <a href="{% url 'edit_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">Edit</button>

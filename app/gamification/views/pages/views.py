@@ -12,7 +12,7 @@ from django.urls import reverse
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact, entity
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact
 
 
 def signup(request):
@@ -373,17 +373,22 @@ def edit_assignment(request, course_id, assignment_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
-    return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+    userRole = Registration.objects.get(
+        users=request.user, courses=course_id).userRole
+    return render(request, 'view_assignment.html', {'course_id': course_id, 'userRole':userRole, 'assignment': assignment})
 
-def check_artifact_permisssion(request, artifact_id):
+def check_artifact_permisssion(artifact_id, user):
     artifact = get_object_or_404(Artifact, pk=artifact_id)
-    if artifact.course.instructors.filter(id=request.user.id).exists():
+    entity = artifact.entity
+    members = entity.members
+    print("members: ", members)
+    if user in members:
+        print("check_artifact_permisssion True")
         return True
-    if artifact.course.TAs.filter(id=request.user.id).exists():
-        return True
-    if artifact.course.students.filter(id=request.user.id).exists():
-        return True
-    return False
+    else:
+        # TO-DO: Instructor or TA can view all artifacts in the course
+        print("check_artifact_permisssion False")
+        return False
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
@@ -435,18 +440,40 @@ def artifact(request, course_id, assignment_id):
     else:
         return redirect('assignment', course_id)
 
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def artifact_admin(request, course_id, assignment_id):
+    # TO-DO: artifact summary page for instructor and TA
+    # TO-DO: change the "upload "button of instructor and TA
+    return render(request, 'artifact_admin.html')
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def download_artifact(request, course_id, assignment_id, artifact_id):
+    # TO-DO: download artifact
+    print("download_artifact...")
+    return redirect('artifact', course_id, assignment_id)
+
 # TO-DO : permission control
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_artifact(request, course_id, assignment_id, artifact_id):
-    artifact = get_object_or_404(Artifact, pk=artifact_id)
-    assignment = get_object_or_404(Assignment, pk=assignment_id)
-    return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment':assignment, 'artifact': artifact})
+    if check_artifact_permisssion(artifact_id, request.user):
+        artifact = get_object_or_404(Artifact, pk=artifact_id)
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment':assignment, 'artifact': artifact})
+    else:
+        return redirect('assignment', course_id)
 
 # TO-DO : permission control
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def delete_artifact(request, course_id, assignment_id, artifact_id):
+    if check_artifact_permisssion(artifact_id, request.user):
+        print("check_artifact_permisssion delete_artifact True")
+    else:
+        return redirect('assignment', course_id)
+    
     if request.method == 'GET':
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         artifact.delete()
@@ -459,6 +486,11 @@ def delete_artifact(request, course_id, assignment_id, artifact_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def edit_artifact(request, course_id, assignment_id, artifact_id):
+    if check_artifact_permisssion(artifact_id, request.user):
+        print("check_artifact_permisssion edit_artifact True")
+    else:
+        return redirect('assignment', course_id)
+    
     artifact = get_object_or_404(Artifact, pk=artifact_id)
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
