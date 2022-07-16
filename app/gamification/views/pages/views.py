@@ -372,3 +372,9 @@ def edit_assignment(request, course_id, assignment_id):
 def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+
+
+@login_required
+def feedback(request):
+    return render(request, 'feedback.html')
+
