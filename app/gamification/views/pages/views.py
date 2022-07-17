@@ -110,7 +110,7 @@ def instructor_admin(request):
 
 def test(request):
     user = request.user
-    return render(request, 'test.html', {'user': user})
+    return render(request, 'test.html')
 
 
 @login_required
