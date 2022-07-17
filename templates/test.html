@@ -116,6 +116,12 @@
               <span class="visually-hidden">Next</span>
             </button>
           </div>
+
+          <div class="mb-3 feedback-textarea">
+            <label class="form-label">Enter your feedback here</label>
+            <textarea class="form-control" rows="5"></textarea>
+          </div>
+
         </div>
       </div>
     </div>
@@ -147,6 +153,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+
         <div id="pdfPreviewCarousel-2" class="carousel slide" data-bs-touch="false" data-bs-interval="false">
           <div class="carousel-inner">
             <div class="carousel-item active">
@@ -165,6 +172,12 @@
             <span class="visually-hidden">Next</span>
           </button>
         </div>
+
+        <div class="mb-3 feedback-textarea">
+          <label class="form-label">Enter your feedback here</label>
+          <textarea class="form-control" rows="5"></textarea>
+        </div>
+
       </div>
     </div>
   </div>
@@ -184,6 +197,11 @@
   .carousel-caption {
     color: #000;
   }
+
+  .form-control {
+    height: auto;
+    padding: 0.375rem 0.75rem;
+  }
 </style>
 {% endblock css %}
 
@@ -197,115 +215,146 @@
 
 <script>
 
-  function renderPDF(url, carousel) {
+  function PDFCarousel(carousel, options = null) {
+    this.carousel = carousel;
+    this.options = options;
+
+    this.init();
+  }
+
+  PDFCarousel.prototype.init = function () {
     // Loaded via <script> tag, create shortcut to access PDF.js exports.
-    var pdfjsLib = window['pdfjs-dist/build/pdf'];
+    this.pdfjsLib = window['pdfjs-dist/build/pdf'];
 
     // The workerSrc property shall be specified.
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+    this.pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
 
-    var pdfDoc = null,
-      pageNum = 1,
-      pageRendering = false,
-      pageNumPending = null,
-      scale = 0.8,
-      canvas = $(carousel).children('.carousel-inner').children('.carousel-item.active').children('canvas')[0],
-      prevButton = $(carousel).children('.carousel-control-prev')[0],
-      nextButton = $(carousel).children('.carousel-control-next')[0],
-      pageNumber = $(carousel).children('.carousel-inner').children('.carousel-item.active').children('.carousel-caption').children('.page-number')[0],
-      pageCount = $(carousel).children('.carousel-inner').children('.carousel-item.active').children('.carousel-caption').children('.page-count')[0],
-      ctx = canvas.getContext('2d');
+    this.canvas = $(this.carousel).children('.carousel-inner').children('.carousel-item.active').children('canvas')[0];
+    this.prevButton = $(this.carousel).children('.carousel-control-prev')[0];
+    this.nextButton = $(this.carousel).children('.carousel-control-next')[0];
+    this.pageNumber = $(this.carousel).children('.carousel-inner').children('.carousel-item.active').children('.carousel-caption').children('.page-number')[0];
+    this.pageCount = $(this.carousel).children('.carousel-inner').children('.carousel-item.active').children('.carousel-caption').children('.page-count')[0];
+    this.feedbackTextArea = $(this.carousel).siblings('.feedback-textarea').children('textarea')[0];
+    this.ctx = this.canvas.getContext('2d');
 
-    /**
-     * Get page info from document, resize canvas accordingly, and render page.
-     * @param num Page number.
-     */
-    function renderPage(num) {
-      pageRendering = true;
-      // Using promise to fetch the page
-      pdfDoc.getPage(num).then(function (page) {
-        var viewport = page.getViewport({ scale: scale });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+    this.feedbacks = {};
 
-        // Render PDF page into canvas context
-        var renderContext = {
-          canvasContext: ctx,
-          viewport: viewport
-        };
-        var renderTask = page.render(renderContext);
+    this.pdfDoc = null;
+    this.pageNum = 1;
+    this.pageRendering = false;
+    this.pageNumPending = null;
+    this.scale = 0.8;
 
-        // Wait for rendering to finish
-        renderTask.promise.then(function () {
-          pageRendering = false;
-          if (pageNumPending !== null) {
-            // New page rendering is pending
-            renderPage(pageNumPending);
-            pageNumPending = null;
-          }
-        });
-      });
+    this.prevButton.addEventListener('click', () => this.onPrevPage());
+    this.nextButton.addEventListener('click', () => this.onNextPage());
 
-      // Update page counters
-      pageNumber.textContent = num;
+    this.renderPage = this.renderPage.bind(this);
+    this.renderPDF = this.renderPDF.bind(this);
+  };
+
+  /**
+   * Get page info from document, resize canvas accordingly, and render page.
+   * @param num Page number.
+   */
+  PDFCarousel.prototype.renderPage = function (num) {
+    this.pageRendering = true;
+    // Using promise to fetch the page
+    this.pdfDoc.getPage(num).then(function (page) {
+      var viewport = page.getViewport({ scale: this.scale });
+      this.canvas.height = viewport.height;
+      this.canvas.width = viewport.width;
+
+      // Render PDF page into canvas context
+      var renderContext = {
+        canvasContext: this.ctx,
+        viewport: viewport
+      };
+      var renderTask = page.render(renderContext);
+
+      // Wait for rendering to finish
+      renderTask.promise.then(function () {
+        this.pageRendering = false;
+        if (this.pageNumPending !== null) {
+          // New page rendering is pending
+          this.renderPage(this.pageNumPending);
+          this.pageNumPending = null;
+        }
+
+        this.feedbackTextArea.value = '';
+        if (this.feedbacks[num]) {
+          this.feedbackTextArea.value = this.feedbacks[num];
+        }
+        this.feedbackTextArea.focus();
+      }.bind(this));
+    }.bind(this));
+
+    // Update page counters
+    this.pageNumber.textContent = num;
+  }
+
+  /**
+   * If another page rendering in progress, waits until the rendering is
+   * finised. Otherwise, executes rendering immediately.
+   */
+  PDFCarousel.prototype.queueRenderPage = function (num) {
+    if (this.pageRendering) {
+      this.pageNumPending = num;
+    } else {
+      this.renderPage(num);
     }
+  }
 
-    /**
-     * If another page rendering in progress, waits until the rendering is
-     * finised. Otherwise, executes rendering immediately.
-     */
-    function queueRenderPage(num) {
-      if (pageRendering) {
-        pageNumPending = num;
-      } else {
-        renderPage(num);
-      }
+  /**
+   * Displays previous page.
+   */
+  PDFCarousel.prototype.onPrevPage = function () {
+    this.feedbacks[this.pageNum] = this.feedbackTextArea.value;
+
+    if (this.pageNum <= 1) {
+      this.pageNum = this.pdfDoc.numPages;
+    } else {
+      this.pageNum--;
     }
+    this.queueRenderPage(this.pageNum);
+  }
 
-    /**
-     * Displays previous page.
-     */
-    function onPrevPage() {
-      if (pageNum <= 1) {
-        pageNum = pdfDoc.numPages;
-      } else {
-        pageNum--;
-      }
-      queueRenderPage(pageNum);
+  /**
+   * Displays next page.
+   */
+  PDFCarousel.prototype.onNextPage = function () {
+    this.feedbacks[this.pageNum] = this.feedbackTextArea.value;
+
+    if (this.pageNum >= this.pdfDoc.numPages) {
+      this.pageNum = 1;
+    } else {
+      this.pageNum++;
     }
-    prevButton.addEventListener('click', onPrevPage);
+    this.queueRenderPage(this.pageNum);
+  }
 
-    /**
-     * Displays next page.
-     */
-    function onNextPage() {
-      if (pageNum >= pdfDoc.numPages) {
-        pageNum = 1;
-      } else {
-        pageNum++;
-      }
-      queueRenderPage(pageNum);
-    }
-    nextButton.addEventListener('click', onNextPage);
-
+  PDFCarousel.prototype.renderPDF = function (url) {
     /**
      * Asynchronously downloads PDF.
      */
-    pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
-      pdfDoc = pdfDoc_;
-      pageCount.textContent = pdfDoc.numPages;
+
+    this.pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
+      this.pdfDoc = pdfDoc_;
+      this.pageCount.textContent = this.pdfDoc.numPages;
 
       // Initial/first page rendering
-      renderPage(pageNum);
-    });
+      this.renderPage(this.pageNum);
+    }.bind(this));
   }
 
   // If absolute URL from the remote server is provided, configure the CORS
   // header on that server.
   var url = "{% static 'test.pdf' %}";
 
-  renderPDF(url, document.getElementById('pdfPreviewCarousel'));
+  var carousel = new PDFCarousel(document.getElementById('pdfPreviewCarousel'));
+  carousel.renderPDF(url);
 
-  renderPDF(url, document.getElementById('pdfPreviewCarousel-2'));
+  var carousel2 = new PDFCarousel(document.getElementById('pdfPreviewCarousel-2'));
+  carousel2.renderPDF(url);
+
 </script>
 {% endblock js %}
