@@ -1,13 +1,5 @@
 
-<script>
-  function toggleField(hideObj,showObj){
-    hideObj.disabled=true;        
-    hideObj.style.display='none';
-    showObj.disabled=false;   
-    showObj.style.display='inline';
-    showObj.focus();
-  }
-</script>
+
 {% extends 'boilerplates/base_navbar.html' %}
 {% load static %}
 {% load widget_tweaks %}
@@ -499,30 +491,33 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-lg-12">
-                  <form class="pt-3" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
                     {% if user.is_staff %}
-                    <form name="section-choose" action="#">
-                      Survey Section: <select name="section" 
+                    <form action="{% url 'add_section' course_id assignment_id %}" method = "POST">
+                      {% csrf_token %}
+                      Survey Section: <select name="section_title" 
                                 onchange="if(this.options[this.selectedIndex].value=='customOption'){
                                     toggleField(this,this.nextSibling);
                                     this.selectedIndex='0';
                                 }">
                                   <option></option>
-                                  {% for section in section_title_list %}
+                                  {% for section in section_question %}
                                   <option> {{section}} </option> 
                                   {% endfor %}
                                   <option value="customOption">Others</option>
-                              </select><input name="browser" style="display:none;" disabled="disabled" 
+                              </select><input name="section_title" style="display:none;" disabled="disabled" 
                                   onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
+                                  <div class="form-check form-check-flat form-check-primary">
+                                    <label class="form-check-label">
+                                      <input type="checkbox" name = "optional" class="form-check-input">
+                                      Optional
+                                    </label>
+                                  </div>
                                 <div class="mt-3">
                                   <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
-                                    type="submit">Add</button>
+                                    type="submit" formmethod="post" formaction="{% url 'add_section' course_id assignment_id %}">Add</button>
                                 </div>
                       </form>
                     {% endif %}
-                  </form>
-  
                 </div>
               </div>
             </div>
@@ -538,3 +533,15 @@
   
 
 {% endblock content %}
+
+{% block script %}
+<script>
+  function toggleField(hideObj,showObj){
+    hideObj.disabled=true;        
+    hideObj.style.display='none';
+    showObj.disabled=false;   
+    showObj.style.display='inline';
+    showObj.focus();
+  }
+</script>
+{% endblock %}
