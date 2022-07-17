@@ -9,8 +9,9 @@ from django.urls import reverse
 
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, AddSurveyForm
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, SurveySection, SurveyTemplate, FeedbackSurvey, Question
+from .survey_views import *
 
 
 def signup(request):
@@ -377,4 +378,3 @@ def view_assignment(request, course_id, assignment_id):
 @login_required
 def feedback(request):
     return render(request, 'feedback.html')
-

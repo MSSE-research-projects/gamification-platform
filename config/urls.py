@@ -54,8 +54,29 @@ urlpatterns = [
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
-                ]))
+                    path('add/', page_views.add_survey, name='add_survey'),
+                    path('survey/', include([
+                        path('', page_views.survey_list, name='survey_list'),
+                        path('addsection/', page_views.add_section,
+                             name='add_section'),
+                        path('<int:section_id>/', include([
+                            path('delete/', page_views.delete_section,
+                                 name='delete_section'),
+                            path('edit/', page_views.edit_section,
+                                 name='edit_section'),
+                            path('add/', page_views.add_question,
+                                 name='add_question'),
+                            path('<int:question_id>/', include([
+                                path('delete/', page_views.delete_question,
+                                     name='delete_question'),
+                                path('edit/', page_views.edit_question,
+                                     name='edit_question')
+                            ])),
+                        ])),
+                    ])),
+                ])),
             ])),
+
 
             path('member_list/', include([
                 path('', page_views.member_list, name='member_list'),
