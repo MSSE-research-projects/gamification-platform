@@ -16,7 +16,7 @@ class SurveySection(models.Model):
 
     is_required = models.BooleanField(default=False)
 
-    class Meta: 
+    class Meta:
         db_table = 'survey_section'
         verbose_name = _('survey section')
         verbose_name_plural = _('survey sections')
@@ -26,4 +26,5 @@ class SurveySection(models.Model):
         # return self.question_set.all()
         pass
 
-    
+    def __str__(self):
+        return self.title

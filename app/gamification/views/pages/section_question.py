@@ -1,4 +1,4 @@
-SECTION_QUESTION = {"title": ["The title of the presentation was clear.", "The title reflected well the content of the presentation."],
+SECTION_QUESTION = {"Title": ["The title of the presentation was clear.", "The title reflected well the content of the presentation."],
                     "Software engineering problem (Research question / goal)": ["The main problem (research question/goal) was stated explicitly.",
                                                                                 "The main problem (research question/goal) was clearly explained, with the current audience in mind.",
                                                                                 "I understood the SE problem.",
