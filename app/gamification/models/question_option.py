@@ -9,6 +9,8 @@ class QuestionOption(models.Model):
 
     option_choice = models.ForeignKey('OptionChoice', on_delete=models.CASCADE)
 
+    number_of_text = models.IntegerField(default=1)
+
     class Meta:
         db_table = 'question_option'
         verbose_name = 'question option'

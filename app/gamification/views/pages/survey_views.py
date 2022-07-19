@@ -1,12 +1,10 @@
-from multiprocessing import context
-from re import template
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 
-from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AddSurveyForm
+from app.gamification.decorators import user_role_check
 from app.gamification.models import Assignment, Registration, SurveySection, FeedbackSurvey, Question, QuestionOption
+from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.survey_template import SurveyTemplate
 
 from .section_question import SECTION_QUESTION
@@ -115,6 +113,7 @@ def add_question(request, course_id, assignment_id, section_id):
         section = SurveySection.objects.get(id=section_id)
         optional = request.POST.get('is_required')
         is_required = False if optional == 'on' else True
+        question_type = request.POST.get('question_type')
         # question_type = [fixed_text, multiple_choice, multiple_text]
         # option = 'on'
         # fixed_text:
@@ -124,17 +123,29 @@ def add_question(request, course_id, assignment_id, section_id):
         #      - option_choice_text: string ???
         # multiple_text:
         #      - number_of_text: int
-
         questions = Question.objects.filter(text=text, section=section)
         if len(questions) == 0:
-            question = Question(text=text,
-                                section=section,
-                                is_required=is_required,
-                                question_type=Question.Question_type.MULTIPLECHOICE)
+            question = Question(text=text, section=section,
+                                is_required=is_required, question_type=question_type)
             question.save()
         else:
             message_info = 'Cannot add duplicate question.'
             messages.info(request, message_info)
+        if question_type == 'multiple_choice':
+            option_choice_text = request.POST.get('option_choice_text')
+            option_choice = OptionChoice(text=option_choice_text)
+            option_choice.save()
+            question_option = QuestionOption(
+                option_choice=option_choice, question=question, number_of_text=1)
+            question_option.save()
+        else:
+            option_choice_text = ''
+            number_of_text = request.POST.get('number_of_text')
+            option_choice = OptionChoice(text=option_choice_text)
+            option_choice.save()
+            question_option = QuestionOption(
+                option_choice=option_choice, question=question, number_of_text=number_of_text)
+            question_option.save()
         return redirect('survey_list', course_id, assignment_id)
     else:
         return render(request, 'survey_detail.html', {'course_id': course_id, 'assignment_id': assignment_id})
