@@ -216,7 +216,9 @@ class AssignmentForm(forms.ModelForm):
                   'assignment_type', 'submission_type', 'total_score',
                   'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')
         widgets = {
-            'course': forms.TextInput(attrs={'readonly': 'readonly'}),
+            # TODO: solve display issue
+            # 'course': forms.Select(attrs={'disabled': 'disabled'}),
+            'course': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
 
@@ -232,7 +234,10 @@ class ArtifactForm(forms.ModelForm):
         model = Artifact
         fields = ('entity', 'assignment', 'upload_time', 'file')
         widgets = {
+            # TODO: solve display issue
+            # 'entity': forms.Select(attrs={'readonly': 'readonly'}),
             'entity': forms.TextInput(attrs={'readonly': 'readonly'}),
+            # 'assignment': forms.Select(attrs={'readonly': 'readonly'}),
             'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
             'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
         }

@@ -11,8 +11,8 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            <a href="{% url 'artifact' course_id %}"><button type="button"
-                class="btn btn-outline-primary">Back</button></a>
+            {% comment %} <a href="{% url 'artifact' course_id %}"><button type="button"
+                class="btn btn-outline-primary">Back</button></a> {% endcomment %}
             <div class="col-lg-12">
               {% if userRole == 'Instructor' or userRole == 'TA'%}
               <form class="pt-3" method="post" enctype="multipart/form-data">

@@ -20,6 +20,7 @@ class Entity(models.Model):
         membership = Membership.objects.filter(entity=self.pk)
         students = [e.student.users for e in membership]
         return students
+    
 
 
 class Individual(Entity):

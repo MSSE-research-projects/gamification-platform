@@ -373,6 +373,7 @@ def edit_assignment(request, course_id, assignment_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_assignment(request, course_id, assignment_id):
+    # TODO: make use of reserved place like Canvas
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
@@ -391,6 +392,7 @@ def check_artifact_permisssion(artifact_id, user):
         return False
 
 # TODO: remove redundant code in artifact section to improve performance in the future
+# TODO: create a directory for each course_assignment_team to store the files
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def artifact(request, course_id, assignment_id):
@@ -399,11 +401,11 @@ def artifact(request, course_id, assignment_id):
     # TODO: rethink about permission control for staff(superuser) and instructor
     registration = get_object_or_404(
         Registration, users=request.user, courses=course)
-    print("registration.userRole: ", registration.userRole)
+    # print("registration.userRole: ", registration.userRole)
     userRole = registration.userRole
     try:
         team = Team.objects.get(registration=registration, course=course)
-        print("team: ", team)
+        # print("team: ", team)
         # TO-DO : blank team
     except Team.DoesNotExist:
         print("Team does not exist")
@@ -459,10 +461,14 @@ def artifact_admin(request, course_id, assignment_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def download_artifact(request, course_id, assignment_id, artifact_id):
-    artifact = get_object_or_404(Artifact, pk=artifact_id)
-    filename = artifact.file.path
-    response = FileResponse(open(filename, 'rb'))
-    return response
+    if check_artifact_permisssion(artifact_id, request.user):
+        artifact = get_object_or_404(Artifact, pk=artifact_id)
+        filename = artifact.file.path
+        response = FileResponse(open(filename, 'rb'))
+        # TODO: return 404 if file does not exist
+        return response
+    else:
+        return redirect('assignment', course_id)
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
@@ -484,8 +490,9 @@ def delete_artifact(request, course_id, assignment_id, artifact_id):
     
     if request.method == 'GET':
         artifact = get_object_or_404(Artifact, pk=artifact_id)
+        # delete the artifact file first
+        artifact.file.delete()        
         artifact.delete()
-        # Also delete the artifact file
         return redirect('artifact', course_id, assignment_id)
     else:
         return redirect('artifact', course_id, assignment_id)
@@ -501,7 +508,7 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
     artifact = get_object_or_404(Artifact, pk=artifact_id)
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
-    print("userRole: ", userRole)
+    # print("userRole: ", userRole)
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, instance=artifact, label_suffix='')
