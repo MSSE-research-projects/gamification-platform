@@ -58,11 +58,11 @@ def survey_list(request, course_id, assignment_id):
             section_dict = dict()
             section_dict['instance'] = section
             questions = list()
-            for question in section['instance'].questions:
+            for question in section_dict['instance'].questions:
                 question_dict = dict()
                 question_dict['instance'] = question
                 question_options = list()
-                for question_option in question['instance'].options:
+                for question_option in question_dict['instance'].options:
                     question_option_dict = dict()
                     question_option_dict['instance'] = question_option
                     question_options.append(question_option_dict)
