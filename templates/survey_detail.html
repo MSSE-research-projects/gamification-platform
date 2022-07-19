@@ -7,321 +7,391 @@
 {% block content %}
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+   aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+            ...
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+         </div>
       </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
+   </div>
 </div>
-
 <div class="main-panel">
-  
-  <div class="col-12 grid-margin" style="width: 80%;">
-    <div class="card">
-      <div class="card-body">
-        <div class="border-bottom py-4">
-          <h3 style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
-            Survey name</h3>
-        </div>
-        <h1></h1>
-        <div class="row" style="width:82%">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-lg-12">
-                    {% if user.is_staff %}
-                    <form action="{% url 'add_section' course_id assignment_id %}" method="POST">
-                      {% csrf_token %}
-                      Survey Section:
-                      {% if messages %}
-                      <ul class="messages">
+   <div class="col-12 grid-margin" style="width: 80%;">
+      <div class="card">
+         <div class="card-body">
+            <div class="border-bottom py-4">
+               <h3 style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                  Survey name
+               </h3>
+            </div>
+            <h1></h1>
+            <div class="row" style="width:82%">
+               <div class="col-12">
+                  <div class="card">
+                     <div class="card-body">
+                        <div class="row">
+                           <div class="col-lg-12">
+                              {% if user.is_staff %}
+                              <form action="{% url 'add_section' course_id assignment_id %}" method="POST">
+                                 {% csrf_token %}
+                                 Survey Section:
+                                 {% if messages %}
+                                 <ul class="messages">
+                                    {% for message in messages %}
+                                    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                 </ul>
+                                 {% endif %}
+                                 <select name="section_title" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
+                                    toggleField(this,this.nextSibling);
+                                    this.selectedIndex='0';
+                                    }">
+                                    <option></option>
+                                    {% for key in section_question %}
+                                    <option> {{key}} </option>
+                                    {% endfor %}
+                                    <option value="customOption">Others</option>
+                                 </select>
+                                 <input type = "text" class = "form-control" name="section_title" style="display:none;" disabled="disabled"
+                                    onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
+                                 <div class="form-check form-check-flat
+                                    form-check-primary">
+                                    <label class="form-check-label">
+                                    <input type="checkbox" name="optional" class="form-check-input">
+                                    Optional
+                                    </label>
+                                 </div>
+                                 <div class="mt-3">
+                                    <button class="btn btn-block btn-primary btn-lg
+                                       font-weight-medium auth-form-btn" type="submit" >Add</button>
+                                 </div>
+                              </form>
+                              {% endif %}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <h1></h1>
+            {% for section in survey.sections%}
+            <div id="questions-{{ section.instance.pk}}" class="modal fade">
+               <div class="modal-dialog">
+                  <div class="modal-content">
+                     <form action="{% url 'add_question' course_id assignment_id section.instance.pk%}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="survey_id" value="{{ section.instance.pk }}">
+                        <div class="modal-header">
+                           <h5 class="modal-title">Question for {{ section.instance.title }}</h5>
+                           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="border-bottom py-4">
+                          <div class="modal-body" style="margin-left:10%; padding-top:1px;padding-bottom:1px">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="type-radio" id="multiple-choice" 
+                                  onclick="ShowHideDiv('multiple-choice','text-input','input-multiple-choice', 'text-questions')">
+                                <label class="form-check-label" for="flexRadioDefault1" >
+                                Multiple choice
+                                </label>
+                            </div>
+                            <div class="form-check" style="padding-top:1px;padding-bottom:1%">
+                                <input class="form-check-input" type="radio" name="type-radio" id="text-input" 
+                                  onclick="ShowHideDiv('multiple-choice','text-input','input-multiple-choice', 'text-questions')">
+                                <label class="form-check-label" for="flexRadioDefault2">
+                                Text input
+                                </label>
+                            </div>
+                          </div>
+                      </div>
+                        <div style="display:none" id="input-multiple-choice">
+                           Questions:
+                           {% if section.instance.title in section_question %}
+                           {% for default_section, questions in section_question.items%}
+                           {% if default_section == section.instance.title %}
+                           <select name="text" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
+                              toggleField(this,this.nextSibling);
+                              this.selectedIndex='0';
+                              }">
+                              {% for question in questions%}
+                              <option> {{question}} </option>
+                              {% endfor %}
+                              <option value="customOption">Others</option>
+                           </select>
+                           <input type = "text" class = "form-control" name="text" style="display:none;" disabled="disabled"
+                              onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
+                           {% endif %}
+                           {% endfor %}
+                           {% else %}
+                           <input name = "text" type="text" class="form-control" placeholder="Question" aria-label="Question" aria-describedby="basic-addon1">
+                           {% endif %}
+                           <h1></h1>
+                           <div style="margin-left:10%">
+                              <div class="form-check">
+                                 <input class="form-check-input" type="radio" name="option-choice" id="default-options" 
+                                    onclick="ShowHideDiv('customize-options','option-choice','add-option','default')">
+                                 <label class="form-check-label" for="flexRadioDefault1" >
+                                 Default options(Strongly agree -> Strongly disagree)
+                                 </label>
+                              </div>
+                              <div class="form-check" style="padding-top:1px;padding-bottom:1%">
+                                 <input class="form-check-input" type="radio" name="option-choice" id="customize-options" 
+                                    onclick="ShowHideDiv('customize-options','option-choice','add-option','default')">
+                                 <label class="form-check-label" for="flexRadioDefault2">
+                                 Customize options
+                                 </label>
+                              </div>
+                           </div>
+                           <div id="add-option" style="display:none">
+                              <div class="input-group mb-3">
+                                 <input type="text" class="form-control" placeholder="option content" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                                 <div class="input-group-append">
+                                    <button class="btn btn-primary btn-sm" type="button" onclick="createNewElement();">
+                                    Add option
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                          <div id="default" style="display:none">
+                          </div>
+                           <div id="text-field-container">
+                           </div>
+                        </div>
+                        <h1></h1>
+                        <div style="display:none">
+                           Question type:
+                           <select class="form-select" aria-label="Default select example" name = "question_type">
+                              <option value = "1"><button type="button">Multiple choice</button></option>
+                              <option value = "2">Text</option>
+                           </select>
+                        </div>
+                        <div style="display:none" id="text-questions">
+                          <div style="margin-left:10%">
+                            <div class="form-check">
+                               <input class="form-check-input" type="radio" name="type-text" id="flex" 
+                                  onclick="ShowHideDiv('constant','flex','flex-number','constant-number')">
+                               <label class="form-check-label" for="flexRadioDefault1" >
+                               Flex number of answers
+                               </label>
+                            </div>
+                            <div class="form-check" style="padding-top:1px;padding-bottom:1%">
+                               <input class="form-check-input" type="radio" name="type-text" id="constant" 
+                                  onclick="ShowHideDiv('constant','flex','flex-number','constant-number')">
+                               <label class="form-check-label" for="flexRadioDefault2">
+                               constant number of answers
+                               </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div id="constant-number" style="display:none">
+                          <input type='text' id='number-of-constant-number'class='form-control' aria-label='Small' aria-describedby='inputGroup-sizing-sm' placeholder='option content'>
+                        </div>
+                        <div id="flex-number" style="display:none">
+                            
+                        </div>
+                        <div class="form-check form-check-flat form-check-primary" style="margin-left:5%">
+                           <label class="form-check-label">
+                           <input type="checkbox" name="is_required" class="form-check-input">
+                           optional
+                           </label>
+                        </div>
+                        <div class="modal-footer">
+                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                           <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                     </form>
+                  </div>
+               </div>
+            </div>
+            <div class="col-12 grid-margin" style="width: 79%;">
+               <div class="card" >
+                  <div class="card-body">
+                     <h4 class="card-title">
+                        <div class="border-bottom py-4">
+                           <div class="row">
+                              <div class="col-md-6">
+                                 {{ section.instance.title }}
+                              </div>
+                              <div class="col-md-6">
+                                 <button class="btn-primary btn-sm" type="button" href="#questions-{{ section.instance.pk }}" 
+                                    onclick="passSectionId()" data-bs-toggle="modal" style="margin-left:70%">Add question
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     </h4>
+                     {% if messages %}
+                     <ul class="messages">
                         {% for message in messages %}
                         <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
                         {% endfor %}
-                      </ul>
-                      {% endif %}
-                      <select name="section_title" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
-                            toggleField(this,this.nextSibling);
-                            this.selectedIndex='0';
-                            }">
-                        <option></option>
-                        {% for key in section_question %}
-                        <option> {{key}} </option>
-                        {% endfor %}
-                        <option value="customOption">Others</option>
-                      </select><input type = "text" class = "form-control" name="section_title" style="display:none;" disabled="disabled"
-                        onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
-                      <div class="form-check form-check-flat
-                            form-check-primary">
-                        <label class="form-check-label">
-                          <input type="checkbox" name="optional" class="form-check-input">
-                          Optional
-                        </label>
-                      </div>
-                      <div class="mt-3">
-                        <button class="btn btn-block btn-primary btn-lg
-                              font-weight-medium auth-form-btn" type="submit" >Add</button>
-                      </div>
-                    </form>
-                    {% endif %}
+                     </ul>
+                     {% endif %}
+                     {% for question in section.questions%}
+                     <div class="card">
+                        <div class="card-body">
+                           <h4 class="card-title">{{ question.instance.text }}</h4>
+                           <div class="row" style="height: 40px;">
+                              <div class="form-group row">
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Strongly agree
+                                    </p>
+                                 </div>
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Agree
+                                    </p>
+                                 </div>
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Somewhat agree
+                                    </p>
+                                 </div>
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Neutral
+                                    </p>
+                                 </div>
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Somewhat disagree
+                                    </p>
+                                 </div>
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Disagree
+                                    </p>
+                                 </div>
+                                 <div class="col-sm">
+                                    <p class="card-description">
+                                       Strongly disagree
+                                    </p>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="row" style="height: 40px;">
+                              <div class="form-group row">
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1"
+                                          value="option1">
+                                       (7)
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2"
+                                          value="option2">
+                                       (6)
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios3"
+                                          value="option3">
+                                       (5)
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios4"
+                                          value="option4">
+                                       (4)
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios5"
+                                          value="option5">
+                                       (3)
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios6"
+                                          value="option6">
+                                       (2)
+                                       </label>
+                                    </div>
+                                 </div>
+                                 <div class="col-sm">
+                                    <div class="form-check">
+                                       <label class="form-check-label">
+                                       <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios7"
+                                          value="option7">
+                                       (1)
+                                       </label>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <h1></h1>
+                     {% endfor %}
                   </div>
-                </div>
-              </div>
+               </div>
             </div>
-          </div>
-        </div>
-        <h1></h1>
-        {% for key, value in survey.items %}
-        <div id="questions-{{ key.pk }}" class="modal fade">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <form action="{% url 'add_question' course_id assignment_id key.pk%}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="survey_id" value="{{ key.pk }}">
-                <div class="modal-header">
-                  <h5 class="modal-title">Question for {{ key }}</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                  <div>
-                    Questions:
-                    {% if key.title in section_question %}
-                      {% for section, questions in section_question.items%}
-                        {% if section == key.title%}
-                        <select name="text" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
-                        toggleField(this,this.nextSibling);
-                        this.selectedIndex='0';
-                        }">
-                        {% for question in questions%}
-                        <option> {{question}} </option>
-                        {% endfor %}
-                        <option value="customOption">Others</option>
-                        </select><input type = "text" class = "form-control" name="text" style="display:none;" disabled="disabled"
-                        onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
-                        {% endif %}
-                      {% endfor %}
-                    {% else %}
-                    <input name = "text" type="text" class="form-control" placeholder="Question" aria-label="Question" aria-describedby="basic-addon1">
-                    {% endif %}
+            <h1></h1>
+            {% endfor %}
+            {% comment %} 
+            <div class="col-12 grid-margin" style="width: 80%;">
+               <div class="card">
+                  <div class="card-body">
+                     <div class="row" style="height: 40px;">
+                        <label for="Content" class="col-sm-3 col-form-label">Content</label>
+                        <input name="Content" type="number" min="1" max="10" style="width:
+                           20%; margin-bottom: 10px;" />
+                     </div>
+                     <div class="row" style="height: 40px;">
+                        <label for="Design" class="col-sm-3 col-form-label">Design</label>
+                        <input name="Design" type="number" min="1" max="10" style="width:
+                           20%; margin-bottom: 10px;" />
+                     </div>
+                     <div class="row" style="height: 40px;">
+                        <label for="Delivery" class="col-sm-3 col-form-label">Delivery</label>
+                        <input name="Delivery" type="number" min="1" max="10" style="width:
+                           20%; margin-bottom: 10px;" />
+                     </div>
+                     <div class="row" style="height: 40px;">
+                        <label for="Overall" class="col-sm-3 col-form-label">Overall</label>
+                        <input name="Overall" type="number" min="1" max="10" style="width:
+                           20%; margin-bottom: 10px;" />
+                     </div>
+                     <div class="row" style="height: 40px;">
+                        <label for="confidence" class="col-sm-3 col-form-label">Your
+                        confidence</label>
+                        <input name="confidence" type="number" min="1" max="10" style="width: 20%; margin-bottom: 10px;" />
+                     </div>
                   </div>
-                  <h1></h1>
-                  Question type:
-                  <div>
-                    <select class="form-select" aria-label="Default select example" name = "question_type">
-                      <option value = "1">Multiple choice (7 options)</option>
-                      <option value = "2">Multiple choice (5 options)</option>
-                      <option value = "3">True or false</option>
-                      <option value = "4">Text (single input)</option>
-                      <option value = "5">Text (multiple inputs)</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-check form-check-flat form-check-primary" style="margin-left:5%">
-                  <label class="form-check-label">
-                    <input type="checkbox" name="is_required" class="form-check-input">
-                    optional
-                  </label>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                  <button type="submit" class="btn btn-primary">Add</button>
-                </div>
-              </form>
+               </div>
             </div>
-          </div>
-        </div>
-        <div class="col-12 grid-margin" style="width: 80%;">
-          <div class="card">
-            <div class="card-body">
-              <h4 class="card-title">
-                <div class="row">
-                  <div class="col-md-6">
-                    {{ key.title }}
-                  </div>
-                  <div class="col-md-6">
-                    <button type="button" href="#questions-{{ key.pk }}" onclick="passSectionId()" class="btn btn-sm btn-primary"
-                      data-bs-toggle="modal" style="margin-left: 50%">
-                      Add question
-                    </button>
-                  </div>
-                </div>
-              </h4>
-              {% if messages %}
-              <ul class="messages">
-                {% for message in messages %}
-                <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-                {% endfor %}
-              </ul>
-              {% endif %}
-
-
-              {% for question in value %}
-              <div class="card">
-                <div class="card-body">
-                  <h4 class="card-title">{{ question.text }}</h4>
-                  <div class="row" style="height: 40px;">
-                    <div class="form-group row">
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Strongly agree
-                        </p>
-                      </div>
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Agree
-                        </p>
-                      </div>
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Somewhat agree
-                        </p>
-                      </div>
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Neutral
-                        </p>
-                      </div>
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Somewhat disagree
-                        </p>
-                      </div>
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Disagree
-                        </p>
-                      </div>
-                      <div class="col-sm">
-                        <p class="card-description">
-                          Strongly disagree
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row" style="height: 40px;">
-                    <div class="form-group row">
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1"
-                              value="option1">
-                            (7)
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2"
-                              value="option2">
-                            (6)
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios3"
-                              value="option3">
-                            (5)
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios4"
-                              value="option4">
-                            (4)
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios5"
-                              value="option5">
-                            (3)
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios6"
-                              value="option6">
-                            (2)
-                          </label>
-                        </div>
-                      </div>
-                      <div class="col-sm">
-                        <div class="form-check">
-                          <label class="form-check-label">
-                            <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios7"
-                              value="option7">
-                            (1)
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h1></h1>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-        <h1></h1>
-        {% endfor %}
-        {% comment %} <div class="col-12 grid-margin" style="width: 80%;">
-          <div class="card">
-            <div class="card-body">
-              <div class="row" style="height: 40px;">
-                <label for="Content" class="col-sm-3 col-form-label">Content</label>
-                <input name="Content" type="number" min="1" max="10" style="width:
-                      20%; margin-bottom: 10px;" />
-              </div>
-              <div class="row" style="height: 40px;">
-                <label for="Design" class="col-sm-3 col-form-label">Design</label>
-                <input name="Design" type="number" min="1" max="10" style="width:
-                      20%; margin-bottom: 10px;" />
-              </div>
-              <div class="row" style="height: 40px;">
-                <label for="Delivery" class="col-sm-3 col-form-label">Delivery</label>
-                <input name="Delivery" type="number" min="1" max="10" style="width:
-                      20%; margin-bottom: 10px;" />
-              </div>
-              <div class="row" style="height: 40px;">
-                <label for="Overall" class="col-sm-3 col-form-label">Overall</label>
-                <input name="Overall" type="number" min="1" max="10" style="width:
-                      20%; margin-bottom: 10px;" />
-              </div>
-              <div class="row" style="height: 40px;">
-                <label for="confidence" class="col-sm-3 col-form-label">Your
-                  confidence</label>
-                <input name="confidence" type="number" min="1" max="10" style="width: 20%; margin-bottom: 10px;" />
-              </div>
-            </div>
-          </div>
-        </div> {% endcomment %}
+            {% endcomment %}
+         </div>
       </div>
-    </div>
-  </div>
+   </div>
 </div>
 
 
@@ -336,13 +406,25 @@
     showObj.style.display = 'inline';
     showObj.focus();
   }
-
-  
-
-  function passSectionId(section_id) {
-    section_id = section_id;
+  function ShowHideDiv(first, second, hidden1, hidden2) {
+    var multiple = document.getElementById(first);
+    var text = document.getElementById(second);
+    var choiceInput1 = document.getElementById(hidden1);
+    var choiceInput2 = document.getElementById(hidden2);
+    choiceInput1.style.display = multiple.checked ? "block" : "none";
+    choiceInput2.style.display = text.checked ? "block" : "none";
+  }
+  function createNewElement() {
+    var txtNewInputBox = document.createElement('div');
+    var space = document.createElement('h1');
+    txtNewInputBox.innerHTML = "<input type='text' id='customize-option'class='form-control' aria-label='Small' aria-describedby='inputGroup-sizing-sm' placeholder='option content'>";
+    var container = document.getElementById("text-field-container");
+    container.append(txtNewInputBox)
+    container.append(space)
   }
 </script>
+
+
 
 
 {% endblock %}
