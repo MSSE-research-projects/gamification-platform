@@ -1,0 +1,72 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Add Survey{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-12">
+    {% if userRole != 'Student' %}
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <h4 class="card-title">Add Survey</h4>
+            <div class="form-group">
+              <label for="template_name">Template</label>
+              <div>
+                <select name="template_name" class="form-select" id="template_name" onchange="if(this.options[this.selectedIndex].value=='customOption'){
+                toggleField(this,this.nextSibling);
+                this.selectedIndex='0';
+                }">
+                <option> Default Template </option>
+                <option value="customOption"> Create Template </option>
+                </select><input type="text" name="template_name" class="form-control" id="template_name" style="display:none;" placeholder="Template Name" disabled="disabled"
+                onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="instructions">Instruction(optional)</label>
+              <input type="text" name="instructions" class="form-control" id="instructions" placeholder="Instruction">
+            </div>
+            <div class="form-group">
+              <label for="other_info">Additional information(optional)</label>
+              <input type="text" name="other_info" class="form-control" id="other_info" placeholder="Additional information">
+            </div>
+            <div class="form-group">
+              <label for="date_released">Release Date</label>
+              <input type="date" name="date_released" class="form-control" id="date_released" placeholder="Release Date" required>
+            </div>
+            <div class="form-group">
+              <label for="date_due">Due Date</label>
+              <input type="date" name="date_due" class="form-control" id="date_due" placeholder="Due Date" required>
+            </div>
+            <button type="submit" class="btn btn-primary me-2">Save</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script>
+  function toggleField(hideObj, showObj) {
+    hideObj.disabled = true;
+    hideObj.style.display = 'none';
+    showObj.disabled = false;
+    showObj.style.display = 'inline';
+    showObj.focus();
+  }
+
+</script>
+
+
+{% endblock %}

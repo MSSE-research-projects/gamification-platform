@@ -223,18 +223,12 @@ class AssignmentForm(forms.ModelForm):
         }
 
 
-class QuestionForm(forms.ModelForm):
-    class Meta:
-        model = Question
-        fields = ('section', 'name', 'text', 'is_required', 'question_type')
-
-
 class AddSurveyForm(forms.ModelForm):
 
     class Meta:
-        model = SurveyTemplate
-        fields = ('name', 'instructions',
-                  'other_info')
-        # widgets = {
-        #     'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
-        # }
+        model = FeedbackSurvey
+        fields = ('template', 'assignment', 'date_due',
+                  'date_released')
+        widgets = {
+            'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }

@@ -1,5 +1,7 @@
 from django.db import models
 
+from app.gamification.models.survey_section import SurveySection
+
 
 class SurveyTemplate(models.Model):
     """
@@ -18,3 +20,7 @@ class SurveyTemplate(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def sections(self):
+        return SurveySection.objects.filter(template=self)

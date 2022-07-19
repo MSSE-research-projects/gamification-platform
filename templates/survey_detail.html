@@ -37,7 +37,6 @@
             Survey name</h3>
         </div>
         <h1></h1>
-
         <div class="row" style="width:82%">
           <div class="col-12">
             <div class="card">
@@ -47,7 +46,15 @@
                     {% if user.is_staff %}
                     <form action="{% url 'add_section' course_id assignment_id %}" method="POST">
                       {% csrf_token %}
-                      Survey Section: <select name="section_title" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
+                      Survey Section:
+                      {% if messages %}
+                      <ul class="messages">
+                        {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                        {% endfor %}
+                      </ul>
+                      {% endif %}
+                      <select name="section_title" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
                             toggleField(this,this.nextSibling);
                             this.selectedIndex='0';
                             }">
@@ -56,7 +63,7 @@
                         <option> {{key}} </option>
                         {% endfor %}
                         <option value="customOption">Others</option>
-                      </select><input name="section_title" style="display:none;" disabled="disabled"
+                      </select><input type = "text" class = "form-control" name="section_title" style="display:none;" disabled="disabled"
                         onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
                       <div class="form-check form-check-flat
                             form-check-primary">
@@ -90,25 +97,44 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                  Questions:
-                  {% if key.title in section_question %}
-                    {% for section, questions in section_question.items%}
-                      {% if section == key.title%}
-                      <select name="text" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
-                      toggleField(this,this.nextSibling);
-                      this.selectedIndex='0';
-                      }">
-                      {% for question in questions%}
-                      <option> {{question}} </option>
+                  <div>
+                    Questions:
+                    {% if key.title in section_question %}
+                      {% for section, questions in section_question.items%}
+                        {% if section == key.title%}
+                        <select name="text" class="form-select" onchange="if(this.options[this.selectedIndex].value=='customOption'){
+                        toggleField(this,this.nextSibling);
+                        this.selectedIndex='0';
+                        }">
+                        {% for question in questions%}
+                        <option> {{question}} </option>
+                        {% endfor %}
+                        <option value="customOption">Others</option>
+                        </select><input type = "text" class = "form-control" name="text" style="display:none;" disabled="disabled"
+                        onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
+                        {% endif %}
                       {% endfor %}
-                      <option value="customOption">Others</option>
-                      </select><input name="text" style="display:none;" disabled="disabled"
-                      onblur="if(this.value==''){toggleField(this,this.previousSibling);}">
-                      {% endif %}
-                    {% endfor %}
-                  {% else %}
-                  <input name = "text" type="text" class="form-control" placeholder="Question" aria-label="Question" aria-describedby="basic-addon1">
-                  {% endif %}
+                    {% else %}
+                    <input name = "text" type="text" class="form-control" placeholder="Question" aria-label="Question" aria-describedby="basic-addon1">
+                    {% endif %}
+                  </div>
+                  <h1></h1>
+                  Question type:
+                  <div>
+                    <select class="form-select" aria-label="Default select example" name = "question_type">
+                      <option value = "1">Multiple choice (7 options)</option>
+                      <option value = "2">Multiple choice (5 options)</option>
+                      <option value = "3">True or false</option>
+                      <option value = "4">Text (single input)</option>
+                      <option value = "5">Text (multiple inputs)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-check form-check-flat form-check-primary" style="margin-left:5%">
+                  <label class="form-check-label">
+                    <input type="checkbox" name="is_required" class="form-check-input">
+                    optional
+                  </label>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -128,11 +154,19 @@
                   </div>
                   <div class="col-md-6">
                     <button type="button" href="#questions-{{ key.pk }}" onclick="passSectionId()" class="btn btn-sm btn-primary"
-                      data-bs-toggle="modal" style="margin-left: 50%">Add
-                      question</button>
+                      data-bs-toggle="modal" style="margin-left: 50%">
+                      Add question
+                    </button>
                   </div>
                 </div>
               </h4>
+              {% if messages %}
+              <ul class="messages">
+                {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
 
 
               {% for question in value %}
@@ -302,6 +336,8 @@
     showObj.style.display = 'inline';
     showObj.focus();
   }
+
+  
 
   function passSectionId(section_id) {
     section_id = section_id;

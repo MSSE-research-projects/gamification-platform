@@ -1,13 +1,13 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from app.gamification.models.question import Question
+
 
 class SurveySection(models.Model):
     """
     Model for SurveySection
     """
-    name = models.CharField(max_length=150)
-
     template = models.ForeignKey('SurveyTemplate', on_delete=models.CASCADE)
 
     title = models.CharField(max_length=150)
@@ -23,8 +23,7 @@ class SurveySection(models.Model):
 
     @property
     def questions(self):
-        # return self.question_set.all()
-        pass
+        return Question.objects.filter(section=self)
 
     def __str__(self):
         return self.title

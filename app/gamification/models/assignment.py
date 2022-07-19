@@ -3,7 +3,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from app.gamification.models.course import Course
-from app.gamification.models.survey import FeedbackSurvey
+from app.gamification.models.feedback_survey import FeedbackSurvey
 
 
 class Assignment(models.Model):

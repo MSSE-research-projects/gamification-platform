@@ -9,8 +9,8 @@ from django.urls import reverse
 
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, AddSurveyForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, SurveySection, SurveyTemplate, FeedbackSurvey, Question
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership
 from .survey_views import *
 
 
