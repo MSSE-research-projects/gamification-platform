@@ -73,7 +73,8 @@ class ArtifactTest(TestCase):
         try:
             if(os.path.exists(settings.MEDIA_ROOT)):
                 shutil.rmtree(settings.MEDIA_ROOT)
-        except:
+        except Exception as e:
+            print(e)
             # Still downloading files, so ignore this error
             pass
     
@@ -153,7 +154,8 @@ class ArtifactAddTest(TestCase):
         try:
             if(os.path.exists(settings.MEDIA_ROOT)):
                 shutil.rmtree(settings.MEDIA_ROOT)
-        except:
+        except Exception as e:
+            print(e)
             # Still downloading files, so ignore this error
             pass
     
@@ -266,7 +268,8 @@ class ArtifactEditTest(TestCase):
         try:
             if(os.path.exists(settings.MEDIA_ROOT)):
                 shutil.rmtree(settings.MEDIA_ROOT)
-        except:
+        except Exception as e:
+            print(e)
             # Still downloading files, so ignore this error
             pass
           
@@ -373,7 +376,8 @@ class ArtifactViewTest(TestCase):
         try:
             if(os.path.exists(settings.MEDIA_ROOT)):
                 shutil.rmtree(settings.MEDIA_ROOT)
-        except:
+        except Exception as e:
+            print(e)
             # Still downloading files, so ignore this error
             pass
             
@@ -466,7 +470,8 @@ class ArtifactDeleteTest(TestCase):
         try:
             if(os.path.exists(settings.MEDIA_ROOT)):
                 shutil.rmtree(settings.MEDIA_ROOT)
-        except:
+        except Exception as e:
+            print(e)
             # Still downloading files, so ignore this error
             pass
     
@@ -560,7 +565,8 @@ class ArtifactDownloadTest(TestCase):
         try:
             if(os.path.exists(settings.MEDIA_ROOT)):
                 shutil.rmtree(settings.MEDIA_ROOT)
-        except:
+        except Exception as e:
+            print(e)
             # Still downloading files, so ignore this error
             pass
             
