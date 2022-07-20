@@ -179,7 +179,7 @@
                           <div style="margin-left:10%">
                             <div class="form-check">
                                <input class="form-check-input" type="radio" name="text_input_type" id="flex{{section.instance.pk}}" value="MULTIPLETEXT"
-                                onclick="ShowHideDiv('constant{{section.instance.pk}}','flex{{section.instance.pk}}','constant-number{{section.instance.pk}}','flex-number{{section.instance.pk}}'); document.getElementById('myTextId{{section.instance.pk}}').value = this.value;" >
+                                 onclick="ShowHideDiv('constant{{section.instance.pk}}','flex{{section.instance.pk}}','constant-number{{section.instance.pk}}','flex-number{{section.instance.pk}}'); document.getElementById('myTextId{{section.instance.pk}}').value = this.value;" >
                                <label class="form-check-label" for="flexRadioDefault1" value="fixe">
                                Flex number of answers
                                </label>
@@ -267,8 +267,18 @@
                                     {% endfor %}
                                  </div>
                               </div>
+                           {% elif question.instance.question_type == question.instance.Question_type.FIXEDTEXT %}
+                              <div class="row" >
+                                 <div class="form-group row">
+                                    {% with ''|center:question.instance.options.0.number_of_text as range %}
+                                    {% for _ in range %}
+                                       <input type = "text" class = "form-control" name="text_answer" placeholder="{{ forloop.counter }}">
+                                       <h1></h1>
+                                    {% endfor %}
+                                    {% endwith %}
+                              </div>
+                              </div>
                            {% endif %}
-
                         </div>
                      </div>
                      <h1></h1>
@@ -311,6 +321,41 @@
                </div>
             </div>
             {% endcomment %}
+            <div class="col-md-6 grid-margin stretch-card">
+               <div class="card">
+                  <div class="card-body">
+                     <h4 class="card-title">PDF.js + Carousel</h4>
+                     <p class="card-description">
+                        Use <a href="https://mozilla.github.io/pdf.js/">PDF.js</a> and bootstrap carousel to display pdf
+                     </p>
+
+                     <div id="pdfPreviewCarousel" class="carousel slide" data-bs-touch="false" data-bs-interval="false">
+                        <div class="carousel-inner">
+                        <div class="carousel-item active">
+                           <canvas style="border: 1px solid black; width: 100%"></canvas>
+                           <div class="carousel-caption d-none d-md-block">
+                              <span class="page-number"></span> / <span class="page-count"></span>
+                           </div>
+                        </div>
+                        </div>
+                        <button id="prev" class="carousel-control-prev" type="button">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button id="next" class="carousel-control-next" type="button">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                        </button>
+                     </div>
+
+                     <div class="mb-3 feedback-textarea">
+                        <label class="form-label">Enter your feedback here</label>
+                        <textarea class="form-control" rows="5"></textarea>
+                     </div>
+
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>
@@ -319,40 +364,59 @@
 
 {% endblock content %}
 
-{% block script %}
+{% block js %}
 <script>
   function toggleField(hideObj, showObj) {
-    hideObj.disabled = true;
-    hideObj.style.display = 'none';
-    showObj.disabled = false;
-    showObj.style.display = 'inline';
-    showObj.focus();
+   hideObj.disabled = true;
+   hideObj.style.display = 'none';
+   showObj.disabled = false;
+   showObj.style.display = 'inline';
+   showObj.focus();
   }
   function ShowHideDiv(first, second, hidden1, hidden2) {
-    var multiple = document.getElementById(first);
-    var text = document.getElementById(second);
-    var choiceInput1 = document.getElementById(hidden1);
-    var choiceInput2 = document.getElementById(hidden2);
-    if (multiple.checked) {
-      choiceInput1.style.display = 'block';
-      choiceInput2.style.display = 'none';
-    } else {
-      choiceInput1.style.display = 'none';
-      choiceInput2.style.display = 'block';
-    }
+   var multiple = document.getElementById(first);
+   var text = document.getElementById(second);
+   var choiceInput1 = document.getElementById(hidden1);
+   var choiceInput2 = document.getElementById(hidden2);
+   if (multiple.checked) {
+   choiceInput1.style.display = 'block';
+   choiceInput2.style.display = 'none';
+   } else {
+   choiceInput1.style.display = 'none';
+   choiceInput2.style.display = 'block';
+   }
 
   }
-  function createNewElement(id, container) {
-    var txtNewInputBox = document.createElement('div');
-    var space = document.createElement('h1');
-    txtNewInputBox.innerHTML = "<input type='text' name = 'option_text' id='customize-option'class='form-control' aria-label='Small' aria-describedby='inputGroup-sizing-sm' placeholder='option content'>";
-    var container = document.getElementById(container);
-    container.append(txtNewInputBox)
-    container.append(space)
+  function createNewElement(container) {
+   var txtNewInputBox = document.createElement('div');
+   var space = document.createElement('h1');
+   txtNewInputBox.innerHTML = "<input type='text' name = 'option_text' id='customize-option'class='form-control' aria-label='Small' aria-describedby='inputGroup-sizing-sm' placeholder='option content'>";
+   var container = document.getElementById(container);
+   container.append(txtNewInputBox)
+   container.append(space)
   }
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"
+  integrity="sha512-dw+7hmxlGiOvY3mCnzrPT5yoUwN/MRjVgYV7HGXqsiXnZeqsw1H9n9lsnnPu4kL2nx2bnrjFcuWK+P3lshekwQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"
+  integrity="sha512-fahFaRPTP2xrdxAbzgG31V4Vr+Ga/hp4gQu3ZBq83bhKO10NoWfTJ20OWg9ufEyT1Y4ZyCuh9wLHY9CHi6l95Q=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+<script src="{% static 'js/pdf-carousel.js' %}"></script>
+<script>
+  // If absolute URL from the remote server is provided, configure the CORS
+  // header on that server.
+  var url = "{% static 'test.pdf' %}";
+
+  var carousel = new PDFCarousel(document.getElementById('pdfPreviewCarousel'));
+  carousel.renderPDF(url);
+
+  var carousel2 = new PDFCarousel(document.getElementById('pdfPreviewCarousel-2'));
+  carousel2.renderPDF(url);
+
+</script>
 
 
 {% endblock %}
