@@ -39,6 +39,7 @@ http {
             root   html;
             index  index.html index.htm;
             proxy_pass http://127.0.0.1:8000;
+			client_max_body_size 2M;
         }
         location /static {
             autoindex on;
