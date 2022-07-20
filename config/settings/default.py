@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
     'widget_tweaks',
     'rest_framework',
+    'storages',
 
     'app.gamification',
 ]
@@ -185,3 +186,28 @@ EMAIL_PORT = os.getenv('EMAIL_PORT', '587')
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
+
+
+# Django Storages
+# https://django-storages.readthedocs.io/en/latest/
+
+# AWS settings
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_DEFAULT_ACL = None
+
+print('AWS_ACCESS_KEY_ID:', AWS_ACCESS_KEY_ID)
+print('AWS_SECRET_ACCESS_KEY:', AWS_SECRET_ACCESS_KEY)
+print('AWS_STORAGE_BUCKET_NAME:', AWS_STORAGE_BUCKET_NAME)
+
+AWS_S3_REGION_NAME = 'us-east-2'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+AWS_S3_FILE_OVERWRITE = False
+AWS_LOCATION = 'static'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN }/{AWS_LOCATION}/'
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'config.storages.StaticStorage'
+
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
