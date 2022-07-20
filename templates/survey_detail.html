@@ -276,7 +276,34 @@
                                        <h1></h1>
                                     {% endfor %}
                                     {% endwith %}
+                                 </div>
                               </div>
+                           {% elif question.instance.question_type == question.instance.Question_type.MULTIPLETEXT %}
+                              
+                              <div class="row" >
+                                 <div id="counter{{section.instance.pk}}" value="hello"></div>
+                                 <div class="form-group row">
+                                    <div class="input-group-append">
+                                       <button class="btn btn-primary btn-sm" type="button" 
+                                       onclick="createNewAnswer('text-field-contain{{section.instance.pk}}', 'counter{{section.instance.pk}}')">
+                                          +
+                                       </button>
+                                       <h1></h1>
+                                    </div>
+                                    {% with ''|center:question.instance.options.0.number_of_text as range %}
+                                    {% for _ in range %}
+                                       <div>
+                                          <input type = "text" class = "form-control" name="text_answer" placeholder="{{ forloop.counter }}">
+                                          <h1></h1>
+                                       </div>
+                                    {% endfor %}
+                                    <div id="text-field-contain{{section.instance.pk}}">
+                                    </div>
+                                    
+                                    
+                                    {% endwith %}
+                                    
+                                 </div>
                               </div>
                            {% endif %}
                         </div>
@@ -395,6 +422,7 @@
    container.append(txtNewInputBox)
    container.append(space)
   }
+
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"
@@ -417,6 +445,19 @@
   carousel2.renderPDF(url);
 
 </script>
+<script>
 
+  function createNewAnswer(container, forLoopCounter) {
+   //TODO: counter
+   var txtNewInputBox = document.createElement('div');
+   var space = document.createElement('h1');
+   var counter= document.getElementById(forLoopCounter);
+   var counterValue = counter.value;
+   txtNewInputBox.innerHTML = "<input type = 'text' class = 'form-control' name='text_answer' placeholder=`Answer`>";
+   var container = document.getElementById(container);
+   container.append(txtNewInputBox);
+   container.append(space);
+  }
+</script>
 
 {% endblock %}
