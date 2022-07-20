@@ -1,6 +1,7 @@
 from django.db import models
 
 from app.gamification.models.option_choice import OptionChoice
+from app.gamification.models.question_option import QuestionOption
 
 
 class Question(models.Model):
@@ -8,7 +9,8 @@ class Question(models.Model):
     Model for Question
     """
     class Question_type(models.TextChoices):
-        TEXT = 'TEXT'
+        MULTIPLETEXT = 'MULTIPLETEXT'
+        FIXEDTEXT = 'FIXEDTEXT'
         MULTIPLECHOICE = 'MULTIPLECHOICE'
 
     section = models.ForeignKey('SurveySection', on_delete=models.CASCADE)
@@ -23,7 +25,7 @@ class Question(models.Model):
         'self', on_delete=models.CASCADE, null=True, blank=True)
 
     question_type = models.TextField(
-        choices=Question_type.choices, default=Question_type.TEXT)
+        choices=Question_type.choices, default=Question_type.MULTIPLECHOICE)
 
     option_choices = models.ManyToManyField(
         'OptionChoice', through='QuestionOption')
@@ -32,3 +34,7 @@ class Question(models.Model):
         db_table = 'question'
         verbose_name = 'question'
         verbose_name_plural = 'questions'
+
+    @property
+    def options(self):
+        return QuestionOption.objects.filter(question=self)

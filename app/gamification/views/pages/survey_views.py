@@ -15,7 +15,6 @@ from .section_question import SECTION_QUESTION
 def add_survey(request, course_id, assignment_id):
     if request.method == 'POST':
         survey_template_name = request.POST.get('template_name')
-        print(survey_template_name)
         survey_template_instruction = request.POST.get('instructions')
         survey_template_other_info = request.POST.get('other_info')
         feedback_survey_date_released = request.POST.get('date_released')
@@ -62,9 +61,9 @@ def survey_list(request, course_id, assignment_id):
                 question_dict = dict()
                 question_dict['instance'] = question
                 question_options = list()
-                for question_option in question_dict['instance'].options:
+                for option in question_dict['instance'].options:
                     question_option_dict = dict()
-                    question_option_dict['instance'] = question_option
+                    question_option_dict['instance'] = option
                     question_options.append(question_option_dict)
                 question_dict['options'] = question_options
                 questions.append(question_dict)
@@ -113,10 +112,12 @@ def add_question(request, course_id, assignment_id, section_id):
         section = SurveySection.objects.get(id=section_id)
         optional = request.POST.get('is_required')
         is_required = False if optional == 'on' else True
-        question_type = request.POST.get('question_type')
+        question_type = Question.Question_type.MULTIPLECHOICE if request.POST.get(
+            'multiple_choice') == 'on' else Question.Question_type.MULTIPLETEXT if request.POST.get('multiple_text') == 'on' else Question.Question_type.FIXEDTEXT
+        print(question_type)
         # question_type = [fixed_text, multiple_choice, multiple_text]
         # option = 'on'
-        # fixed_text:
+        # fixed_tex
         #      - number_of_text: int
         #
         # multiple_choice:
@@ -132,7 +133,7 @@ def add_question(request, course_id, assignment_id, section_id):
             message_info = 'Cannot add duplicate question.'
             messages.info(request, message_info)
         if question_type == 'multiple_choice':
-            option_choice_text = request.POST.get('option_choice_text')
+            option_choice_text = request.POST.getlist('option_text')
             option_choice = OptionChoice(text=option_choice_text)
             option_choice.save()
             question_option = QuestionOption(
@@ -148,7 +149,7 @@ def add_question(request, course_id, assignment_id, section_id):
             question_option.save()
         return redirect('survey_list', course_id, assignment_id)
     else:
-        return render(request, 'survey_detail.html', {'course_id': course_id, 'assignment_id': assignment_id})
+        return render(request, 'survey_detail.html', {'course_id': course_id, 'assignment_id': assignment_id, 'section_id': section_id})
 
 
 @ login_required
