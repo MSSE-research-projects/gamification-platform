@@ -91,7 +91,8 @@ def add_section(request, course_id, assignment_id):
         if(len(feedback_survey) >= 1):
             feedback_survey = feedback_survey[0]
             survey_template = feedback_survey.template
-            sections = SurveySection.objects.filter(title=section_title)
+            sections = SurveySection.objects.filter(
+                title=section_title, template=survey_template)
             if len(sections) == 0:
                 survey_section = SurveySection(
                     title=section_title, is_required=is_required, template=survey_template)
@@ -107,24 +108,25 @@ def add_section(request, course_id, assignment_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def add_question(request, course_id, assignment_id, section_id):
+
+    # question_type = [fixed_text, multiple_choice, multiple_text]
+    # option = 'on'
+    # fixed_tex
+    #      - number_of_text: int
+    #
+    # multiple_choice:
+    #      - option_choice_text: string ???
+    # multiple_text:
+    #      - number_of_text: int
     if request.method == 'POST':
         text = request.POST.get('text')
         section = SurveySection.objects.get(id=section_id)
         optional = request.POST.get('is_required')
         is_required = False if optional == 'on' else True
-        question_type = Question.Question_type.MULTIPLECHOICE if request.POST.get(
-            'multiple_choice') == 'on' else Question.Question_type.MULTIPLETEXT if request.POST.get('multiple_text') == 'on' else Question.Question_type.FIXEDTEXT
-        print(question_type)
-        # question_type = [fixed_text, multiple_choice, multiple_text]
-        # option = 'on'
-        # fixed_tex
-        #      - number_of_text: int
-        #
-        # multiple_choice:
-        #      - option_choice_text: string ???
-        # multiple_text:
-        #      - number_of_text: int
+        question_type = request.POST.get('question_type')
+
         questions = Question.objects.filter(text=text, section=section)
+        # error message for duplicate question
         if len(questions) == 0:
             question = Question(text=text, section=section,
                                 is_required=is_required, question_type=question_type)
@@ -132,20 +134,51 @@ def add_question(request, course_id, assignment_id, section_id):
         else:
             message_info = 'Cannot add duplicate question.'
             messages.info(request, message_info)
-        if question_type == 'multiple_choice':
-            option_choice_text = request.POST.getlist('option_text')
-            option_choice = OptionChoice(text=option_choice_text)
-            option_choice.save()
-            question_option = QuestionOption(
-                option_choice=option_choice, question=question, number_of_text=1)
-            question_option.save()
-        else:
+            return redirect('survey_list', course_id, assignment_id)
+
+        # distinguish question type
+        print(question_type)
+        if question_type == 'MULTIPLECHOICE':
+            option_choice_text_list = request.POST.getlist('option_text')
+            multiple_choice_default = request.POST.get(
+                'multiple_choice_option')
+            if multiple_choice_default == 'default':
+                default_option = ['Strongly Disagree', 'Disagree', 'Somewhat Disagree',
+                                  'Neutral', 'Somewhat Agree', 'Agree', 'Strongly Agree']
+                for i in range(len(default_option)):
+                    option_text = default_option[i]
+                    option = OptionChoice.objects.filter(text=option_text)
+                    if len(option) == 0:
+                        option_choice = OptionChoice(text=option_text)
+                        option_choice.save()
+                    else:
+                        option_choice = option[0]
+                    question_option = QuestionOption(
+                        option_choice=option_choice, question=question, number_of_text=1)
+                    question_option.save()
+            else:
+                for option_choice in option_choice_text_list:
+                    option_choice_text = option_choice
+                    option_choice = OptionChoice(
+                        text=option_choice_text, question=question)
+                    option_choice.save()
+                    question_option = QuestionOption(
+                        option_choice=option_choice, question=question, number_of_text=1)
+                    question_option.save()
+        elif question_type == 'FIXEDTEXT':
             option_choice_text = ''
             number_of_text = request.POST.get('number_of_text')
             option_choice = OptionChoice(text=option_choice_text)
             option_choice.save()
             question_option = QuestionOption(
                 option_choice=option_choice, question=question, number_of_text=number_of_text)
+            question_option.save()
+        else:
+            option_choice_text = ''
+            option_choice = OptionChoice(text=option_choice_text)
+            option_choice.save()
+            question_option = QuestionOption(
+                option_choice=option_choice, question=question, number_of_text=1)
             question_option.save()
         return redirect('survey_list', course_id, assignment_id)
     else:
