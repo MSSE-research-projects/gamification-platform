@@ -1,4 +1,6 @@
+import os
 from ctypes import sizeof
+from hashlib import new
 from webbrowser import get
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -515,13 +517,19 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
         return redirect('assignment', course_id)
     
     artifact = get_object_or_404(Artifact, pk=artifact_id)
+    old_file_path = artifact.file
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
-    # print("userRole: ", userRole)
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, instance=artifact, label_suffix='')
         if form.is_valid():
+            # delete the artifact file first
+            new_file =  os.path.split(str(form.cleaned_data['file']))[1]
+            if new_file == "False":
+                # delete the artifact if "clear" is selected
+                print("old file deleted, old_file_path:", old_file_path)
+                old_file_path.delete()   
             artifact = form.save()
         return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
 
