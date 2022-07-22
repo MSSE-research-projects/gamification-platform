@@ -13,6 +13,7 @@ from django.http import FileResponse
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact
+from app.gamification.models.entity import Individual
 
 
 def signup(request):
@@ -404,12 +405,18 @@ def artifact(request, course_id, assignment_id):
     # print("registration.userRole: ", registration.userRole)
     userRole = registration.userRole
     try:
-        team = Team.objects.get(registration=registration, course=course)
-        # print("team: ", team)
-        # TO-DO : blank team
+        entity = Team.objects.get(registration=registration, course=course)
     except Team.DoesNotExist:
-        print("Team does not exist")
-        return redirect('assignment', course_id)
+        try:
+            entity = Individual.objects.get(registration=registration, course=course)
+        except Individual.DoesNotExist:
+            # Create an Individual entity for the user
+            print("Team does not exist, create an individual entity for the user")
+            individual = Individual(course=course)
+            individual.save()
+            membership = Membership(student=registration, entity=individual)
+            membership.save()
+            entity = Individual.objects.get(registration=registration, course=course)
     
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
@@ -417,23 +424,23 @@ def artifact(request, course_id, assignment_id):
             form.save()
         else:
             print("form is not valid")
-        artifacts = Artifact.objects.filter(assignment=assignment, entity=team)
+        artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
                    "course": course,
                    "userRole": userRole,
                    "assignment": assignment,
-                    "entity": team}
+                    "entity": entity}
         return render(request, 'artifact.html', context)
 
     if request.method == 'GET':
-        artifacts = Artifact.objects.filter(assignment=assignment, entity=team)
+        artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
                    "course": course,
                    "userRole": userRole,
                    "assignment": assignment,
-                   "entity": team}
+                   "entity": entity}
         return render(request, 'artifact.html', context)
 
     else:
