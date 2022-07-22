@@ -427,6 +427,7 @@ def artifact(request, course_id, assignment_id):
         artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
+                   "assignment_id": assignment_id,
                    "course": course,
                    "userRole": userRole,
                    "assignment": assignment,
@@ -437,6 +438,7 @@ def artifact(request, course_id, assignment_id):
         artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
+                   "assignment_id": assignment_id,
                    "course": course,
                    "userRole": userRole,
                    "assignment": assignment,
@@ -483,7 +485,7 @@ def view_artifact(request, course_id, assignment_id, artifact_id):
     if check_artifact_permisssion(artifact_id, request.user):
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         assignment = get_object_or_404(Assignment, pk=assignment_id)
-        return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment':assignment, 'artifact': artifact})
+        return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'artifact': artifact})
     else:
         return redirect('assignment', course_id)
 
@@ -521,11 +523,11 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
         form = ArtifactForm(request.POST, request.FILES, instance=artifact, label_suffix='')
         if form.is_valid():
             artifact = form.save()
-        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
 
     if request.method == 'GET':
         form = ArtifactForm(instance=artifact)
-        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
 
     else:
         return redirect('artifact', course_id, assignment_id)

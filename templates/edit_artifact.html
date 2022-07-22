@@ -11,7 +11,7 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            <a href="{% url 'assignment' course_id %}"><button type="button"
+            <a href="{% url 'artifact' course_id assignment_id %}"><button type="button"
                 class="btn btn-outline-primary">Back</button></a>
             <div class="col-lg-12">
               {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student' %}

@@ -236,8 +236,8 @@ class ArtifactForm(forms.ModelForm):
         widgets = {
             # TODO: solve display issue
             # 'entity': forms.Select(attrs={'readonly': 'readonly'}),
-            'entity': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'entity': forms.HiddenInput(),
             # 'assignment': forms.Select(attrs={'readonly': 'readonly'}),
-            'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'assignment': forms.HiddenInput(),
             'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
