@@ -113,6 +113,10 @@ def test(request):
     user = request.user
     return render(request, 'test.html')
 
+def test_survey(request):
+    user = request.user
+    return render(request, 'test-survey.html')
+
 
 @login_required
 def course_list(request):
