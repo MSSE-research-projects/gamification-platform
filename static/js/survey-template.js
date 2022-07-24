@@ -114,7 +114,7 @@ class Section {
   renderHTML() {
     var html = '';
 
-    html += '<fieldset>';
+    html += '<fieldset class="section">';
     html += '  <legend>' + this.name + '</legend>';
     if (this.options.edit) {
       html += '  <div class="row mb-3 align-items-center justify-content-between">';
@@ -123,12 +123,14 @@ class Section {
       html += '    </div>';
       html += '    <div class="col-md-3 col-sm-12 text-end">';
       html += '      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add Question</button>';
+      html += '      <button type="button" class="btn btn-sm btn-danger mt-3 remove-sec-btn">Remove Section</button>';
       html += '    </div>';
       html += '  </div>';
     } else {
       html += '  <p class="card-description">' + this.description + '</p>';
     }
     for (var i = 0; i < this.questions.length; i++) {
+      html += '  <hr>';
       html += this.questions[i].renderHTML();
     }
     html += '</fieldset>';
@@ -189,9 +191,13 @@ class MultipleChoiceQuestion extends Question {
   renderHTML() {
     var html = '';
 
-    html += '<div class="row mb-3 align-items-center justify-content-center">';
+    html += '<div class="row mb-3 align-items-center justify-content-center question">';
     html += '  <label class="col-sm-2 col-form-label">' + this.text + '</label>';
-    html += '  <div class="col-sm-10">';
+    if (this.options.edit) {
+      html += '  <div class="col-sm-8">';
+    } else {
+      html += '  <div class="col-sm-10">';
+    }
     html += '    <div class="row">';
     for (var i = 0; i < this.choices.length; i++) {
       html += '      <div class="col-sm">';
@@ -203,6 +209,11 @@ class MultipleChoiceQuestion extends Question {
     }
     html += '    </div>';
     html += '  </div>';
+    if (this.options.edit) {
+      html += '  <div class="col-sm-2 text-end">';
+      html += '    <button type="button" class="btn btn-sm btn-danger remove-que-btn">Remove</button>';
+      html += '  </div>';
+    }
     html += '</div>';
 
     return html;
@@ -219,17 +230,26 @@ class TextInputQuestion extends Question {
   renderHTML() {
     var html = '';
 
-    html += '<div class="row mb-3 align-items-center justify-content-center">';
+    html += '<div class="row mb-3 align-items-center justify-content-center question">';
     html += '  <label class="col-sm-2 col-form-label">' + this.text + '</label>';
-    html += '  <div class="col-sm-10">';
+    if (this.options.edit) {
+      html += '  <div class="col-sm-8">';
+    } else {
+      html += '  <div class="col-sm-10">';
+    }
     for (var i = 0; i < this.displayLines; i++) {
       if (i === 0) {
-        html += '    <input type="text" class="form-control mb-2" placeholder="' + this.placeholder + '">';
+        html += '    <input type="text" class="form-control" placeholder="' + this.placeholder + '">';
       } else {
-        html += '    <input type="text" class="form-control mb-2">';
+        html += '    <input type="text" class="form-control mt-2">';
       }
     }
     html += '  </div>';
+    if (this.options.edit) {
+      html += '  <div class="col-sm-2 text-end">';
+      html += '    <button type="button" class="btn btn-sm btn-danger remove-que-btn">Remove</button>';
+      html += '  </div>';
+    }
     html += '</div>';
 
     return html;
@@ -246,11 +266,20 @@ class TextareaQuestion extends Question {
   renderHTML() {
     var html = '';
 
-    html += '<div class="row mb-3 align-items-center justify-content-center">';
+    html += '<div class="row mb-3 align-items-center justify-content-center question">';
     html += '  <label class="col-sm-2 col-form-label">' + this.text + '</label>';
-    html += '  <div class="col-sm-10">';
+    if (this.options.edit) {
+      html += '  <div class="col-sm-8">';
+    } else {
+      html += '  <div class="col-sm-10">';
+    }
     html += '    <textarea class="form-control" rows="' + this.displayLines + '" placeholder="' + this.placeholder + '"></textarea>';
     html += '  </div>';
+    if (this.options.edit) {
+      html += '  <div class="col-sm-2 text-end">';
+      html += '    <button type="button" class="btn btn-sm btn-danger remove-que-btn">Remove</button>';
+      html += '  </div>';
+    }
     html += '</div>';
 
     return html;

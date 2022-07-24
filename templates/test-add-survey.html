@@ -1,7 +1,7 @@
 {% extends 'boilerplates/base_navbar.html' %}
 {% load static widget_tweaks %}
 
-{% block title %}Test Survey{% endblock %}
+{% block title %}Test Edit Survey{% endblock %}
 
 {% block content %}
 <div class="content-wrapper">
@@ -166,6 +166,16 @@
       var sectionName = button.closest('fieldset').find('legend').text();
       $('#sectionNameInQuestionModal').val(sectionName);
     });
+
+    $('.remove-que-btn').on('click', function (event) {
+      var button = $(event.currentTarget);
+      button.closest('.question').remove();
+    })
+
+    $('.remove-sec-btn').on('click', function (event) {
+      var button = $(event.currentTarget);
+      button.closest('.section').remove();
+    })
   });
 
   var surveyDOM = document.getElementById('survey');
@@ -178,39 +188,47 @@
     }
   );
 
-  // var section1 = new Section(
-  //   name = 'Section 1',
-  //   description = 'Section 1 Description',
-  //   questions = [],
-  //   options = {
-  //     edit: true,
-  //   }
-  // );
+  var section1 = new Section(
+    name = 'Section 1',
+    description = 'Section 1 Description',
+    questions = [],
+    options = {
+      edit: true,
+    }
+  );
 
-  // var mcq = new MultipleChoiceQuestion(
-  //   text = 'Multiple Choice Question',
-  //   choices = [
-  //     { text: 'Choice 1', value: 'choice1' },
-  //     { text: 'Choice 2', value: 'choice2' },
-  //     { text: 'Choice 3', value: 'choice3' },
-  //   ]
-  // );
-  // var blank = new TextInputQuestion(
-  //   text = 'Text Input Question'
-  // );
+  var mcq = new MultipleChoiceQuestion(
+    text = 'Multiple Choice Question',
+    choices = [
+      { text: 'Choice 1', value: 'choice1' },
+      { text: 'Choice 2', value: 'choice2' },
+      { text: 'Choice 3', value: 'choice3' },
+    ],
+    options = {
+      edit: true,
+    }
+  );
+  var blank = new TextInputQuestion(
+    text = 'Text Input Question',
+    placeholder = 'Placeholder',
+    displayNum = 1,
+    options = {
+      edit: true,
+    }
+  );
 
-  // section1.addQuestion(mcq);
-  // section1.addQuestion(blank);
+  section1.addQuestion(mcq);
+  section1.addQuestion(blank);
 
-  // survey.addSection(section1);
-  // survey.addSectionByName(
-  //   name = 'Section 2',
-  //   description = 'Section 2 Description',
-  // );
-  // var section = survey.getSectionByIndex(0);
-  // section.options = { edit: true };
-  // section = survey.getSectionByIndex(1);
-  // section.options = { edit: true };
+  survey.addSection(section1);
+  survey.addSectionByName(
+    name = 'Section 2',
+    description = 'Section 2 Description',
+  );
+  var section = survey.getSectionByIndex(0);
+  section.options = { edit: true };
+  section = survey.getSectionByIndex(1);
+  section.options = { edit: true };
 
 
   // Toggle different question type fields in add question modal
@@ -301,7 +319,10 @@
             // At least one choice is present
             question = new MultipleChoiceQuestion(
               text = questionText,
-              choices = choices
+              choices = choices,
+              options = {
+                edit: true,
+              }
             );
           }
           break;
@@ -310,11 +331,19 @@
             text = questionText,
             placeholder = '',
             displayNum = $('#displayNum').val(),
+            options = {
+              edit: true,
+            }
           );
           break;
         case 'textarea':
           question = new TextareaQuestion(
-            text = questionText
+            text = questionText,
+            placeholder = '',
+            displayNum = 5,
+            options = {
+              edit: true,
+            }
           );
           break;
         default:
