@@ -84,7 +84,7 @@
 
         <div class="form-group" id="textFields">
           <label for="displayNum">Number of Blanks</label>
-          <input type="text" class="form-control" id="displayNum" placeholder="Question Text">
+          <input type="text" class="form-control" id="displayNum">
         </div>
 
       </div>
@@ -235,6 +235,26 @@
     }
   }
 
+  function resetSectionModal() {
+    // Reset form
+    $('#sectionName').val('');
+    $('#sectionDescription').val('');
+  }
+
+  function resetQuestionModal() {
+    $('#sectionNameInQuestionModal').val('');
+    $('#questionText').val('');
+    $('#questionType').val('');
+    $('#questionType').trigger('change');
+    // Reset MCQ Options fields
+    $('#choices').html(
+      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">'
+    );
+    $('#mcqOptions').val('');
+    // Reset the number of blanks in text fields
+    $('#displayNum').val('');
+  }
+
 
   // Add a new section to the survey
   function addSection(e) {
@@ -255,9 +275,7 @@
 
     // Hide modal
     $('#addSectionModal').modal('hide');
-    // Reset form
-    $('#sectionName').val('');
-    $('#sectionDescription').val('');
+    resetSectionModal();
   }
 
 
@@ -314,12 +332,7 @@
 
     // Hide modal
     $('#addQuestionModal').modal('hide');
-    // Reset form
-    $('#questionText').val('');
-    $('#questionType').val('');
-    $('#choices').html(
-      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">'
-    );
+    resetQuestionModal();
   }
 
 
