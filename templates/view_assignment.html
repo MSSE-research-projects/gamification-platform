@@ -54,12 +54,19 @@
               {% endif %}
             </div>
             <div class="col-lg-4">
-              <div class="border-bottom py-4">
-                {% comment %} <p>Latest Submission: Mar 31 at 8:18pm</p> {% endcomment %}
-                <p> Latest Submission: {{ latest_artifact.upload_time }}</p>
-                <a href="{% url 'download_artifact' course_id assignment_id artifact_id%}"><button type="button"
-                  class="btn btn-success btn-sm">Download</button></a>
-              </div>
+              {% if latest_artifact != 'None' %}
+                <div class="border-bottom py-4">
+                  <p><b>Submission:</b></p>
+                  <p> Latest Submission: {{ latest_artifact.upload_time }}</p>
+                  <a href="{% url 'download_artifact' course_id assignment_id artifact_id%}"><button type="button"
+                    class="btn btn-success btn-sm">Download</button></a>
+                </div>
+              {% else %}
+                <div class="border-bottom py-4">
+                  <p><b>Submission:</b></p>
+                  <p> No Submission found</p>
+                </div>
+              {% endif %}
               <div class="border-bottom py-4">
                 <a href="{% url 'test'%}"><button type="button"
                   class="btn btn-success btn-sm">Survey</button></a>

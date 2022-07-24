@@ -376,7 +376,6 @@ def edit_assignment(request, course_id, assignment_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_assignment(request, course_id, assignment_id):
-    # TODO: make use of reserved place like Canvas
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
@@ -395,11 +394,16 @@ def view_assignment(request, course_id, assignment_id):
             membership = Membership(student=registration, entity=individual)
             membership.save()
             entity = Individual.objects.get(registration=registration, course=course)
-    artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
-    latest_artifact = artifacts.latest('upload_time')
+            
+    try:
+        artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
+        latest_artifact = artifacts.latest('upload_time')
+        artifact_id = latest_artifact.id
+    except Artifact.DoesNotExist:
+        latest_artifact = "None"
+        artifact_id = 99999
+        
     assignment_id = assignment.id
-    artifact_id = latest_artifact.id
-    # print("latest_artifact: ", latest_artifact.upload_time)
     context = {'course_id': course_id, 
                'userRole':userRole, 
                'assignment': assignment, 
@@ -414,10 +418,8 @@ def check_artifact_permisssion(artifact_id, user):
     entity = artifact.entity
     members = entity.members
     if user in members:
-        # print("check_artifact_permisssion True")
         return True
     else:
-        # print("check_artifact_permisssion False")
         return False
 
 # TODO: remove redundant code in artifact section to improve performance in the future
@@ -430,7 +432,6 @@ def artifact(request, course_id, assignment_id):
     # TODO: rethink about permission control for staff(superuser) and instructor
     registration = get_object_or_404(
         Registration, users=request.user, courses=course)
-    # print("registration.userRole: ", registration.userRole)
     userRole = registration.userRole
     try:
         entity = Team.objects.get(registration=registration, course=course)
@@ -483,11 +484,9 @@ def artifact_admin(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     registration = get_object_or_404(
         Registration, users=request.user, courses=course)
-    print("registration.userRole: ", registration.userRole)
     userRole = registration.userRole
     if request.method == 'GET':
         artifacts = Artifact.objects.filter(assignment=assignment)
-        print("artifacts: ", artifacts)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
                    "course": course,
@@ -554,7 +553,7 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
             new_file =  os.path.split(str(form.cleaned_data['file']))[1]
             if new_file == "False":
                 # delete the artifact if "clear" is selected
-                print("old file deleted, old_file_path:", old_file_path)
+                # print("old file deleted, old_file_path:", old_file_path)
                 old_file_path.delete()   
             artifact = form.save()
         return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
