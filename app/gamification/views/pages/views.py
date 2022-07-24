@@ -14,7 +14,7 @@ from django.http import FileResponse
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact, course, registration
 from app.gamification.models.entity import Individual
 
 
@@ -380,7 +380,33 @@ def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
-    return render(request, 'view_assignment.html', {'course_id': course_id, 'userRole':userRole, 'assignment': assignment})
+    registration = get_object_or_404(Registration, users=request.user, courses=course_id)
+    course = get_object_or_404(Course, pk=course_id)
+    try:
+        entity = Team.objects.get(registration=registration, course=course)
+    except Team.DoesNotExist:
+        try:
+            entity = Individual.objects.get(registration=registration, course=course)
+        except Individual.DoesNotExist:
+            # Create an Individual entity for the user
+            print("Team does not exist, create an individual entity for the user")
+            individual = Individual(course=course)
+            individual.save()
+            membership = Membership(student=registration, entity=individual)
+            membership.save()
+            entity = Individual.objects.get(registration=registration, course=course)
+    artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
+    latest_artifact = artifacts.latest('upload_time')
+    assignment_id = assignment.id
+    artifact_id = latest_artifact.id
+    # print("latest_artifact: ", latest_artifact.upload_time)
+    context = {'course_id': course_id, 
+               'userRole':userRole, 
+               'assignment': assignment, 
+               'latest_artifact': latest_artifact, 
+               'assignment_id': assignment_id, 
+               'artifact_id': artifact_id}
+    return render(request, 'view_assignment.html', context)
 
 # return true if the user is the owner of the artifact
 def check_artifact_permisssion(artifact_id, user):
