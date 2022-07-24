@@ -99,55 +99,7 @@
 {% endblock content %}
 
 {% block css %}
-<style>
-  .card .card-title {
-    font-size: x-large;
-  }
-
-  .card .card-description {
-    font-size: medium;
-  }
-
-  fieldset {
-    border: 1px solid lightgray;
-    margin: 0.5rem 0;
-    padding-block-start: 0.35em;
-    padding-inline-start: 0.75em;
-    padding-inline-end: 0.75em;
-    padding-block-end: 0.625em;
-    min-inline-size: min-content;
-  }
-
-  fieldset legend {
-    float: none;
-    width: auto;
-    font-weight: 500;
-    font-size: large;
-    padding-inline-start: 2px;
-    padding-inline-end: 2px;
-  }
-
-  fieldset p.card-description {
-    font-size: small !important;
-  }
-
-  .form-control {
-    height: auto;
-  }
-
-  .form-check .form-check-input {
-    margin-left: 0;
-  }
-
-  .input-group .input-group-text {
-    min-width: 40px;
-    max-width: 60px;
-  }
-
-  .radio-group .radio-group-label label {
-    margin: 0;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/survey-template.css' %}">
 {% endblock css %}
 
 {% block js %}
@@ -188,47 +140,47 @@
     }
   );
 
-  var section1 = new Section(
-    name = 'Section 1',
-    description = 'Section 1 Description',
-    questions = [],
-    options = {
-      edit: true,
-    }
-  );
+  // var section1 = new Section(
+  //   name = 'Section 1',
+  //   description = 'Section 1 Description',
+  //   questions = [],
+  //   options = {
+  //     edit: true,
+  //   }
+  // );
 
-  var mcq = new MultipleChoiceQuestion(
-    text = 'Multiple Choice Question',
-    choices = [
-      { text: 'Choice 1', value: 'choice1' },
-      { text: 'Choice 2', value: 'choice2' },
-      { text: 'Choice 3', value: 'choice3' },
-    ],
-    options = {
-      edit: true,
-    }
-  );
-  var blank = new TextInputQuestion(
-    text = 'Text Input Question',
-    placeholder = 'Placeholder',
-    displayNum = 1,
-    options = {
-      edit: true,
-    }
-  );
+  // var mcq = new MultipleChoiceQuestion(
+  //   text = 'Multiple Choice Question',
+  //   choices = [
+  //     { text: 'Choice 1', value: 'choice1' },
+  //     { text: 'Choice 2', value: 'choice2' },
+  //     { text: 'Choice 3', value: 'choice3' },
+  //   ],
+  //   options = {
+  //     edit: true,
+  //   }
+  // );
+  // var blank = new TextInputQuestion(
+  //   text = 'Text Input Question',
+  //   placeholder = 'Placeholder',
+  //   displayNum = 1,
+  //   options = {
+  //     edit: true,
+  //   }
+  // );
 
-  section1.addQuestion(mcq);
-  section1.addQuestion(blank);
+  // section1.addQuestion(mcq);
+  // section1.addQuestion(blank);
 
-  survey.addSection(section1);
-  survey.addSectionByName(
-    name = 'Section 2',
-    description = 'Section 2 Description',
-  );
-  var section = survey.getSectionByIndex(0);
-  section.options = { edit: true };
-  section = survey.getSectionByIndex(1);
-  section.options = { edit: true };
+  // survey.addSection(section1);
+  // survey.addSectionByName(
+  //   name = 'Section 2',
+  //   description = 'Section 2 Description',
+  // );
+  // var section = survey.getSectionByIndex(0);
+  // section.options = { edit: true };
+  // section = survey.getSectionByIndex(1);
+  // section.options = { edit: true };
 
 
   // Toggle different question type fields in add question modal
