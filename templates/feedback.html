@@ -1,0 +1,479 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}feedback{% endblock %}
+
+{% block content %}
+<div class = "main-panel">
+  <form>
+    <h3 style = "margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">  Title</h3>   
+    <div class="col-12 grid-margin" style="width: 80%;">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">The title of presentation is clear.</h4>
+            <div class="row" style="height: 40px;">
+              <div class="form-group row">
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Neutral
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly disagree
+                  </p>
+                </div>
+            </div>
+          </div>
+            <div class="row" style="height: 40px;">
+                <div class="form-group row">
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios1" value="option1">
+                        (7)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios2" value="option2">
+                        (6)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios3" value="option3">
+                        (5)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios4" value="option4">
+                        (4)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios5" value="option5">
+                        (3)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios6" value="option6">
+                        (2)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios7" value="option7">
+                        (1)
+                      </label>
+                    </div>
+                  </div>
+              </div>
+            </div>
+        </div>
+      </div> 
+    </div>
+    <div class="col-12 grid-margin" style="width: 80%;">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">The title of presentation is clear.</h4>
+            <div class="row" style="height: 40px;">
+              <div class="form-group row">
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Neutral
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly disagree
+                  </p>
+                </div>
+            </div>
+          </div>
+            <div class="row" style="height: 40px;">
+                <div class="form-group row">
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1" value="option1">
+                        (7)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2" value="option2">
+                        (6)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios3" value="option3">
+                        (5)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios4" value="option4">
+                        (4)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios5" value="option5">
+                        (3)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios6" value="option6">
+                        (2)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios7" value="option7">
+                        (1)
+                      </label>
+                    </div>
+                  </div>
+              </div>
+            </div>
+        </div>
+      </div> 
+    </div>
+    <h3 style = "margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">SE Problem</h3>   
+    <div class="col-12 grid-margin" style="width: 80%;">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">The title of presentation is clear.</h4>
+            <div class="row" style="height: 40px;">
+              <div class="form-group row">
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Neutral
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly disagree
+                  </p>
+                </div>
+            </div>
+          </div>
+            <div class="row" style="height: 40px;">
+                <div class="form-group row">
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios1" value="option1">
+                        (7)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios2" value="option2">
+                        (6)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios3" value="option3">
+                        (5)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios4" value="option4">
+                        (4)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios5" value="option5">
+                        (3)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios6" value="option6">
+                        (2)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios1" id="membershipRadios7" value="option7">
+                        (1)
+                      </label>
+                    </div>
+                  </div>
+              </div>
+            </div>
+        </div>
+      </div> 
+    </div>
+    <div class="col-12 grid-margin" style="width: 80%;">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">The title of presentation is clear.</h4>
+            <div class="row" style="height: 40px;">
+              <div class="form-group row">
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat agree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Neutral
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Somewhat disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Disagree
+                  </p>
+                </div>
+                <div class="col-sm">
+                  <p class="card-description">
+                    Strongly disagree
+                  </p>
+                </div>
+            </div>
+          </div>
+            <div class="row" style="height: 40px;">
+                <div class="form-group row">
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1" value="option1">
+                        (7)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2" value="option2">
+                        (6)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios3" value="option3">
+                        (5)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios4" value="option4">
+                        (4)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios5" value="option5">
+                        (3)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios6" value="option6">
+                        (2)
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-sm">
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios7" value="option7">
+                        (1)
+                      </label>
+                    </div>
+                  </div>
+              </div>
+            </div>
+        </div>
+      </div> 
+    </div>
+
+    <div class="col-12 grid-margin" style="width: 80%;">
+      <div class="card">
+        <div class="card-body">
+          <div class="row" style="height: 40px;">
+            <label for="Content" class="col-sm-3 col-form-label">Content</label>
+            <input name = "Content" type="number" min="1" max="10" style = "width: 20%; margin-bottom: 10px;"/>
+          </div>
+          <div class="row" style="height: 40px;">
+            <label for="Design" class="col-sm-3 col-form-label">Design</label>
+            <input name = "Design" type="number" min="1" max="10" style = "width: 20%; margin-bottom: 10px;"/>
+          </div>
+          <div class="row" style="height: 40px;">
+            <label for="Delivery" class="col-sm-3 col-form-label">Delivery</label>
+            <input name = "Delivery" type="number" min="1" max="10" style = "width: 20%; margin-bottom: 10px;"/>
+          </div>
+          <div class="row" style="height: 40px;">
+            <label for="Overall" class="col-sm-3 col-form-label">Overall</label>
+            <input name = "Overall" type="number" min="1" max="10" style = "width: 20%; margin-bottom: 10px;"/>
+          </div>
+          <div class="row" style="height: 40px;">
+            <label for="confidence" class="col-sm-3 col-form-label">Your confidence</label>
+            <input name = "confidence" type="number" min="1" max="10" style = "width: 20%; margin-bottom: 10px;"/>
+          </div>
+        </div>
+      </div> 
+    </div>
+    <button type="submit" class="btn btn-primary me-2" style = "margin-left: 68%; margin-bottom: 150px;">Submit</button>
+
+  </form>
+</div>
+
+
+
+
+{% endblock content %}
+
+{% block script %}
+<script>
+  $(document).ready(function () {
+    $('.toast').toast('show');
+  });
+</script>
+{% endblock %}

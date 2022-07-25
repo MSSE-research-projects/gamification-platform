@@ -1,0 +1,147 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Members{% endblock %}
+
+{% block content %}
+<div class="container-scroller" style="width: 100%; height: 60%">
+  {% if messages %}
+  <div style="position: relative;">
+    <!-- Position it -->
+    <div style="position: absolute; top: 0; right: 0; z-index:1;">
+      {% for message in messages %}
+      <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-body">
+          {{ message }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Members</h4>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr style="height: 70px">
+                <th>
+                  Andrew ID
+                </th>
+                <th>
+                  Student/TA
+                </th>
+                <th>
+                  Team
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for member in membership %}
+              <tr style="height: 70px">
+                <td class="py-1">
+                  {{member.andrew_id}}
+                </td>
+                <td class="py-1">
+                  {{member.userRole}}
+                </td>
+                <td class="py-1">
+                  {{member.team}}
+                </td>
+                {% if userRole != 'Student' %}
+                <td>
+                  <a href="{% url 'delete_member' course_id member.andrew_id %}">
+                    <button type="button" class="btn-sm btn-primary">Delete</button>
+                  </a>
+                </td>
+                {% if not member.is_activated %}
+                <td>
+                  <form method="POST" action="{% url 'email_user' member.andrew_id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.path }}">
+                    <button type="submit" class="btn-sm btn-primary">Remind</button>
+                  </form>
+                </td>
+                {% endif %}
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if userRole != 'Student' %}
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <h4 class="card-title">Add Member/ Add Team</h4>
+          {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          <div class="form-group">
+            <label for="course-name">Andrew ID</label>
+            <input type="text" name="andrew_id" class="form-control" id="course-andrew_id" placeholder="Andrew ID">
+          </div>
+          <div class="form-group">
+            <label for="team-name">Team Name</label>
+            <input type="text" name="team_name" class="form-control" id="team_name" placeholder="Team Name(optional)">
+          </div>
+          <div class="col-md-6">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label">Role</label>
+              <div class="col-sm-3">
+                <div class="form-check">
+                  <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios1"
+                      value="Student" checked>
+                    Student
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-check">
+                  <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios2"
+                      value="TA">
+                    TA
+                  </label>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-check">
+                  <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="membershipRadios" id="membershipRadios3"
+                      value="Instructor">
+                    Instructor
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary me-2">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
+
+{% block js %}
+<script>
+  $(document).ready(function () {
+    $('.toast').toast('show');
+  });
+</script>
+{% endblock %}

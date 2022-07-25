@@ -48,3 +48,34 @@ class CustomUserTest(TestCase):
 
         # Assert
         self.assertEqual(full_name, 'First Last')
+
+    def test_is_activated_before_login(self):
+        # Arrange
+        user = CustomUser(
+            andrew_id='user',
+            email='user@example.com'
+        )
+        user.set_password('user-password')
+        user.save()
+
+        # Act
+        is_activated = user.is_activated
+
+        # Assert
+        self.assertFalse(is_activated)
+
+    def test_is_activated_after_login(self):
+        # Arrange
+        user = CustomUser(
+            andrew_id='user',
+            email='user@example.com'
+        )
+        user.set_password('user-password')
+        user.save()
+
+        # Act
+        self.client.login(andrew_id='user', password='user-password')
+        is_activated = user.is_activated
+
+        # Assert
+        self.assertFalse(is_activated)

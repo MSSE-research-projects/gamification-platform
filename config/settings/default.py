@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,7 +31,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False) == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
+
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CSRF_TRUSTED_ORIGINS', 'localhost:8000').split(' ')
+
+SITE_ID = 1
 
 
 # Application definition
@@ -39,13 +47,13 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
 
     'widget_tweaks',
     'rest_framework',
 
     'app.gamification',
-    # 'app.gamification.apps.GamificationConfig',
 ]
 
 MIDDLEWARE = [
@@ -80,20 +88,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+LOGIN_URL = '/signin/'
+
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME', 'dev'),  # Database name
         'USER': os.getenv('DB_USER', 'dbuser'),
         'PASSWORD': os.getenv('DB_PASSWORD', 'dbuser'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': int(os.getenv('DB_PORT', '3306')),
+        'PORT': os.getenv('DB_PORT', '5432'),
     },
 }
+
+if os.getenv('DATABASE_URL', None):
+    DATABASES['default'] = dj_database_url.parse(
+        os.getenv('DATABASE_URL', None))
 
 
 # Password validation
@@ -126,24 +140,48 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+# USE_L10N = True
 
 USE_TZ = True
+
+DATETIME_INPUT_FORMATS += [
+    '%Y-%m-%d, %I:%M:%S %p',     # '2006-10-25 14:30:59'
+    '%Y-%m-%d, %I:%M:%S.%f %p',  # '2006-10-25 14:30:59.000200'
+    '%Y-%m-%d, %I:%M %p',        # '2006-10-25 14:30'
+    '%m/%d/%Y, %I:%M:%S %p',     # '10/25/2006 14:30:59'
+    '%m/%d/%Y, %I:%M:%S.%f %p',  # '10/25/2006 14:30:59.000200'
+    '%m/%d/%Y, %I:%M %p',        # '10/25/2006 14:30'
+    '%m/%d/%y, %I:%M:%S %p',     # '10/25/06 14:30:59'
+    '%m/%d/%y, %I:%M:%S.%f %p',  # '10/25/06 14:30:59.000200'
+    '%m/%d/%y, %I:%M %p',        # '10/25/06 14:30'
+]
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email SMTP Configuration
+# https://docs.djangoproject.com/en/3.2/topics/email/
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = os.getenv('EMAIL_PORT', '587')
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')

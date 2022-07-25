@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 import app.gamification.views.pages as page_views
@@ -24,20 +25,81 @@ import app.gamification.views.pages as page_views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('', page_views.dashboard, name='home'),
     path('signin/', page_views.signin, name='signin'),
     path('signup/', page_views.signup, name='signup'),
+    path('signout/', page_views.signout, name='signout'),
+
+    path('email_user/<str:andrew_id>/', page_views.email_user, name='email_user'),
+
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
+    path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
     path('test/', page_views.test, name='test'),
 
-    path('course/', page_views.course, name='course'),
-    path('delete_course/<str:course_id>',
-         page_views.delete_course, name='delete_course'),
-    path('course/edit_course/<str:course_id>',
-         page_views.edit_course, name='edit_course'),
+    path('feedback/', page_views.feedback, name='feedback'),
+    path('course/', include([
+        path('', page_views.course_list, name='course'),
+
+        path('<int:course_id>/', include([
+            path('delete/', page_views.delete_course, name='delete_course'),
+            path('edit/', page_views.edit_course, name='edit_course'),
+            path('view/', page_views.view_course, name='view_course'),
+
+            path('assignment/', include([
+                path('', page_views.assignment, name='assignment'),
+                path('<int:assignment_id>/', include([
+                    path('delete/', page_views.delete_assignment,
+                         name='delete_assignment'),
+                    path('edit/', page_views.edit_assignment,
+                         name='edit_assignment'),
+                    path('view/', page_views.view_assignment,
+                         name='view_assignment'),
+                    path('add/', page_views.add_survey, name='add_survey'),
+                    path('survey/', include([
+                        path('', page_views.survey_list, name='survey_list'),
+                        path('addsection/', page_views.add_section,
+                             name='add_section'),
+                        path('<int:section_id>/', include([
+                            path('delete/', page_views.delete_section,
+                                 name='delete_section'),
+                            path('edit/', page_views.edit_section,
+                                 name='edit_section'),
+                            path('add/', page_views.add_question,
+                                 name='add_question'),
+                            path('<int:question_id>/', include([
+                                path('delete/', page_views.delete_question,
+                                     name='delete_question'),
+                                path('edit/', page_views.edit_question,
+                                     name='edit_question')
+                            ])),
+                        ])),
+                    ])),
+                ])),
+            ])),
+
+
+            path('member_list/', include([
+                path('', page_views.member_list, name='member_list'),
+                path('<str:andrew_id>/', include([
+                    path('delete/', page_views.delete_member,
+                         name='delete_member'),
+                ]))
+            ])),
+        ])),
+    ])),
 
     path('api/', include('app.gamification.views.api.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    path('reset_password/', page_views.PasswordResetView.as_view(),
+         name='password_reset'),
+    path('reset_password_sent/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'),
+         name='password_reset_done'),
+    path('reset/<uidb64>/<token>', auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),
+         name='password_reset_confirm'),
+    path('reset_password_complete/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'),
+         name='password_reset_complete'),
 ]
 
 if settings.DEBUG:

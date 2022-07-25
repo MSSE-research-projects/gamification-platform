@@ -2,6 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import ASCIIUsernameValidator
 from django.core.mail import send_mail
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -44,6 +45,8 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     username_validator = ASCIIUsernameValidator()
+    image_extension_validator = FileExtensionValidator(
+        allowed_extensions=['png', 'jpg', 'jpeg'])
 
     andrew_id = models.CharField(
         _('Andrew ID'),
@@ -56,8 +59,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             'unique': _('A user with that andrew id already exists.'),
         },
     )
-    image = models.ImageField(_('profile picture'),
-                              upload_to='profile_pics', blank=True)
+    image = models.ImageField(
+        _('profile picture'),
+        upload_to='profile_pics',
+        blank=True,
+        validators=[image_extension_validator],
+    )
     first_name = models.CharField(_('first name'), max_length=150, blank=True)
     last_name = models.CharField(_('last name'), max_length=150, blank=True)
     email = models.EmailField(
@@ -95,6 +102,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
+
+    @property
+    def is_activated(self):
+        return self.last_login is not None
 
     def get_full_name(self):
         '''

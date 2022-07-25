@@ -1,10 +1,15 @@
+import json
 from django import forms
-from django.contrib.auth import authenticate, get_user_model, password_validation
-from django.contrib.auth.forms import UsernameField
+from django.contrib.auth import password_validation
+from django.contrib.auth import forms as auth_forms
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy as _
+from app.gamification.models.survey_section import SurveySection
 
-from .models import CustomUser, Course
+from app.gamification.models.survey_template import SurveyTemplate
+
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership, FeedbackSurvey, Question
 
 
 class SignUpForm(forms.ModelForm):
@@ -29,7 +34,7 @@ class SignUpForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('andrew_id', 'email',)
-        field_classes = {'andrew_id': UsernameField}
+        field_classes = {'andrew_id': auth_forms.UsernameField}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -65,28 +70,165 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
+class PasswordResetForm(auth_forms.PasswordResetForm):
+    error_messages = {
+        'invalid_email': _("Email does not exist")
+    }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        users = CustomUser.objects.filter(email=email)
+        if len(users) <= 0:
+            raise ValidationError(
+                self.error_messages['invalid_email'],
+            )
+
+        return email
+
+
 class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
         fields = ('email', 'first_name', 'last_name', 'image')
 
-    def save(self, commit=True):
-        user = super().save(commit=True)
-        if commit:
-            user.save()
-        return user
-
 
 class CourseForm(forms.ModelForm):
 
+    error_messages = {
+        'invalid_format': _('File format is not correct. Please check the file \
+            format. Make sure that the file contains the following columns: \
+            Student ID, Email, Team Name.'),
+        'course_name_empty': _("Course name cannot be empty."),
+        'course_number_empty': _("Course number cannot be empty."),
+    }
+
+    file = forms.FileField(
+        label=_('CATME file'),
+        required=False,
+        validators=[FileExtensionValidator(allowed_extensions=['json'])]
+    )
+
     class Meta:
         model = Course
-        fields = ('course_id', 'course_name', 'syllabus',
+        fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
+
+    def clean_course_number(self):
+        course_number = self.cleaned_data.get('course_number')
+        if course_number == '':
+            raise ValidationError(
+                self.error_messages['course_number_empty'],
+                code='course_number_empty',
+            )
+        return course_number
+
+    def clean_course_name(self):
+        course_name = self.cleaned_data.get('course_name')
+        if course_name == '':
+            raise ValidationError(
+                self.error_messages['course_name_empty'],
+                code='course_name_empty',
+            )
+        return course_name
+
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+
+        if file is None:
+            return file
+
+        data = json.loads(file.read())
+        for row in data:
+            if 'Student ID' not in row or 'Email' not in row or 'Team Name' not in row:
+                raise ValidationError(
+                    self.error_messages['invalid_format'],
+                    code='invalid_format'
+                )
+
+        return file
+
+    def _register_teams(self, course):
+        # Register teams from CATME file
+        file = self.cleaned_data.get('file')
+        if file is None:
+            return
+
+        data = json.loads(file.read())
+
+        for row in data:
+            name = row.get('Name', None).strip()
+            andrew_id = row['Student ID'].strip()
+            email = row['Email'].strip()
+            team_name = row['Team Name'].strip()
+
+            # Get user or create one
+            try:
+                user = CustomUser.objects.get(andrew_id=andrew_id)
+            except CustomUser.DoesNotExist:
+                if name:
+                    first_name, last_name = name.split(' ')
+                else:
+                    first_name = last_name = ''
+                user = CustomUser.objects.create_user(
+                    andrew_id=andrew_id,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+
+                password = CustomUser.objects.make_random_password()
+                user.set_password(password)
+                user.save()
+
+            # Register this user to the course
+            registration = Registration(
+                users=user,
+                courses=course,
+                userRole=Registration.UserRole.Student
+            )
+            registration.save()
+
+            # Do not create team if the name is empty
+            if team_name == '':
+                continue
+
+            # Get team or create one
+            try:
+                team = Team.objects.get(course=course, name=team_name)
+            except Team.DoesNotExist:
+                team = Team(course=course, name=team_name)
+                team.save()
+
+            # Register this user to the team
+            membership = Membership(student=registration, entity=team)
+            membership.save()
 
     def save(self, commit=True):
         course = super().save(commit=True)
-        if commit:
-            course.save()
+        self._register_teams(course)
+
         return course
+
+
+class AssignmentForm(forms.ModelForm):
+
+    class Meta:
+        model = Assignment
+        fields = ('course', 'assignment_name', 'description',
+                  'assignment_type', 'submission_type', 'total_score',
+                  'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')
+        widgets = {
+            'course': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }
+
+
+class AddSurveyForm(forms.ModelForm):
+
+    class Meta:
+        model = FeedbackSurvey
+        fields = ('template', 'assignment', 'date_due',
+                  'date_released')
+        widgets = {
+            'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }
