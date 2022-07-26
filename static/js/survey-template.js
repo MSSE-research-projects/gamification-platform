@@ -1,3 +1,26 @@
+// Helper functions
+
+/**
+ * @param {String} HTML representing a single element
+ * @return {Element}
+ */
+function htmlToElement(html) {
+  var template = document.createElement('template');
+  html = html.trim(); // Never return a text node of whitespace as the result
+  template.innerHTML = html;
+  return template.content.firstChild;
+}
+
+/**
+* @param {String} HTML representing any number of sibling elements
+* @return {NodeList} 
+*/
+function htmlToElements(html) {
+  var template = document.createElement('template');
+  template.innerHTML = html;
+  return template.content.childNodes;
+}
+
 /*******************************************/
 /*********      Survey Class      **********/
 /*******************************************/
@@ -7,30 +30,101 @@ class Survey {
     this.instructions = instructions;
     this.sections = sections;
     this.options = options;
+
+    this.buildElement();
   }
 
+  // Functions for building the DOM element
+  buildElement() {
+    this.element = this._buildWrapperElement();
+    this.headerElement = this._buildHeaderElement();
+    this.editableHeaderElement = this._buildEditableHeaderElement();
+    this.sectionElement = this._buildSectionElement();
+
+    if (this.options.edit) {
+      $(this.element).find('.card-body').append(this.editableHeaderElement);
+    } else {
+      $(this.element).find('.card-body').append(this.headerElement);
+    }
+    $(this.element).find('.card-body').append(this.sectionElement);
+  }
+
+  _buildWrapperElement() {
+    var html = '';
+    html += '<div class="card">';
+    html += '  <div class="card-body">';
+    html += '  </div>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildHeaderElement() {
+    var html = '';
+    html += '<div class="card-header">';
+    html += '  <h2 class="card-title">' + this.name + '</h2>';
+    html += '  <p class="card-description">' + this.instructions + '</p>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildEditableHeaderElement() {
+    var html = '';
+    html += '<div class="row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="col-md-9 col-sm-12 text-start">';
+    html += '    <h2 class="card-title">' + this.name + '</h2>';
+    html += '    <p class="card-description">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
+    html += '      <i class="fa fa-plus"></i> Add Section';
+    html += '    </button>';
+    html += '  </div>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildSectionElement() {
+    var div = document.createElement('div');
+    for (var i = 0; i < this.sections.length; i++) {
+      var section = this.sections[i];
+      section.registerEventOnRemove(this);
+      div.appendChild(section.element);
+    }
+    return div;
+  }
+
+  // Functions for manipulating the survey
   addSection(section) {
+    section.registerEventOnRemove(this);
     this.sections.push(section);
+    this.sectionElement.appendChild(section.element);
   }
 
   addSectionByName(name, description) {
     var section = new Section(name, description);
-    this.sections.push(section);
+    this.addSection(section);
+  }
+
+  updateElement() {
+    this.buildElement();
   }
 
   removeSection(section) {
-    var removedSection = this.sections.splice(this.sections.indexOf(section), 1);
-    return removedSection;
+    this.sections.splice(this.sections.indexOf(section), 1);
+    this.sectionElement.removeChild(section.element);
   }
 
   removeSectionByName(name) {
     var section = this.getSectionByName(name);
-    return this.removeSection(section);
+    this.removeSection(section);
   }
 
   removeSectionByIndex(index) {
     var section = this.sections[index];
-    return this.removeSection(section);
+    this.removeSection(section);
   }
 
   getSectionByName(name) {
@@ -43,39 +137,8 @@ class Survey {
     return this.sections[index];
   }
 
-  renderHTML() {
-    var html = '';
-
-    html += '<div class="card">';
-    html += '  <div class="card-body">';
-    if (this.options.edit) {
-      html += '    <div class="row mb-3 align-items-center justify-content-between">';
-      html += '      <div class="col-md-9 col-sm-12 text-start">';
-      html += '        <h2 class="card-title">' + this.name + '</h2>';
-      html += '        <p class="card-description">' + this.instructions + '</p>';
-      html += '      </div>';
-      html += '      <div class="col-md-3 col-sm-12 text-end">';
-      html += '        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
-      html += '          <i class="fa fa-plus"></i> Add Section';
-      html += '        </button>';
-      html += '      </div>';
-      html += '    </div>';
-    } else {
-      html += '    <h2 class="card-title">' + this.name + '</h2>';
-      html += '    <p class="card-description">' + this.instructions + '</p>';
-    }
-    for (var i = 0; i < this.sections.length; i++) {
-      html += this.sections[i].renderHTML();
-    }
-    html += '  </div>';
-    html += '</div>';
-
-    return html;
-  }
-
   render(e) {
-    var html = this.renderHTML();
-    $(e).html(html);
+    e.appendChild(this.element);
   }
 }
 
@@ -89,8 +152,68 @@ class Section {
     this.description = description;
     this.questions = questions;
     this.options = options;
+
+    this.buildElement();
   }
 
+  // Functions for building the DOM element
+  buildElement() {
+    this.element = this._buildWrapperElement();
+    this.headerElement = this._buildHeaderElement();
+    this.editableHeaderElement = this._buildEditableHeaderElement();
+    this.questionElement = this._buildQuestionElement();
+
+    if (this.options.edit) {
+      this.element.appendChild(this.editableHeaderElement);
+    } else {
+      this.element.appendChild(this.headerElement);
+    }
+    this.element.appendChild(this.questionElement);
+  }
+
+  _buildWrapperElement() {
+    var html = '';
+    html += '<fieldset class="section">';
+    html += '  <legend>' + this.name + '</legend>';
+    html += '</fieldset>';
+
+    return htmlToElement(html);
+  }
+
+  _buildHeaderElement() {
+    var html = '';
+    html += '<p class="card-description">' + this.description + '</p>';
+
+    return htmlToElement(html);
+  }
+
+  _buildEditableHeaderElement() {
+    var html = '';
+    html += '<div class="row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="col-md-9 col-sm-12 text-start">';
+    html += '    <p class="card-description">' + this.description + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal"><i class="fa fa-plus"></i></button>';
+    html += '      <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editSectionModal"><i class="fa fa-edit"></i></button>';
+    html += '    <button type="button" class="btn btn-sm btn-danger remove-sec-btn"><i class="fa fa-trash"></i></button>';
+    html += '  </div>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildQuestionElement() {
+    var div = document.createElement('div');
+    for (var i = 0; i < this.questions.length; i++) {
+      var question = this.questions[i];
+      question.registerEventOnRemove(this);
+      div.appendChild(question.element);
+    }
+    return div;
+  }
+
+  // Functions for manipulating the section
   getQuestionByText(text) {
     return this.questions.find(function (question) {
       return question.text === text;
@@ -98,44 +221,32 @@ class Section {
   }
 
   addQuestion(question) {
+    question.registerEventOnRemove(this);
     this.questions.push(question);
+    this.questionElement.appendChild(question.element);
   }
 
   removeQuestion(question) {
-    var removedQuestion = this.questions.splice(this.questions.indexOf(question), 1);
-    return removedQuestion;
+    this.questions.splice(this.questions.indexOf(question), 1);
+    this.questionElement.removeChild(question.element);
   }
 
   removeQuestionByText(text) {
     var question = this.getQuestionByText(text);
-    return this.removeQuestion(question);
+    this.removeQuestion(question);
   }
 
-  renderHTML() {
-    var html = '';
+  updateElement() {
+    $(this.element).find('legend').text(this.name);
+    $(this.headerElement).find('p.card-description').text(this.description);
+    $(this.editableHeaderElement).find('p.card-description').text(this.description);
+  }
 
-    html += '<fieldset class="section">';
-    html += '  <legend>' + this.name + '</legend>';
-    if (this.options.edit) {
-      html += '  <div class="row mb-3 align-items-center justify-content-between">';
-      html += '    <div class="col-md-9 col-sm-12 text-start">';
-      html += '      <p class="card-description">' + this.description + '</p>';
-      html += '    </div>';
-      html += '    <div class="col-md-3 col-sm-12 text-end">';
-      html += '      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">Add Question</button>';
-      html += '      <button type="button" class="btn btn-sm btn-danger mt-3 remove-sec-btn">Remove Section</button>';
-      html += '    </div>';
-      html += '  </div>';
-    } else {
-      html += '  <p class="card-description">' + this.description + '</p>';
-    }
-    for (var i = 0; i < this.questions.length; i++) {
-      html += '  <hr>';
-      html += this.questions[i].renderHTML();
-    }
-    html += '</fieldset>';
-
-    return html;
+  registerEventOnRemove(survey) {
+    var self = this;
+    $(this.element).find('.remove-sec-btn').on('click', function () {
+      survey.removeSection(self);
+    });
   }
 };
 
@@ -148,12 +259,79 @@ class Question {
     this.text = text;
     this.options = options;
   }
-}
 
-class OptionChoice {
-  constructor(text = '', value = '') {
-    this.text = text;
-    this.value = value;
+  // Functions for building the DOM element
+  buildElement() {
+    this.element = this._buildWrapperElement();
+    this.textElement = this._buildTextElement();
+    this.answerElement = this._buildAnswerElement();
+
+    this.answerWrapperElement;
+    if (this.options.edit) {
+      this.answerWrapperElement = this._buildAnswerWrapperElement(8);
+    } else {
+      this.answerWrapperElement = this._buildAnswerWrapperElement(10);
+    }
+
+    this.element.appendChild(this.textElement);
+    this.answerWrapperElement.appendChild(this.answerElement);
+    this.element.appendChild(this.answerWrapperElement);
+
+    if (this.options.edit) {
+      this.element.appendChild(this._buildEditElement());
+    }
+  }
+
+  _buildWrapperElement() {
+    var html = '';
+    html += '<div class="row mb-3 align-items-center justify-content-center question">';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildTextElement() {
+    var html = '';
+    html += '<label class="col-sm-2 col-form-label">' + this.text + '</label>';
+
+    return htmlToElement(html);
+  }
+
+  _buildAnswerWrapperElement(size) {
+    var html = '';
+    html += '<div class="col-sm-' + size + '">';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildAnswerElement() {
+    var html = '';
+    return htmlToElement(html);
+  }
+
+  _buildEditElement() {
+    var html = '';
+    html += '<div class="col-sm-2 text-end">';
+    html += '  <button type="button" class="btn btn-sm btn-warning edit-que-btn" data-bs-toggle="modal" data-bs-target="#editQuestionModal"><i class="fa fa-edit"></i></button>';
+    html += '  <button type="button" class="btn btn-sm btn-danger remove-que-btn"><i class="fa fa-trash"></i></button>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  updateElement() {
+    $(this.textElement).text(this.text);
+
+    this.answerElement = this._buildAnswerElement();
+    this.answerWrapperElement.replaceChild(this.answerElement, this.answerWrapperElement.firstChild);
+  }
+
+  registerEventOnRemove(section) {
+    var self = this;
+    $(this.element).find('.remove-que-btn').on('click', function () {
+      section.removeQuestion(self);
+    });
   }
 }
 
@@ -161,62 +339,25 @@ class MultipleChoiceQuestion extends Question {
   constructor(text = '', choices = [], options = {}) {
     super(text, options);
     this.choices = choices;
+    this.type = 'mcq';
+
+    this.buildElement();
   }
 
-  getChoiceByValue(value) {
-    return this.choices.find(function (choice) {
-      return choice.value === value;
-    });
-  }
-
-  addChoice(choice) {
-    this.choices.push(choice);
-  }
-
-  addChoiceByTextValue(text, value) {
-    var choice = new OptionChoice(text, value);
-    this.choices.push(choice);
-  }
-
-  removeChoice(choice) {
-    var removedChoice = this.choices.splice(this.choices.indexOf(choice), 1);
-    return removedChoice;
-  }
-
-  removeChoiceByValue(value) {
-    var choice = this.getChoiceByValue(value);
-    return this.removeChoice(choice);
-  }
-
-  renderHTML() {
+  _buildAnswerElement() {
     var html = '';
-
-    html += '<div class="row mb-3 align-items-center justify-content-center question">';
-    html += '  <label class="col-sm-2 col-form-label">' + this.text + '</label>';
-    if (this.options.edit) {
-      html += '  <div class="col-sm-8">';
-    } else {
-      html += '  <div class="col-sm-10">';
-    }
-    html += '    <div class="row">';
+    html += '<div class="row">';
     for (var i = 0; i < this.choices.length; i++) {
-      html += '      <div class="col-sm">';
-      html += '        <div class="form-check">';
-      html += '          <input class="form-check-input" type="radio" name="gridRadios" value="' + this.choices[i].value + '">';
-      html += '          <label class="form-check-label">' + this.choices[i].text + '</label>';
-      html += '        </div>';
-      html += '      </div>';
-    }
-    html += '    </div>';
-    html += '  </div>';
-    if (this.options.edit) {
-      html += '  <div class="col-sm-2 text-end">';
-      html += '    <button type="button" class="btn btn-sm btn-danger remove-que-btn">Remove</button>';
+      html += '  <div class="col-sm">';
+      html += '    <div class="form-check">';
+      html += '      <input class="form-check-input" type="radio" name="gridRadios" value="' + this.choices[i].value + '">';
+      html += '      <label class="form-check-label">' + this.choices[i].text + '</label>';
+      html += '    </div>';
       html += '  </div>';
     }
     html += '</div>';
 
-    return html;
+    return htmlToElement(html);
   }
 }
 
@@ -225,34 +366,24 @@ class TextInputQuestion extends Question {
     super(text, options);
     this.placeholder = placeholder;
     this.displayLines = displayLines;
+    this.type = 'text';
+
+    this.buildElement();
   }
 
-  renderHTML() {
+  _buildAnswerElement() {
     var html = '';
-
-    html += '<div class="row mb-3 align-items-center justify-content-center question">';
-    html += '  <label class="col-sm-2 col-form-label">' + this.text + '</label>';
-    if (this.options.edit) {
-      html += '  <div class="col-sm-8">';
-    } else {
-      html += '  <div class="col-sm-10">';
-    }
+    html += '<div>';
     for (var i = 0; i < this.displayLines; i++) {
       if (i === 0) {
-        html += '    <input type="text" class="form-control" placeholder="' + this.placeholder + '">';
+        html += '<input type="text" class="form-control" placeholder="' + this.placeholder + '">';
       } else {
-        html += '    <input type="text" class="form-control mt-2">';
+        html += '<input type="text" class="form-control mt-2">';
       }
-    }
-    html += '  </div>';
-    if (this.options.edit) {
-      html += '  <div class="col-sm-2 text-end">';
-      html += '    <button type="button" class="btn btn-sm btn-danger remove-que-btn">Remove</button>';
-      html += '  </div>';
     }
     html += '</div>';
 
-    return html;
+    return htmlToElement(html);
   }
 }
 
@@ -261,27 +392,15 @@ class TextareaQuestion extends Question {
     super(text, options);
     this.placeholder = placeholder;
     this.displayLines = displayLines;
+    this.type = 'textarea';
+
+    this.buildElement();
   }
 
-  renderHTML() {
+  _buildAnswerElement() {
     var html = '';
-
-    html += '<div class="row mb-3 align-items-center justify-content-center question">';
-    html += '  <label class="col-sm-2 col-form-label">' + this.text + '</label>';
-    if (this.options.edit) {
-      html += '  <div class="col-sm-8">';
-    } else {
-      html += '  <div class="col-sm-10">';
-    }
     html += '    <textarea class="form-control" rows="' + this.displayLines + '" placeholder="' + this.placeholder + '"></textarea>';
-    html += '  </div>';
-    if (this.options.edit) {
-      html += '  <div class="col-sm-2 text-end">';
-      html += '    <button type="button" class="btn btn-sm btn-danger remove-que-btn">Remove</button>';
-      html += '  </div>';
-    }
-    html += '</div>';
 
-    return html;
+    return htmlToElement(html);
   }
 }
