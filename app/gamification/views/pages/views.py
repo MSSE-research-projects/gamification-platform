@@ -527,7 +527,7 @@ def delete_artifact(request, course_id, assignment_id, artifact_id):
     if request.method == 'GET':
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         # delete the artifact file first
-        artifact.file.delete()        
+        artifact.file.delete()
         artifact.delete()
         return redirect('artifact', course_id, assignment_id)
     else:

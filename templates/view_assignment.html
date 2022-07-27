@@ -13,7 +13,6 @@
           <div class="row">
             <div class="col-lg-8">
               <div class="border-bottom text-center pb-4">
-                {% comment %} <h3>course: {{ assignment.id }}</h3> {% endcomment %}
                 <p> </p>
                 {% if assignment.assignment_name %}
                 <h2>{{ assignment.assignment_name }}</h2>
@@ -67,12 +66,12 @@
                   <p> No Submission found</p>
                 </div>
               {% endif %}
-              <div class="border-bottom py-4">
+              {% comment %} <div class="border-bottom py-4">
                 <a href="{% url 'test'%}"><button type="button"
                   class="btn btn-success btn-sm">Survey</button></a>
-              </div>
+              </div> {% endcomment %}
               <div class="border-bottom py-4">
-                <p> Comments: </p>
+                <p><b>Comments: </b></p>
               </div>
             </div>
           </div>
