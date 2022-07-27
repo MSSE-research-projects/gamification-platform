@@ -37,7 +37,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 class SurveyList(generics.ListCreateAPIView):
     queryset = SurveyTemplate.objects.all()
     serializer_class = SurveySerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
 
 class SurveyDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -71,7 +71,7 @@ class SurveyDetail(generics.RetrieveUpdateDestroyAPIView):
 class SurveySectionList(generics.ListCreateAPIView):
     queryset = SurveyTemplate.objects.all()
     serializer_class = SectionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, survey_pk, *args, **kwargs):
         sections = SurveySection.objects.filter(template=survey_pk)
@@ -98,7 +98,7 @@ class SurveySectionList(generics.ListCreateAPIView):
 class SurveySectionDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = SurveyTemplate.objects.all()
     serializer_class = SectionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, survey_pk, section_pk, *args, **kwargs):
         section = get_object_or_404(
@@ -134,7 +134,7 @@ class SurveySectionDetail(generics.RetrieveUpdateDestroyAPIView):
 class SectionList(generics.ListAPIView):
     queryset = SurveySection.objects.all()
     serializer_class = SectionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
 
 class SectionDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -171,7 +171,7 @@ class SectionDetail(generics.RetrieveUpdateDestroyAPIView):
 class SectionQuestionList(generics.ListCreateAPIView):
     queryset = SurveySection.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, section_pk, *args, **kwargs):
         questions = Question.objects.filter(section=section_pk)
@@ -198,7 +198,7 @@ class SectionQuestionList(generics.ListCreateAPIView):
 class SectionQuestionDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = SurveySection.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, section_pk, question_pk, *args, **kwargs):
         question = get_object_or_404(
@@ -236,13 +236,13 @@ class SectionQuestionDetail(generics.RetrieveUpdateDestroyAPIView):
 class QuestionList(generics.ListAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
 
 class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, question_pk, *args, **kwargs):
         question = get_object_or_404(
@@ -278,10 +278,10 @@ class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=204)
 
 
-class QuestionOptionList(generics.CreateAPIView):
+class QuestionOptionList(generics.ListCreateAPIView):
     queryset = Question.objects.all()
     serializer_class = OptionChoiceSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, question_pk, *args, **kwargs):
         question = get_object_or_404(Question, id=question_pk)
@@ -289,22 +289,27 @@ class QuestionOptionList(generics.CreateAPIView):
         serializer = self.get_serializer(options, many=True)
         return Response(serializer.data)
 
+    def post(self, request, question_pk, *args, **kwargs):
+        question = get_object_or_404(Question, id=question_pk)
+        text = request.data.get('text')
+        option_choice, _ = OptionChoice.objects.get_or_create(text=text)
+        question_option = QuestionOption(
+            option_choice=option_choice, question=question)
+        question_option.save()
+        serializer = self.get_serializer(option_choice)
+        return Response(serializer.data)
 
-class OptionList(generics.CreateAPIView):
+
+class OptionList(generics.ListCreateAPIView):
     queryset = OptionChoice.objects.all()
     serializer_class = OptionChoiceSerializer
-    permission_classes = [IsAdminOrReadOnly]
-
-    def get(self, request, *args, **kwargs):
-        options = OptionChoice.objects.all()
-        serializer = self.get_serializer(options, many=True)
-        return Response(serializer.data)
+    # permission_classes = [IsAdminOrReadOnly]
 
 
 class OptionDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = OptionChoice.objects.all()
     serializer_class = OptionChoiceSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, option_pk, *args, **kwargs):
         option = get_object_or_404(OptionChoice, id=option_pk)
