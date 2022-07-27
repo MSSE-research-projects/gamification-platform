@@ -1,0 +1,453 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Test Edit Survey{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-md-12 grid-margin" id="survey">
+    </div> <!-- end #survey -->
+  </div> <!-- end .row -->
+</div> <!-- end .content-wrapper -->
+
+<!-- Add Section Modal -->
+<div class="modal fade" id="addSectionModal" tabindex="-1" role="dialog" aria-labelledby="addSectionModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addSectionModalLabel">Add Section</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="sectionName">Section Name</label>
+          <input type="text" class="form-control" id="sectionName" placeholder="Section Name">
+        </div>
+        <div class="form-group">
+          <label for="sectionDescription">Section Description</label>
+          <textarea class="form-control" id="sectionDescription" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Section Modal -->
+<div class="modal fade" id="editSectionModal" tabindex="-1" role="dialog" aria-labelledby="editSectionModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSectionModalLabel">Edit Section</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="originalName" hidden>
+        <div class="form-group">
+          <label for="sectionName">Section Name</label>
+          <input type="text" class="form-control" id="sectionName" placeholder="Section Name">
+        </div>
+        <div class="form-group">
+          <label for="sectionDescription">Section Description</label>
+          <textarea class="form-control" id="sectionDescription" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Question Modal -->
+<div class="modal fade" id="addQuestionModal" tabindex="-1" role="dialog" aria-labelledby="addQuestionModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addQuestionModalLabel">Add Question</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="sectionNameInQuestionModal">Section Name</label>
+          <input type="text" class="form-control" id="sectionNameInQuestionModal" disabled>
+        </div>
+        <div class="form-group">
+          <label for="questionText">Question Text</label>
+          <input type="text" class="form-control" id="questionText" placeholder="Question Text">
+        </div>
+        <div class="form-group">
+          <label for="questionType">Question Type</label>
+          <select class="form-control" id="questionType">
+            <option value="">Select Question Type</option>
+            <option value="mcq">Multiple Choice Question</option>
+            <option value="text">Text</option>
+            <option value="textarea">Textarea</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="mcqFields">
+          <div class="row mb-3 align-items-center justify-content-between">
+            <div class="col-md-auto col-sm-12">
+              <label for="mcqOptions">Options</label>
+            </div>
+            <div class="col-md-auto col-sm-12">
+              <button type="button" class="btn btn-sm btn-primary add-option-btn">Add Option</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12" id="choices">
+              <input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" id="textFields">
+          <label for="displayNum">Number of Blanks</label>
+          <input type="text" class="form-control" id="displayNum">
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Question Modal -->
+<div class="modal fade" id="editQuestionModal" tabindex="-1" role="dialog" aria-labelledby="editQuestionModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editQuestionModalLabel">Edit Question</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" class="form-control" id="originalText" hidden>
+        <div class="form-group">
+          <label for="sectionNameInQuestionModal">Section Name</label>
+          <input type="text" class="form-control" id="sectionNameInQuestionModal" disabled>
+        </div>
+        <div class="form-group">
+          <label for="questionText">Question Text</label>
+          <input type="text" class="form-control" id="questionText" placeholder="Question Text">
+        </div>
+        <div class="form-group">
+          <label for="questionType">Question Type</label>
+          <select class="form-control" id="questionType" disabled>
+            <option value="">Select Question Type</option>
+            <option value="mcq">Multiple Choice Question</option>
+            <option value="text">Text</option>
+            <option value="textarea">Textarea</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="mcqFields">
+          <div class="row mb-3 align-items-center justify-content-between">
+            <div class="col-md-auto col-sm-12">
+              <label for="mcqOptions">Options</label>
+            </div>
+            <div class="col-md-auto col-sm-12">
+              <button type="button" class="btn btn-sm btn-primary add-option-btn">Add Option</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12" id="choices">
+              <input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" id="textFields">
+          <label for="displayNum">Number of Blanks</label>
+          <input type="text" class="form-control" id="displayNum">
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/survey-template.css' %}">
+{% endblock css %}
+
+{% block js %}
+<script src="{% static 'js/survey-template.js' %}"></script>
+<script>
+
+  $(document).ready(function () {
+    var surveyDOM = document.getElementById('survey');
+    survey.render(surveyDOM);
+
+
+    var addSectionModal = new SectionModal($('#addSectionModal'));
+    addSectionModal.on('click', '.save-btn', function () {
+      var sectionName = this.modal.find('#sectionName').val();
+      var sectionDescription = this.modal.find('#sectionDescription').val();
+
+      // Add section to survey and render it
+      var section = new Section(
+        name = sectionName,
+        description = sectionDescription,
+        questions = [],
+        options = {
+          edit: true,
+        }
+      );
+      survey.addSection(section);
+
+      // Hide modal
+      this.hide();
+      this.reset();
+    });
+
+
+    var editSectionModal = new SectionModal($('#editSectionModal'));
+    editSectionModal.on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var sectionName = button.closest('fieldset').find('legend').text();
+      var sectionDescription = button.closest('fieldset').find('p.card-description').text();
+
+      this.modal.find('#originalName').val(sectionName);
+      this.modal.find('#sectionName').val(sectionName);
+      this.modal.find('#sectionDescription').val(sectionDescription);
+    });
+    editSectionModal.on('click', '.save-btn', function () {
+      var originalName = this.modal.find('#originalName').val();
+      var sectionName = this.modal.find('#sectionName').val();
+      var sectionDescription = this.modal.find('#sectionDescription').val();
+
+      // Get section from survey and edit it
+      var section = survey.getSectionByName(originalName);
+      section.name = sectionName;
+      section.description = sectionDescription;
+      section.updateElement();
+
+      // Hide modal
+      this.hide();
+      this.reset();
+    });
+
+
+    var addQuestionModal = new QuestionModal($('#addQuestionModal'));
+    addQuestionModal.on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var sectionName = button.closest('fieldset').find('legend').text();
+      this.modal.find('#sectionNameInQuestionModal').val(sectionName);
+    });
+    addQuestionModal.on('click', '.save-btn', function () {
+      var questionText = this.modal.find('#questionText').val();
+      var questionType = this.modal.find('#questionType').val();
+
+      // Add question to section and render it
+      if (questionText != '') {
+        // Question Text is required
+        var question = null;
+
+        switch (questionType) {
+          case 'mcq':
+            var choices = [];
+            this.modal.find('#choices').find('input').each(function () {
+              if ($(this).val() != '') {
+                choices.push({ text: $(this).val(), value: $(this).val() });
+              }
+            });
+            if (choices.length > 0) {
+              // At least one choice is present
+              question = new MultipleChoiceQuestion(
+                text = questionText,
+                choices = choices,
+                options = {
+                  edit: true,
+                }
+              );
+            }
+            break;
+          case 'text':
+            var displayLines;
+            if (this.modal.find('#displayNum').val() != '') {
+              displayLines = parseInt(this.modal.find('#displayNum').val());
+            } else {
+              displayLines = 1;
+            }
+
+            question = new TextInputQuestion(
+              text = questionText,
+              placeholder = '',
+              displayLines = displayLines,
+              options = {
+                edit: true,
+              }
+            );
+            break;
+          case 'textarea':
+            question = new TextareaQuestion(
+              text = questionText,
+              placeholder = '',
+              displayLines = 5,
+              options = {
+                edit: true,
+              }
+            );
+            break;
+          default:
+            break;
+        }
+
+        // Only add question if it is created
+        if (question != null) {
+          var sectionName = this.modal.find('#sectionNameInQuestionModal').val();
+          var section = survey.getSectionByName(sectionName);
+          section.addQuestion(question);
+        }
+      }
+
+      // Hide modal
+      this.hide();
+      this.reset();
+    });
+
+
+    var editQuestionModal = new QuestionModal($('#editQuestionModal'));
+    editQuestionModal.on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var questionText = button.closest('.question').find('label.col-form-label').text();
+
+      var sectionName = button.closest('fieldset').find('legend').text();
+      var section = survey.getSectionByName(sectionName);
+      var question = section.getQuestionByText(questionText);
+
+      this.modal.find('#originalText').val(questionText);
+      this.modal.find('#questionText').val(questionText);
+      this.modal.find('#sectionNameInQuestionModal').val(sectionName);
+      this.modal.find('#questionType').val(question.type);
+      this.modal.find('#questionType').trigger('change');
+
+      switch (question.type) {
+        case 'mcq':
+          for (var i = 1; i < question.choices.length; i++) {
+            this.modal.find('#choices').append(
+              '<div class="input-group mb-2">' +
+              '  <input type="text" class="form-control" placeholder="New Option">' +
+              '  <button class="btn btn-outline-danger remove-option-btn" type="button">Remove</button>' +
+              '</div>'
+            );
+          }
+          this.modal.find('#choices input').each(function (index, element) {
+            $(element).val(question.choices[index].text);
+          });
+          break;
+        case 'text':
+          this.modal.find('#displayNum').val(question.displayLines);
+          break;
+      }
+    });
+    editQuestionModal.on('click', '.save-btn', function (event) {
+      var originalText = this.modal.find('#originalText').val();
+      var questionText = this.modal.find('#questionText').val();
+      var questionType = this.modal.find('#questionType').val();
+      var displayNum = this.modal.find('#displayNum').val();
+
+      // Get question from section and edit it
+      var sectionName = this.modal.find('#sectionNameInQuestionModal').val();
+      var section = survey.getSectionByName(sectionName);
+      var question = section.getQuestionByText(originalText);
+      question.text = questionText;
+
+      switch (questionType) {
+        case 'mcq':
+          var choices = [];
+          this.modal.find('#choices').find('input').each(function () {
+            if ($(this).val() != '') {
+              choices.push({ text: $(this).val(), value: $(this).val() });
+            }
+          });
+          question.choices = choices;
+          break;
+        case 'text':
+          question.displayLines = displayNum;
+          break;
+        default:
+          break;
+      }
+
+      question.updateElement();
+
+      // Hide modal
+      this.hide();
+      this.reset();
+    });
+  });
+
+
+  var survey = new Survey(
+    name = 'Survey Template',
+    instructions = 'Survey Description',
+    sections = [],
+    options = {
+      edit: true,
+    }
+  );
+
+  var section1 = new Section(
+    name = 'Section 1',
+    description = 'Section 1 Description',
+    questions = [],
+    options = {
+      edit: true,
+    }
+  );
+
+  var mcq = new MultipleChoiceQuestion(
+    text = 'Multiple Choice Question',
+    choices = [
+      { text: 'Choice 1', value: 'choice1' },
+      { text: 'Choice 2', value: 'choice2' },
+      { text: 'Choice 3', value: 'choice3' },
+    ],
+    options = {
+      edit: true,
+    }
+  );
+  var blank = new TextInputQuestion(
+    text = 'Text Input Question',
+    placeholder = 'Placeholder',
+    displayNum = 1,
+    options = {
+      edit: true,
+    }
+  );
+
+  section1.addQuestion(mcq);
+  section1.addQuestion(blank);
+
+  survey.addSection(section1);
+  survey.addSectionByName(
+    name = 'Section 2',
+    description = 'Section 2 Description',
+  );
+  var section = survey.getSectionByIndex(0);
+  section.options = { edit: true };
+  section = survey.getSectionByIndex(1);
+  section.options = { edit: true };
+
+</script>
+{% endblock js %}

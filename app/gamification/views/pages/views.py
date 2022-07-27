@@ -114,6 +114,16 @@ def test(request):
     return render(request, 'test.html')
 
 
+def test_survey(request):
+    user = request.user
+    return render(request, 'test-survey.html')
+
+
+def test_add_survey(request):
+    user = request.user
+    return render(request, 'test-add-survey.html')
+
+
 @login_required
 def course_list(request):
     def get_registrations(user):
