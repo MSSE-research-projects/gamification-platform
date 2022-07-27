@@ -1,6 +1,7 @@
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.response import Response
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from app.gamification.models import CustomUser
 from app.gamification.models.option_choice import OptionChoice
@@ -78,11 +79,16 @@ class SurveySectionList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
     def post(self, request, survey_pk, *args, **kwargs):
+        if(request.data.get('title') == ''):
+            message_info = 'Title cannot be empty'
+            messages.info(request, message_info)
+            return redirect('survey-section-list', survey_pk)
         title = request.data.get('title')
         description = request.data.get('description')
         is_required = True if request.data.get(
             'is_required') == 'true' else False
-        section = SurveySection(template_id=survey_pk, title=title,
+        survey = get_object_or_404(SurveyTemplate, id=survey_pk)
+        section = SurveySection(template=survey, title=title,
                                 description=description, is_required=is_required)
         section.save()
         serializer = self.get_serializer(section)
@@ -103,6 +109,10 @@ class SurveySectionDetail(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, survey_pk, section_pk, *args, **kwargs):
         section = get_object_or_404(
             SurveySection, id=section_pk, template=survey_pk)
+        if(request.data.get('title') == ''):
+            message_info = 'Title cannot be empty'
+            messages.info(request, message_info)
+            return redirect('survey-section-detail', survey_pk, section_pk)
         title = request.data.get('title')
         description = request.data.get('description')
         is_required = True if request.data.get(
