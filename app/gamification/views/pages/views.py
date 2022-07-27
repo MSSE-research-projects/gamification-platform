@@ -117,6 +117,30 @@ def test(request):
     user = request.user
     return render(request, 'test.html', {'user': user})
 
+def report(request, course_id, andrew_id):
+    # user = request.user
+    user = get_object_or_404(CustomUser, andrew_id=andrew_id)
+    course = get_object_or_404(Course, pk=course_id)
+    registration = get_object_or_404(
+        Registration, users=user, courses=course)
+    userRole = registration.userRole
+    try:
+        entity = Team.objects.get(registration=registration, course=course)
+    except Team.DoesNotExist:
+        try:
+            entity = Individual.objects.get(registration=registration, course=course)
+        except Individual.DoesNotExist:
+            # Create an Individual entity for the user
+            print("Team does not exist, create an individual entity for the user")
+            individual = Individual(course=course)
+            individual.save()
+            membership = Membership(student=registration, entity=individual)
+            membership.save()
+            entity = Individual.objects.get(registration=registration, course=course)
+    
+    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole}
+    return render(request, 'report.html', context)
+
 
 @login_required
 def course_list(request):
@@ -325,6 +349,10 @@ def assignment(request, course_id):
         return render(request, 'assignment.html', context)
 
     if request.method == 'POST':
+        # redirect if user is student
+        if userRole == 'Student':
+            return redirect('assignment', course_id)
+        
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()

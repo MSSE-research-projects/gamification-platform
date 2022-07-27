@@ -10,12 +10,19 @@ from app.gamification.forms import ArtifactForm
 from app.gamification.views.pages import artifact
 from app.gamification.tests.views.pages.utils import LogInUser
 from django.conf import settings
-from app.gamification.models import Assignment, Course, Artifact, Team
+from app.gamification.models import Assignment, Course, Artifact, Team, Registration
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from app.gamification.views.pages.views import assignment
 
-
+"""Test the assignment view.
+    -  Using All Combinations of:
+        - User Type: Student in this course, Instructor in this course, TA in this course,
+                    Student in another course, Instructor in another course, TA in another course.
+        - Course: visible, hidden, deleted, not created.
+        - Assignment: group assignment, individual assignment, not created.
+        - Artifact: file, link, empty, not created, deleted, edited.
+"""
 class ArtifactTest(TestCase):
     def setUp(self):
         # Create a user (student)
@@ -52,7 +59,7 @@ class ArtifactTest(TestCase):
         self.url = reverse('member_list', args = [course_id])
         test_member_andrewId = 'andrew_id'
         test_member_team = 'T1'
-        test_member_role = 'Student'
+        test_member_role = Registration.UserRole.Student
         self.data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
@@ -136,7 +143,7 @@ class ArtifactAddTest(TestCase):
         self.url = reverse('member_list', args = [course_id])
         test_member_andrewId = 'andrew_id'
         test_member_team = 'T1'
-        test_member_role = 'Student'
+        test_member_role = Registration.UserRole.Student
         self.data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
@@ -232,7 +239,7 @@ class ArtifactEditTest(TestCase):
         self.url = reverse('member_list', args = [course_id])
         test_member_andrewId = 'andrew_id'
         test_member_team = 'T1'
-        test_member_role = 'Student'
+        test_member_role = Registration.UserRole.Student
         self.data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
@@ -340,7 +347,7 @@ class ArtifactViewTest(TestCase):
         self.url = reverse('member_list', args = [course_id])
         test_member_andrewId = 'andrew_id'
         test_member_team = 'T1'
-        test_member_role = 'Student'
+        test_member_role = Registration.UserRole.Student
         self.data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
@@ -434,7 +441,7 @@ class ArtifactDeleteTest(TestCase):
         self.url = reverse('member_list', args = [course_id])
         test_member_andrewId = 'andrew_id'
         test_member_team = 'T1'
-        test_member_role = 'Student'
+        test_member_role = Registration.UserRole.Student
         self.data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
@@ -529,7 +536,7 @@ class ArtifactDownloadTest(TestCase):
         self.url = reverse('member_list', args = [course_id])
         test_member_andrewId = 'andrew_id'
         test_member_team = 'T1'
-        test_member_role = 'Student'
+        test_member_role = Registration.UserRole.Student
         self.data = {
             'andrew_id': test_member_andrewId,
             'team_name': test_member_team,
