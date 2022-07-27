@@ -32,7 +32,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="addSection(this)">Save</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
       </div>
     </div>
   </div>
@@ -60,7 +60,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="editSection(this)">Save</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
       </div>
     </div>
   </div>
@@ -100,7 +100,7 @@
               <label for="mcqOptions">Options</label>
             </div>
             <div class="col-md-auto col-sm-12">
-              <button type="button" class="btn btn-sm btn-primary" onclick="addMcqOption(this)">Add Option</button>
+              <button type="button" class="btn btn-sm btn-primary add-option-btn">Add Option</button>
             </div>
           </div>
           <div class="row">
@@ -118,7 +118,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="addQuestion(this)">Save</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
       </div>
     </div>
   </div>
@@ -159,8 +159,7 @@
               <label for="mcqOptions">Options</label>
             </div>
             <div class="col-md-auto col-sm-12">
-              <button type="button" class="btn btn-sm btn-primary add-option-btn" onclick="addMcqOption_edit(this)">Add
-                Option</button>
+              <button type="button" class="btn btn-sm btn-primary add-option-btn">Add Option</button>
             </div>
           </div>
           <div class="row">
@@ -178,7 +177,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="editQuestion(this)">Save</button>
+        <button type="button" class="btn btn-primary save-btn">Save</button>
       </div>
     </div>
   </div>
@@ -195,31 +194,140 @@
 <script>
 
   $(document).ready(function () {
+    var surveyDOM = document.getElementById('survey');
     survey.render(surveyDOM);
 
-    toggleAddQuestionTypeFields();
-    $("#addQuestionModal #questionType").change(() => toggleAddQuestionTypeFields());
 
-    toggleEditQuestionTypeFields();
-    $("#editQuestionModal #questionType").change(() => toggleEditQuestionTypeFields());
+    var addSectionModal = new SectionModal($('#addSectionModal'));
+    addSectionModal.on('click', '.save-btn', function () {
+      var sectionName = this.modal.find('#sectionName').val();
+      var sectionDescription = this.modal.find('#sectionDescription').val();
 
+      // Add section to survey and render it
+      var section = new Section(
+        name = sectionName,
+        description = sectionDescription,
+        questions = [],
+        options = {
+          edit: true,
+        }
+      );
+      survey.addSection(section);
 
-    $('#addQuestionModal').on('show.bs.modal', function (event) {
-      var button = $(event.relatedTarget);
-      var sectionName = button.closest('fieldset').find('legend').text();
-      $('#addQuestionModal #sectionNameInQuestionModal').val(sectionName);
+      // Hide modal
+      this.hide();
+      this.reset();
     });
 
-    $('#editSectionModal').on('show.bs.modal', function (event) {
+
+    var editSectionModal = new SectionModal($('#editSectionModal'));
+    editSectionModal.on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
       var sectionName = button.closest('fieldset').find('legend').text();
       var sectionDescription = button.closest('fieldset').find('p.card-description').text();
-      $('#editSectionModal #originalName').val(sectionName);
-      $('#editSectionModal #sectionName').val(sectionName);
-      $('#editSectionModal #sectionDescription').val(sectionDescription);
+
+      this.modal.find('#originalName').val(sectionName);
+      this.modal.find('#sectionName').val(sectionName);
+      this.modal.find('#sectionDescription').val(sectionDescription);
+    });
+    editSectionModal.on('click', '.save-btn', function () {
+      var originalName = this.modal.find('#originalName').val();
+      var sectionName = this.modal.find('#sectionName').val();
+      var sectionDescription = this.modal.find('#sectionDescription').val();
+
+      // Get section from survey and edit it
+      var section = survey.getSectionByName(originalName);
+      section.name = sectionName;
+      section.description = sectionDescription;
+      section.updateElement();
+
+      // Hide modal
+      this.hide();
+      this.reset();
     });
 
-    $('#editQuestionModal').on('show.bs.modal', function (event) {
+
+    var addQuestionModal = new QuestionModal($('#addQuestionModal'));
+    addQuestionModal.on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var sectionName = button.closest('fieldset').find('legend').text();
+      this.modal.find('#sectionNameInQuestionModal').val(sectionName);
+    });
+    addQuestionModal.on('click', '.save-btn', function () {
+      var questionText = this.modal.find('#questionText').val();
+      var questionType = this.modal.find('#questionType').val();
+
+      // Add question to section and render it
+      if (questionText != '') {
+        // Question Text is required
+        var question = null;
+
+        switch (questionType) {
+          case 'mcq':
+            var choices = [];
+            this.modal.find('#choices').find('input').each(function () {
+              if ($(this).val() != '') {
+                choices.push({ text: $(this).val(), value: $(this).val() });
+              }
+            });
+            if (choices.length > 0) {
+              // At least one choice is present
+              question = new MultipleChoiceQuestion(
+                text = questionText,
+                choices = choices,
+                options = {
+                  edit: true,
+                }
+              );
+            }
+            break;
+          case 'text':
+            var displayLines;
+            if (this.modal.find('#displayNum').val() != '') {
+              displayLines = parseInt(this.modal.find('#displayNum').val());
+            } else {
+              displayLines = 1;
+            }
+
+            question = new TextInputQuestion(
+              text = questionText,
+              placeholder = '',
+              displayLines = displayLines,
+              options = {
+                edit: true,
+              }
+            );
+            break;
+          case 'textarea':
+            question = new TextareaQuestion(
+              text = questionText,
+              placeholder = '',
+              displayLines = 5,
+              options = {
+                edit: true,
+              }
+            );
+            break;
+          default:
+            break;
+        }
+
+        // Only add question if it is created
+        if (question != null) {
+          var sectionName = this.modal.find('#sectionNameInQuestionModal').val();
+          var section = survey.getSectionByName(sectionName);
+          section.addQuestion(question);
+        }
+      }
+
+      // Hide modal
+      this.hide();
+      this.reset();
+    });
+
+
+    var editQuestionModal = new QuestionModal($('#editQuestionModal'));
+    editQuestionModal.on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
       var questionText = button.closest('.question').find('label.col-form-label').text();
 
@@ -227,34 +335,69 @@
       var section = survey.getSectionByName(sectionName);
       var question = section.getQuestionByText(questionText);
 
-      $('#editQuestionModal #originalText').val(questionText);
-      $('#editQuestionModal #questionText').val(questionText);
-      $('#editQuestionModal #sectionNameInQuestionModal').val(sectionName);
-      $('#editQuestionModal #questionType').val(question.type);
-      $('#editQuestionModal #questionType').trigger('change');
+      this.modal.find('#originalText').val(questionText);
+      this.modal.find('#questionText').val(questionText);
+      this.modal.find('#sectionNameInQuestionModal').val(sectionName);
+      this.modal.find('#questionType').val(question.type);
+      this.modal.find('#questionType').trigger('change');
 
       switch (question.type) {
         case 'mcq':
           for (var i = 1; i < question.choices.length; i++) {
-            $('#editQuestionModal #choices').append(
+            this.modal.find('#choices').append(
               '<div class="input-group mb-2">' +
               '  <input type="text" class="form-control" placeholder="New Option">' +
-              '  <button class="btn btn-outline-danger" type="button" onclick="removeMcqOption_edit(this)">Remove</button>' +
+              '  <button class="btn btn-outline-danger remove-option-btn" type="button">Remove</button>' +
               '</div>'
             );
           }
-          $('#editQuestionModal #choices input').each(function (index, element) {
+          this.modal.find('#choices input').each(function (index, element) {
             $(element).val(question.choices[index].text);
           });
           break;
         case 'text':
-          $('#editQuestionModal #displayNum').val(question.displayLines);
+          this.modal.find('#displayNum').val(question.displayLines);
           break;
       }
     });
+    editQuestionModal.on('click', '.save-btn', function (event) {
+      var originalText = this.modal.find('#originalText').val();
+      var questionText = this.modal.find('#questionText').val();
+      var questionType = this.modal.find('#questionType').val();
+      var displayNum = this.modal.find('#displayNum').val();
+
+      // Get question from section and edit it
+      var sectionName = this.modal.find('#sectionNameInQuestionModal').val();
+      var section = survey.getSectionByName(sectionName);
+      var question = section.getQuestionByText(originalText);
+      question.text = questionText;
+
+      switch (questionType) {
+        case 'mcq':
+          var choices = [];
+          this.modal.find('#choices').find('input').each(function () {
+            if ($(this).val() != '') {
+              choices.push({ text: $(this).val(), value: $(this).val() });
+            }
+          });
+          question.choices = choices;
+          break;
+        case 'text':
+          question.displayLines = displayNum;
+          break;
+        default:
+          break;
+      }
+
+      question.updateElement();
+
+      // Hide modal
+      this.hide();
+      this.reset();
+    });
   });
 
-  var surveyDOM = document.getElementById('survey');
+
   var survey = new Survey(
     name = 'Survey Template',
     instructions = 'Survey Description',
@@ -305,262 +448,6 @@
   section.options = { edit: true };
   section = survey.getSectionByIndex(1);
   section.options = { edit: true };
-
-
-  // Toggle different question type fields in add question modal
-  function toggleAddQuestionTypeFields() {
-    switch ($('#addQuestionModal #questionType').val()) {
-      case 'mcq':
-        $('#addQuestionModal #mcqFields').show();
-        $('#addQuestionModal #textFields').hide();
-        break;
-      case 'text':
-        $('#addQuestionModal #mcqFields').hide();
-        $('#addQuestionModal #textFields').show();
-        break;
-      case 'textarea':
-        $('#addQuestionModal #mcqFields').hide();
-        $('#addQuestionModal #textFields').hide();
-        break;
-      default:
-        $('#addQuestionModal #mcqFields').hide();
-        $('#addQuestionModal #textFields').hide();
-        break;
-    }
-  }
-
-  function toggleEditQuestionTypeFields() {
-    switch ($('#editQuestionModal #questionType').val()) {
-      case 'mcq':
-        $('#editQuestionModal #mcqFields').show();
-        $('#editQuestionModal #textFields').hide();
-        break;
-      case 'text':
-        $('#editQuestionModal #mcqFields').hide();
-        $('#editQuestionModal #textFields').show();
-        break;
-      case 'textarea':
-        $('#editQuestionModal #mcqFields').hide();
-        $('#editQuestionModal #textFields').hide();
-        break;
-      default:
-        $('#editQuestionModal #mcqFields').hide();
-        $('#editQuestionModal #textFields').hide();
-        break;
-    }
-  }
-
-  function resetAddSectionModal() {
-    // Reset form
-    $('#addSectionModal #sectionName').val('');
-    $('#addSectionModal #sectionDescription').val('');
-  }
-
-  function resetEditSectionModal() {
-    // Reset form
-    $('#editSectionModal #sectionName').val('');
-    $('#editSectionModal #sectionDescription').val('');
-  }
-
-  function resetAddQuestionModal() {
-    $('#addQuestionModal  #sectionNameInQuestionModal').val('');
-    $('#addQuestionModal  #questionText').val('');
-    $('#addQuestionModal  #questionType').val('');
-    $('#addQuestionModal  #questionType').trigger('change');
-    // Reset MCQ Options fields
-    $('#addQuestionModal  #choices').html(
-      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">'
-    );
-    $('#addQuestionModal  #mcqOptions').val('');
-    // Reset the number of blanks in text fields
-    $('#addQuestionModal  #displayNum').val('');
-  }
-
-  function resetEditQuestionModal() {
-    $('#editQuestionModal  #sectionNameInQuestionModal').val('');
-    $('#editQuestionModal  #questionText').val('');
-    $('#editQuestionModal  #questionType').val('');
-    $('#editQuestionModal  #questionType').trigger('change');
-    // Reset MCQ Options fields
-    $('#editQuestionModal  #choices').html(
-      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">'
-    );
-    $('#editQuestionModal  #mcqOptions').val('');
-    // Reset the number of blanks in text fields
-    $('#editQuestionModal  #displayNum').val('');
-  }
-
-
-  // Add a new section to the survey
-  function addSection(e) {
-    var sectionName = $('#addSectionModal  #sectionName').val();
-    var sectionDescription = $('#addSectionModal  #sectionDescription').val();
-
-    // Add section to survey and render it
-    var section = new Section(
-      name = sectionName,
-      description = sectionDescription,
-      questions = [],
-      options = {
-        edit: true,
-      }
-    );
-    survey.addSection(section);
-
-    // Hide modal
-    $('#addSectionModal').modal('hide');
-    resetAddSectionModal();
-  }
-
-  function editSection(e) {
-    var originalName = $('#editSectionModal #originalName').val();
-    var sectionName = $('#editSectionModal #sectionName').val();
-    var sectionDescription = $('#editSectionModal #sectionDescription').val();
-
-    // Get section from survey and edit it
-    var section = survey.getSectionByName(originalName);
-    section.name = sectionName;
-    section.description = sectionDescription;
-    section.updateElement();
-
-    // Hide modal
-    $('#editSectionModal').modal('hide');
-    resetEditSectionModal();
-  }
-
-
-  // Add a new question to the section
-  function addQuestion(e) {
-    var questionText = $('#addQuestionModal #questionText').val();
-    var questionType = $('#addQuestionModal #questionType').val();
-
-    // Add question to section and render it
-    if (questionText != '') {
-      // Question Text is required
-      var question = null;
-
-      switch (questionType) {
-        case 'mcq':
-          var choices = [];
-          $('#addQuestionModal #choices').find('input').each(function () {
-            if ($(this).val() != '') {
-              choices.push({ text: $(this).val(), value: $(this).val() });
-            }
-          });
-          if (choices.length > 0) {
-            // At least one choice is present
-            question = new MultipleChoiceQuestion(
-              text = questionText,
-              choices = choices,
-              options = {
-                edit: true,
-              }
-            );
-          }
-          break;
-        case 'text':
-          question = new TextInputQuestion(
-            text = questionText,
-            placeholder = '',
-            displayNum = $('#addQuestionModal #displayNum').val(),
-            options = {
-              edit: true,
-            }
-          );
-          break;
-        case 'textarea':
-          question = new TextareaQuestion(
-            text = questionText,
-            placeholder = '',
-            displayNum = 5,
-            options = {
-              edit: true,
-            }
-          );
-          break;
-        default:
-          break;
-      }
-
-      // Only add question if it is created
-      if (question != null) {
-        var sectionName = $('#addQuestionModal #sectionNameInQuestionModal').val();
-        var section = survey.getSectionByName(sectionName);
-        section.addQuestion(question);
-      }
-    }
-
-    // Hide modal
-    $('#addQuestionModal').modal('hide');
-    resetAddQuestionModal();
-  }
-
-  function editQuestion(e) {
-    var originalText = $('#editQuestionModal #originalText').val();
-    var questionText = $('#editQuestionModal #questionText').val();
-    var questionType = $('#editQuestionModal #questionType').val();
-    var displayNum = $('#editQuestionModal #displayNum').val();
-
-    // Get question from section and edit it
-    var sectionName = $('#editQuestionModal #sectionNameInQuestionModal').val();
-    var section = survey.getSectionByName(sectionName);
-    var question = section.getQuestionByText(originalText);
-    question.text = questionText;
-
-    switch (questionType) {
-      case 'mcq':
-        var choices = [];
-        $('#editQuestionModal #choices').find('input').each(function () {
-          if ($(this).val() != '') {
-            choices.push({ text: $(this).val(), value: $(this).val() });
-          }
-        });
-        question.choices = choices;
-        break;
-      case 'text':
-        question.displayLines = displayNum;
-        break;
-      default:
-        break;
-    }
-
-    question.updateElement();
-
-    // Hide modal
-    $('#editQuestionModal').modal('hide');
-    resetEditQuestionModal();
-  }
-
-
-  // Add a new choice to the multiple choice question
-  function addMcqOption(e) {
-    $('#choices').append(
-      '<div class="input-group mb-2">' +
-      '  <input type="text" class="form-control" placeholder="New Option">' +
-      '  <button class="btn btn-outline-danger" type="button" onclick="removeMcqOption(this)">Remove</button>' +
-      '</div>'
-    );
-  }
-
-  // Remove a choice from the multiple choice question
-  function removeMcqOption(e) {
-    $(e).closest('.input-group').remove();
-  }
-
-  // Add a new choice to the multiple choice question
-  function addMcqOption_edit(e) {
-    $('#editQuestionModal #choices').append(
-      '<div class="input-group mb-2">' +
-      '  <input type="text" class="form-control" placeholder="New Option">' +
-      '  <button class="btn btn-outline-danger" type="button" onclick="removeMcqOption_edit(this)">Remove</button>' +
-      '</div>'
-    );
-  }
-
-  // Remove a choice from the multiple choice question
-  function removeMcqOption_edit(e) {
-    $(e).closest('.input-group').remove();
-  }
 
 </script>
 {% endblock js %}

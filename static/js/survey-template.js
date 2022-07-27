@@ -404,3 +404,119 @@ class TextareaQuestion extends Question {
     return htmlToElement(html);
   }
 }
+
+
+/*******************************************/
+/*********      Section Modal      *********/
+/*******************************************/
+
+class SectionModal {
+  constructor(modal) {
+    this.modal = modal;
+  }
+
+  reset() {
+    this.modal.find('#sectionName').val('');
+    this.modal.find('#sectionDescription').val('');
+  }
+
+  hide() {
+    this.modal.modal('hide');
+  }
+
+  show() {
+    this.modal.modal('show');
+  }
+
+  on(event, selector, handler) {
+    if (handler == null) {
+      handler = selector;
+      selector = null;
+      this.modal.on(event, handler.bind(this));
+    } else {
+      this.modal.on(event, selector, handler.bind(this));
+    }
+  }
+}
+
+
+/*******************************************/
+/*********     Question Modal      *********/
+/*******************************************/
+
+class QuestionModal {
+  constructor(modal) {
+    this.modal = modal;
+
+    this.on('change', '#questionType', () => this.toggleQuestionTypeFields());
+    this.on('click', '.add-option-btn', () => this.addMcqOption());
+    this.on('click', '.remove-option-btn', (event) => this.removeMcqOption(event));
+
+    this.modal.find('#questionType').val('');
+    this.modal.find('#questionType').trigger('change');
+  }
+
+  toggleQuestionTypeFields() {
+    var questionType = this.modal.find('#questionType').val();
+    switch (questionType) {
+      case 'mcq':
+        this.modal.find('#mcqFields').show();
+        this.modal.find('#textFields').hide();
+        break;
+      case 'text':
+        this.modal.find('#mcqFields').hide();
+        this.modal.find('#textFields').show();
+        break;
+      default:
+        this.modal.find('#mcqFields').hide();
+        this.modal.find('#textFields').hide();
+        break;
+    }
+  }
+
+  addMcqOption() {
+    this.modal.find('#choices').append(
+      '<div class="input-group mb-2">' +
+      '  <input type="text" class="form-control" placeholder="New Option">' +
+      '  <button class="btn btn-outline-danger remove-option-btn" type="button">Remove</button>' +
+      '</div>'
+    );
+  }
+
+  removeMcqOption(event) {
+    var button = $(event.currentTarget);
+    button.closest('.input-group').remove();
+  }
+
+  hide() {
+    this.modal.modal('hide');
+  }
+
+  show() {
+    this.modal.modal('show');
+  }
+
+  reset() {
+    this.modal.find('#sectionNameInQuestionModal').val('');
+    this.modal.find('#questionText').val('');
+    this.modal.find('#questionType').val('');
+    this.modal.find('#questionType').trigger('change');
+    // Reset MCQ Options fields
+    this.modal.find('#choices').html(
+      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">'
+    );
+    this.modal.find('#mcqOptions').val('');
+    // Reset the number of blanks in text fields
+    this.modal.find('#displayNum').val('');
+  }
+
+  on(event, selector, handler) {
+    if (handler == null) {
+      handler = selector;
+      selector = null;
+      this.modal.on(event, handler.bind(this));
+    } else {
+      this.modal.on(event, selector, handler.bind(this));
+    }
+  }
+}
