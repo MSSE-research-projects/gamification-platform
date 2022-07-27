@@ -114,14 +114,19 @@ def test(request):
     return render(request, 'test.html')
 
 
-def test_survey(request):
+def test_survey_template(request):
     user = request.user
-    return render(request, 'test-survey.html')
+    return render(request, 'test-survey-template.html')
 
 
 def test_add_survey(request):
     user = request.user
-    return render(request, 'test-add-survey.html')
+    return render(request, 'test-add-survey.html', {'survey_pk': 1})
+
+
+def test_view_survey(request):
+    user = request.user
+    return render(request, 'test-view-survey.html', {'survey_pk': 1})
 
 
 @login_required

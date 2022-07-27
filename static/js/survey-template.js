@@ -32,6 +32,16 @@ class Survey {
     this.options = options;
 
     this.buildElement();
+
+    // Redirect to student view page
+    $(this.element).find('.student-view-btn').on('click', function () {
+      window.location.href = '/test_view_survey/';
+    }.bind(this));
+  }
+
+  // Set Database pk
+  setPk(pk) {
+    this.pk = pk;
   }
 
   // Functions for building the DOM element
@@ -61,10 +71,8 @@ class Survey {
 
   _buildHeaderElement() {
     var html = '';
-    html += '<div class="card-header">';
-    html += '  <h2 class="card-title">' + this.name + '</h2>';
-    html += '  <p class="card-description">' + this.instructions + '</p>';
-    html += '</div>';
+    html += '<h2 class="card-title">' + this.name + '</h2>';
+    html += '<p class="card-description">' + this.instructions + '</p>';
 
     return htmlToElement(html);
   }
@@ -72,9 +80,14 @@ class Survey {
   _buildEditableHeaderElement() {
     var html = '';
     html += '<div class="row mb-3 align-items-center justify-content-between">';
-    html += '  <div class="col-md-9 col-sm-12 text-start">';
+    html += '  <div class="col-md-6 col-sm-12 text-start">';
     html += '    <h2 class="card-title">' + this.name + '</h2>';
     html += '    <p class="card-description">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-secondary student-view-btn">';
+    html += '      <i class="fa fa-glasses"></i> Student View';
+    html += '    </button>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
     html += '    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
@@ -154,6 +167,11 @@ class Section {
     this.options = options;
 
     this.buildElement();
+  }
+
+  // Set Database pk
+  setPk(pk) {
+    this.pk = pk;
   }
 
   // Functions for building the DOM element
@@ -260,6 +278,11 @@ class Question {
     this.options = options;
   }
 
+  // Set Database pk
+  setPk(pk) {
+    this.pk = pk;
+  }
+
   // Functions for building the DOM element
   buildElement() {
     this.element = this._buildWrapperElement();
@@ -267,11 +290,7 @@ class Question {
     this.answerElement = this._buildAnswerElement();
 
     this.answerWrapperElement;
-    if (this.options.edit) {
-      this.answerWrapperElement = this._buildAnswerWrapperElement(8);
-    } else {
-      this.answerWrapperElement = this._buildAnswerWrapperElement(10);
-    }
+    this.answerWrapperElement = this._buildAnswerWrapperElement();
 
     this.element.appendChild(this.textElement);
     this.answerWrapperElement.appendChild(this.answerElement);
@@ -292,15 +311,21 @@ class Question {
 
   _buildTextElement() {
     var html = '';
-    html += '<label class="col-sm-2 col-form-label">' + this.text + '</label>';
+    html += '<label class="col-lg-4 col-xxl-6 col-form-label">' + this.text + '</label>';
 
     return htmlToElement(html);
   }
 
-  _buildAnswerWrapperElement(size) {
+  _buildAnswerWrapperElement() {
     var html = '';
-    html += '<div class="col-sm-' + size + '">';
-    html += '</div>';
+
+    if (this.options.edit) {
+      html += '<div class="col-lg-6 col-xxl-5">';
+      html += '</div>';
+    } else {
+      html += '<div class="col-lg-8 col-xxl-6">';
+      html += '</div>';
+    }
 
     return htmlToElement(html);
   }
@@ -312,7 +337,7 @@ class Question {
 
   _buildEditElement() {
     var html = '';
-    html += '<div class="col-sm-2 text-end">';
+    html += '<div class="col-lg-2 col-xxl-1 text-end">';
     html += '  <button type="button" class="btn btn-sm btn-warning edit-que-btn" data-bs-toggle="modal" data-bs-target="#editQuestionModal"><i class="fa fa-edit"></i></button>';
     html += '  <button type="button" class="btn btn-sm btn-danger remove-que-btn"><i class="fa fa-trash"></i></button>';
     html += '</div>';
@@ -511,12 +536,14 @@ class QuestionModal {
   }
 
   on(event, selector, handler) {
+    // Overload the function to accept an optional selector and handler
+    // If the handler is null, the selector is assumed to be the handler
     if (handler == null) {
       handler = selector;
       selector = null;
-      this.modal.on(event, handler.bind(this));
+      this.modal.on(event, handler.bind(this)); // Bind the handler to the modal
     } else {
-      this.modal.on(event, selector, handler.bind(this));
+      this.modal.on(event, selector, handler.bind(this)); // Bind the handler to the modal
     }
   }
 }

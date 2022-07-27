@@ -35,10 +35,12 @@ urlpatterns = [
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('profile/', page_views.profile, name='profile'),
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
-    
+
     path('test/', page_views.test, name='test'),
-    path('test_survey/', page_views.test_survey, name='test_survey'),
+    path('test_survey_template/', page_views.test_survey_template,
+         name='test_survey_template'),
     path('test_add_survey/', page_views.test_add_survey, name='test_add_survey'),
+    path('test_view_survey/', page_views.test_view_survey, name='test_view_survey'),
 
     path('feedback/', page_views.feedback, name='feedback'),
     path('course/', include([
