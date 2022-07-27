@@ -14,11 +14,8 @@ def api_root(request, format=None):
         'users': reverse('user-list', request=request, format=format),
         'courses': reverse('course-list', request=request, format=format),
         'surveys': reverse('survey-list', request=request, format=format),
-        'survey-sections': reverse('survey-section-list', request=request, format=format),
         'sections': reverse('section-list', request=request, format=format),
-        'section-questions': reverse('section-question-list', request=request, format=format),
         'questions': reverse('question-list', request=request, format=format),
-        'question-options': reverse('question-option-list', request=request, format=format),
         'options': reverse('option-list', request=request, format=format),
     })
 
@@ -32,7 +29,7 @@ urlpatterns = [
 
     # RetrieveUpdateDestroyAPIView GET, PUT, PATCH, DELETE
     # ListAPIView GET
-    # CreateAPIView GET POST
+    # ListCreateAPIView GET POST
 
 
     # Get the list of all surveys, or Post a new survey
@@ -72,7 +69,7 @@ urlpatterns = [
     path('questions/<int:question_pk>/',
          QuestionDetail.as_view(), name='question-detail'),
 
-    # Get list of options of a question
+    # Get list of options of a question, Post a new option of the question
     path('questions/<int:question_pk>/options/',
          QuestionOptionList.as_view(), name='question-option-list'),
 
