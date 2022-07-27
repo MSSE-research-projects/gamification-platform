@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy as _
 
-from .models import Assignment, CustomUser, Course, Registration, Team, Membership
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership, Artifact
 
 class SignUpForm(forms.ModelForm):
 
@@ -216,7 +216,9 @@ class AssignmentForm(forms.ModelForm):
                   'assignment_type', 'submission_type', 'total_score',
                   'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')
         widgets = {
-            'course': forms.TextInput(attrs={'readonly': 'readonly'}),
+            # TODO: solve display issue
+            # 'course': forms.Select(attrs={'disabled': 'disabled'}),
+            'course': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
 
@@ -225,3 +227,17 @@ class TeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = ('name', 'course')
+
+class ArtifactForm(forms.ModelForm):
+
+    class Meta:
+        model = Artifact
+        fields = ('entity', 'assignment', 'upload_time', 'file')
+        widgets = {
+            # TODO: solve display issue
+            # 'entity': forms.Select(attrs={'readonly': 'readonly'}),
+            'entity': forms.HiddenInput(),
+            # 'assignment': forms.Select(attrs={'readonly': 'readonly'}),
+            'assignment': forms.HiddenInput(),
+            'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }

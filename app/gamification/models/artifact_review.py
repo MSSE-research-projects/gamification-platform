@@ -2,8 +2,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 # from .user import CustomUser
-from .artifact import Artifact
-from .registration import Registration
+# from .artifact import Artifact
+# from .registration import Registration
 
 class ArtifactReview(models.Model):
     

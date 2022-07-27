@@ -323,6 +323,39 @@ $(function() {
     });
   }
 
+  if ($("#pieCharta").length) {
+    var pieChartCanvas = $("#pieCharta").get(0).getContext("2d");
+    var pieCharta = new Chart(pieChartCanvas, {
+      type: 'pie',
+      data: doughnutPieData,
+      options: doughnutPieOptions
+    });
+  }
+  if ($("#pieChartb").length) {
+    var pieChartCanvas = $("#pieChartb").get(0).getContext("2d");
+    var pieChartb = new Chart(pieChartCanvas, {
+      type: 'pie',
+      data: doughnutPieData,
+      options: doughnutPieOptions
+    });
+  }
+  if ($("#pieChartc").length) {
+    var pieChartCanvas = $("#pieChartc").get(0).getContext("2d");
+    var pieChartc = new Chart(pieChartCanvas, {
+      type: 'pie',
+      data: doughnutPieData,
+      options: doughnutPieOptions
+    });
+  }
+  if ($("#pieChartd").length) {
+    var pieChartCanvas = $("#pieChartd").get(0).getContext("2d");
+    var pieChartd = new Chart(pieChartCanvas, {
+      type: 'pie',
+      data: doughnutPieData,
+      options: doughnutPieOptions
+    });
+  }
+
   if ($("#areaChart").length) {
     var areaChartCanvas = $("#areaChart").get(0).getContext("2d");
     var areaChart = new Chart(areaChartCanvas, {

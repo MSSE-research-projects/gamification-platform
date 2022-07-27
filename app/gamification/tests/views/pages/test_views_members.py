@@ -7,7 +7,13 @@ from app.gamification.models.entity import Team
 from app.gamification.models.membership import Membership
 from app.gamification.tests.views.pages.utils import LogInUser 
 
-
+"""Test the assignment view.
+    -  Using All Combinations of:
+        - User Type: Student in this course, Instructor in this course, TA in this course,
+                    Student in another course, Instructor in another course, TA in another course.
+        - Course: visible, hidden, deleted, not created.
+        - Assignment: group assignment, individual assignment, not created.
+"""
 
 class GetMemberTest(TestCase):
     fixtures = ['users.json', 'courses.json', 'registration.json', 'membership.json', 'entities.json']

@@ -30,7 +30,16 @@
   <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
   <!-- endinject -->
   <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+
+  <!-- TODO: remove the redundant part of chart's css file-->
+  <!-- chart plugins:css -->
+  <link rel="stylesheet" href="{% static 'vendors/iconfonts/ionicons/dist/css/ionicons.css' %}">
+  <link rel="stylesheet" href="{% static 'vendors/iconfonts/flag-icon-css/css/flag-icon.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendors/css/vendor.bundle.addons.css' %}">
+  <!-- End Layout styles -->
 </head>
+
+
 
 <body>
   <div class="container-scroller">
@@ -74,6 +83,16 @@
   <script src="{% static 'js/Chart.roundedBarCharts.js' %}"></script>
   <!-- End custom js for this page-->
 
+  <!-- TODO: remove the redundant part of chart's script -->
+  <!-- chart plugins:js -->
+  <script src="{% static 'vendors/js/vendor.bundle.addons.js' %}"></script>
+  <!-- endinject -->
+  <!-- inject:js -->
+  <script src="{% static 'js/misc.js' %}"></script>
+  <!-- endinject -->
+  <!-- Custom js for this page-->
+  <script src="{% static 'js/chart.js' %}"></script>
+  <!-- chart End custom js for this page-->
   {% block script %}
   {% endblock script %}
 </body>

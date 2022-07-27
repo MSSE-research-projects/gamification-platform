@@ -9,6 +9,13 @@ from app.gamification.views.pages import profile
 from app.gamification.tests.views.pages.utils import LogInUser
 from django.conf import settings
 
+"""Test the profile view.
+    -  Using ? of:
+        - User Type: not logged in, logged in as student, logged in as instructor, logged in as admin
+        - Profile Image Type: with picture, without picture
+        - email: with andrew email, without andrew email
+"""
+
 
 class ProfileTest(TestCase):
 
