@@ -57,6 +57,11 @@
                     <button type="button" class="btn-sm btn-primary">Delete</button>
                   </a>
                 </td>
+                <td>
+                  <a href="{% url 'report' course_id member.andrew_id %}">
+                    <button type="button" class="btn-sm btn-primary">Report</button>
+                  </a>
+                </td>
                 {% if not member.is_activated %}
                 <td>
                   <form method="POST" action="{% url 'email_user' member.andrew_id %}">
