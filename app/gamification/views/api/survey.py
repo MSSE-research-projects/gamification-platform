@@ -1,17 +1,14 @@
-from rest_framework import generics
-from rest_framework import permissions
+from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
-from app.gamification.models import CustomUser
+from django.shortcuts import get_object_or_404, redirect
 from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.question import Question
 from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
-from app.gamification.serializers import UserSerializer
-from app.gamification.serializers.survey import OptionChoiceSerializer, QuestionOptionsSerializer, QuestionSerializer, SectionQuestionsSerializer, SectionSerializer, SurveySectionSerializer, SurveySerializer
+from app.gamification.serializers.survey import OptionChoiceSerializer, QuestionSerializer, SectionSerializer, SurveySerializer
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -95,42 +92,6 @@ class SurveySectionList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
 
-class SurveySectionDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = SurveyTemplate.objects.all()
-    serializer_class = SectionSerializer
-    # permission_classes = [IsAdminOrReadOnly]
-
-    def get(self, request, survey_pk, section_pk, *args, **kwargs):
-        section = get_object_or_404(
-            SurveySection, id=section_pk, template=survey_pk)
-        serializer = self.get_serializer(section)
-        return Response(serializer.data)
-
-    def put(self, request, survey_pk, section_pk, *args, **kwargs):
-        section = get_object_or_404(
-            SurveySection, id=section_pk, template=survey_pk)
-        if(request.data.get('title') == ''):
-            message_info = 'Title cannot be empty'
-            messages.info(request, message_info)
-            return redirect('survey-section-detail', survey_pk, section_pk)
-        title = request.data.get('title')
-        description = request.data.get('description')
-        is_required = True if request.data.get(
-            'is_required') == 'true' else False
-        section.title = title
-        section.description = description
-        section.is_required = is_required
-        section.save()
-        serializer = self.get_serializer(section)
-        return Response(serializer.data)
-
-    def delete(self, request, survey_pk, section_pk, *args, **kwargs):
-        section = get_object_or_404(
-            SurveySection, id=section_pk, template=survey_pk)
-        section.delete()
-        return Response(status=204)
-
-
 class SectionList(generics.ListAPIView):
     queryset = SurveySection.objects.all()
     serializer_class = SectionSerializer
@@ -195,44 +156,6 @@ class SectionQuestionList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
 
-class SectionQuestionDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = SurveySection.objects.all()
-    serializer_class = QuestionSerializer
-    # permission_classes = [IsAdminOrReadOnly]
-
-    def get(self, request, section_pk, question_pk, *args, **kwargs):
-        question = get_object_or_404(
-            Question, id=question_pk, section=section_pk)
-        serializer = self.get_serializer(question)
-        return Response(serializer.data)
-
-    def put(self, request, section_pk, question_pk, *args, **kwargs):
-        question = get_object_or_404(
-            Question, id=question_pk, section=section_pk)
-        text = request.data.get('text')
-        is_required = True if request.data.get(
-            'is_required') == 'true' else False
-        is_multiple = True if request.data.get(
-            'is_multiple') == 'true' else False
-        dependent_question = request.data.get('dependent_question') if request.data.get(
-            'dependent_question') != '' else None
-        question_type = request.data.get('question_type')
-        question.text = text
-        question.is_required = is_required
-        question.is_multiple = is_multiple
-        question.dependent_question = dependent_question
-        question.question_type = question_type
-        question.save()
-        serializer = self.get_serializer(question)
-        return Response(serializer.data)
-
-    def delete(self, request, section_pk, question_pk, *args, **kwargs):
-        question = get_object_or_404(
-            Question, id=question_pk, section=section_pk)
-        question.delete()
-        return Response(status=204)
-
-
 class QuestionList(generics.ListAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
@@ -292,13 +215,37 @@ class QuestionOptionList(generics.ListCreateAPIView):
         text = request.data.get('text')
         number_of_text = request.data.get('number_of_text', 1)
         option_choice, _ = OptionChoice.objects.get_or_create(text=text)
-        question_option, _ = QuestionOption.objects.get_or_create(
+        QuestionOption.objects.get_or_create(
             option_choice=option_choice,
             question=question,
             number_of_text=number_of_text
         )
         serializer = self.get_serializer(option_choice)
         return Response(serializer.data)
+
+
+class QuestionOptionDetail(generics.DestroyAPIView, generics.UpdateAPIView):
+    queryset = Question.objects.all()
+    serializer_class = OptionChoiceSerializer
+    # permission_classes = [IsAdminOrReadOnly]
+
+    def put(self, request, question_pk, option_pk, *args, **kwargs):
+        question_option = get_object_or_404(
+            QuestionOption, option_choice_id=option_pk, question_id=question_pk)
+        text = request.data.get('text')
+        option, _ = OptionChoice.objects.get_or_create(text=text)
+        question_option.option_choice = option
+        number_of_text = request.data.get('number_of_text', 1)
+        question_option.number_of_text = number_of_text
+        question_option.save()
+        serializer = self.get_serializer(option)
+        return Response(serializer.data)
+
+    def delete(self, request, question_pk, option_pk, *args, **kwargs):
+        question_option = get_object_or_404(
+            QuestionOption, option_choice_id=option_pk, question_id=question_pk)
+        question_option.delete()
+        return Response(status=204)
 
 
 class OptionList(generics.ListCreateAPIView):

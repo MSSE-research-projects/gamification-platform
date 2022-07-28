@@ -5,7 +5,7 @@ from rest_framework.reverse import reverse
 
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
-from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, SectionDetail, SectionList, SectionQuestionDetail, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionDetail, SurveySectionList
+from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList
 
 
 @api_view(['GET'])
@@ -42,10 +42,6 @@ urlpatterns = [
     path('surveys/<int:survey_pk>/sections/',
          SurveySectionList.as_view(), name='survey-section-list'),
 
-    # Get a section of a survey, Update a section of the survey, Delete a section of the survey
-    path('surveys/<int:survey_pk>/sections/<int:section_pk>/',
-         SurveySectionDetail.as_view(), name='survey-section-detail'),
-
     # Get list of sections
     # ListAPIView
     path('sections/', SectionList.as_view(), name='section-list'),
@@ -58,10 +54,6 @@ urlpatterns = [
     path('sections/<int:section_pk>/questions/',
          SectionQuestionList.as_view(), name='section-question-list'),
 
-    # Get detail of a question, Update a question, Delete a question
-    path('sections/<int:section_pk>/questions/<int:question_pk>/',
-         SectionQuestionDetail.as_view(), name='section-question-detail'),
-
     # Get list of questions
     path('questions/', QuestionList.as_view(), name='question-list'),
 
@@ -72,6 +64,10 @@ urlpatterns = [
     # Get list of options of a question, Post a new option of the question
     path('questions/<int:question_pk>/options/',
          QuestionOptionList.as_view(), name='question-option-list'),
+
+    # Update an option, Delete an option
+    path('questions/<int:question_pk>/options/<int:option_pk>/',
+         QuestionOptionDetail.as_view(), name='question-option-detail'),
 
     # Get list of options, Post a new option
     path('options/', OptionList.as_view(), name='option-list'),
