@@ -24,11 +24,7 @@
                 </div>
               </form>
               {% else %}
-
                 <p>You are not authorized to edit this artifact.</p>
-
-              <p>You are not authorized to edit this assignment.</p>
-
               {% endif %}
             </div>
           </div>
@@ -39,7 +35,7 @@
 </div>
 {% endblock content %}
 
-{% block js %}
+{% block script %}
 <script>
   $('.datetimepicker').each(function () {
     new tempusDominus.TempusDominus(this, {

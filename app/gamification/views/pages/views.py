@@ -13,15 +13,9 @@ from django.urls import reverse
 from django.http import FileResponse
 
 from app.gamification.decorators import admin_required, user_role_check
-
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact, course, registration
 from app.gamification.models.entity import Individual
-
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership
-from .survey_views import *
-
 
 
 def signup(request):
@@ -121,22 +115,7 @@ def instructor_admin(request):
 
 def test(request):
     user = request.user
-    return render(request, 'test.html')
-
-
-def test_survey_template(request):
-    user = request.user
-    return render(request, 'test-survey-template.html')
-
-
-def test_add_survey(request):
-    user = request.user
-    return render(request, 'test-add-survey.html', {'survey_pk': 1})
-
-
-def test_view_survey(request):
-    user = request.user
-    return render(request, 'test-view-survey.html', {'survey_pk': 1})
+    return render(request, 'test.html', {'user': user})
 
 def report(request, course_id, andrew_id):
     # user = request.user
@@ -613,11 +592,3 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
 
     else:
         return redirect('artifact', course_id, assignment_id)
-
-    return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
-
-
-@login_required
-def feedback(request):
-    return render(request, 'feedback.html')
-

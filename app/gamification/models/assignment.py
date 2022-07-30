@@ -3,7 +3,6 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from app.gamification.models.course import Course
-from app.gamification.models.feedback_survey import FeedbackSurvey
 
 
 class Assignment(models.Model):
@@ -55,16 +54,5 @@ class Assignment(models.Model):
         verbose_name = _('assignment')
         verbose_name_plural = _('assignments')
 
-
     def __str__(self):
         return f'{self.assignment_name}'
-
-    @property
-    def survey_template(self):
-        feedback_survey = FeedbackSurvey.objects.filter(assignment=self)
-        if len(feedback_survey) > 0:
-            feedback_survey = feedback_survey[0]
-            return feedback_survey.template
-        else:
-            return None
-
