@@ -1,4 +1,5 @@
-from rest_framework import generics, mixins, permissions
+import json
+from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
@@ -49,7 +50,10 @@ class SurveyDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def put(self, request, survey_pk, *args, **kwargs):
         survey = get_object_or_404(SurveyTemplate, id=survey_pk)
-        name = request.data.get('name')
+        name = request.data.get('name').strip()
+        if name == '':
+            content = {'message': 'Survey name cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         instructions = request.data.get('instructions')
         other_info = request.data.get('other_info')
         survey.name = name
@@ -76,11 +80,10 @@ class SurveySectionList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
     def post(self, request, survey_pk, *args, **kwargs):
-        if(request.data.get('title') == ''):
-            message_info = 'Title cannot be empty'
-            messages.info(request, message_info)
-            return redirect('survey-section-list', survey_pk)
-        title = request.data.get('title')
+        title = request.data.get('title').strip()
+        if title == '':
+            content = {'message': 'Section title cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         description = request.data.get('description')
         is_required = True if request.data.get(
             'is_required') == 'true' else False
@@ -111,7 +114,10 @@ class SectionDetail(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, section_pk, *args, **kwargs):
         section = get_object_or_404(
             SurveySection, id=section_pk)
-        title = request.data.get('title')
+        title = request.data.get('title').strip()
+        if title == '':
+            content = {'message': 'Section title cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         description = request.data.get('description')
         is_required = True if request.data.get(
             'is_required') == 'true' else False
@@ -140,7 +146,10 @@ class SectionQuestionList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
     def post(self, request, section_pk, *args, **kwargs):
-        text = request.data.get('text')
+        text = request.data.get('text').strip()
+        if text == '':
+            content = {'message': 'Question text cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         is_required = True if request.data.get(
             'is_required') == 'true' else False
         is_multiple = True if request.data.get(
@@ -176,7 +185,10 @@ class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
     def put(self, request, question_pk, *args, **kwargs):
         question = get_object_or_404(
             Question, id=question_pk)
-        text = request.data.get('text')
+        text = request.data.get('text').strip()
+        if text == '':
+            content = {'message': 'Question text cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         is_required = True if request.data.get(
             'is_required') == 'true' else False
         is_multiple = True if request.data.get(
@@ -199,7 +211,7 @@ class QuestionDetail(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=204)
 
 
-class QuestionOptionList(generics.ListCreateAPIView):
+class QuestionOptionList(generics.ListCreateAPIView, mixins.UpdateModelMixin, generics.GenericAPIView):
     queryset = Question.objects.all()
     serializer_class = OptionChoiceSerializer
     # permission_classes = [IsAdminOrReadOnly]
@@ -207,12 +219,46 @@ class QuestionOptionList(generics.ListCreateAPIView):
     def get(self, request, question_pk, *args, **kwargs):
         question = get_object_or_404(Question, id=question_pk)
         options = question.option_choices.all()
+        for option in options:
+            number_of_text = QuestionOption.objects.get(
+                question=question, option_choice=option).number_of_text
+
+            option.number_of_text = number_of_text
         serializer = self.get_serializer(options, many=True)
+        return Response(serializer.data)
+
+    def put(self, request, question_pk, *args, **kwargs):
+        question = get_object_or_404(Question, id=question_pk)
+        original_option_choices = question.option_choices.all()
+        original_texts = [
+            option_choice.text for option_choice in original_option_choices]
+        texts = json.loads(request.body.decode())
+        print(texts)
+        for text in texts:
+            if text not in original_texts:
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text=text)
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+
+        for original_option_choice in original_option_choices:
+            if original_option_choice.text not in texts:
+                question_option = QuestionOption.objects.get(
+                    question=question, option_choice=original_option_choice)
+                question_option.delete()
+
+        option_choices = question.option_choices.all()
+        for option_choice in option_choices:
+            number_of_text = QuestionOption.objects.get(
+                question=question, option_choice=option_choice).number_of_text
+            option_choice.number_of_text = number_of_text
+        serializer = self.get_serializer(option_choices, many=True)
         return Response(serializer.data)
 
     def post(self, request, question_pk, *args, **kwargs):
         question = get_object_or_404(Question, id=question_pk)
-        text = request.data.get('text')
+        text = request.data.get('text').strip()
         number_of_text = request.data.get('number_of_text', 1)
         option_choice, _ = OptionChoice.objects.get_or_create(text=text)
         QuestionOption.objects.get_or_create(
@@ -220,11 +266,12 @@ class QuestionOptionList(generics.ListCreateAPIView):
             question=question,
             number_of_text=number_of_text
         )
+        option_choice.number_of_text = number_of_text
         serializer = self.get_serializer(option_choice)
         return Response(serializer.data)
 
 
-class QuestionOptionDetail(generics.DestroyAPIView, generics.UpdateAPIView):
+class QuestionOptionDetail(mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
     queryset = Question.objects.all()
     serializer_class = OptionChoiceSerializer
     # permission_classes = [IsAdminOrReadOnly]
@@ -232,7 +279,7 @@ class QuestionOptionDetail(generics.DestroyAPIView, generics.UpdateAPIView):
     def put(self, request, question_pk, option_pk, *args, **kwargs):
         question_option = get_object_or_404(
             QuestionOption, option_choice_id=option_pk, question_id=question_pk)
-        text = request.data.get('text')
+        text = request.data.get('text').strip()
         option, _ = OptionChoice.objects.get_or_create(text=text)
         question_option.option_choice = option
         number_of_text = request.data.get('number_of_text', 1)
@@ -266,7 +313,10 @@ class OptionDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def put(self, request, option_pk, *args, **kwargs):
         option = get_object_or_404(OptionChoice, id=option_pk)
-        text = request.data.get('text')
+        text = request.data.get('text').strip()
+        if text == '':
+            content = {'message': 'Question text cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         option.text = text
         option.save()
         serializer = self.get_serializer(option)

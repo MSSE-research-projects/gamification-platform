@@ -499,11 +499,15 @@
       // TODO: Complete modifying question option logic
       if (questionType == 'mcq') {
         // Modify choices if it is a multiple choice question
+        var jsonChoices = [];
+        for (var i = 0; i < choices.length; i++) {
+          jsonChoices.push(choices[i].text);
+        }
         $.ajax({
           async: false,
           url: `/api/questions/${question.pk}/options/`,
           type: 'PUT',
-          data: JSON.stringify(choices),
+          data: JSON.stringify(jsonChoices),
           success: function (data) {
             var choices = [];
             for (var i = 0; i < data.length; i++) {
@@ -642,10 +646,20 @@
                   break;
                 case 'FIXEDTEXT':
                 case 'MULTIPLETEXT':
+                  var displayLines;
+                  $.ajax({
+                    async: false,
+                    url: `/api/questions/${data[j].pk}/options/`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                      displayLines = data[0].number_of_text;
+                    }
+                  });
                   question = new TextInputQuestion(
                     text = data[j].text,
                     placeholder = '',
-                    displayLines = data[j].number_of_text,
+                    displayLines = displayLines,
                     options = {
                       edit: true,
                     }

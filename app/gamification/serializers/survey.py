@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
 from app.gamification.models import SurveyTemplate, SurveySection
+from app.gamification.models import option_choice
 from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.question import Question
+from app.gamification.models.question_option import QuestionOption
 
 
 class SurveySerializer(serializers.ModelSerializer):
@@ -25,10 +27,18 @@ class QuestionSerializer(serializers.ModelSerializer):
                   'dependent_question', 'question_type', 'option_choices']
 
 
+class QuestionOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuestionOption
+        fields = ['number_of_text']
+
+
 class OptionChoiceSerializer(serializers.ModelSerializer):
+    number_of_text = serializers.IntegerField()
+
     class Meta:
         model = OptionChoice
-        fields = ['pk', 'text']
+        fields = ['pk', 'text', 'number_of_text']
 
 
 class SurveySectionSerializer(serializers.ModelSerializer):

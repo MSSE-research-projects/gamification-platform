@@ -2,10 +2,12 @@ from django.test import TestCase
 from django.urls import resolve, reverse
 from django.contrib.messages import get_messages
 from app.gamification.models import Course, CustomUser, SurveySection
+from app.gamification.models.question import Question
 from app.gamification.models.registration import Registration
 from app.gamification.models.survey_template import SurveyTemplate
 from app.gamification.serializers import CourseSerializer
 from app.gamification.views.api.course import CourseList, CourseDetail
+from app.gamification.views.api.survey import SectionDetail
 
 
 class RetrieveSurveyListTest(TestCase):
@@ -742,3 +744,83 @@ class UpdateSurveySectionDetailTest(TestCase):
             'survey-section-detail', kwargs={'survey_pk': self.survey.id, 'section_pk': 100})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 404)
+
+
+class StudentUpdateTest(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            andrew_id='testuser',
+        )
+        self.user.set_password('12345')
+        self.user.save()
+        self.client.login(username='testuser', password='12345')
+
+        self.course = Course(
+            course_number='12345',
+            course_name='Test Course',
+            syllabus='Test Syllabus',
+            semester='Fall',
+            visible=True,
+        )
+        self.course.save()
+
+        self.survey = SurveyTemplate(
+            name='Test Survey',
+            instructions='Test Instructions',
+            other_info='Test Other Info',
+        )
+        self.survey.save()
+
+        self.section = SurveySection(
+            template=self.survey,
+            title='Test Section',
+            description='Test Description',
+            is_required=True,
+        )
+        self.section.save()
+
+    def test_student_cannot_update_section(self):
+        student = Registration(
+            users=self.user,
+            courses=self.course,
+            userRole=Registration.UserRole.Student,
+        )
+        student.save()
+        url = reverse(
+            'section-detail', kwargs={'section_pk': self.section.id})
+        data = {
+            'title': 'Test Section 1 ',
+            'description': 'Test Description 1 ',
+            'is_required': 'true',
+        }
+        response = self.client.put(url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 403)
+
+    def test_student_cannot_update_question(self):
+        student = Registration(
+            users=self.user,
+            courses=self.course,
+            userRole=Registration.UserRole.Student,
+        )
+        student.save()
+
+        question = Question(
+            section=self.section,
+            text='Test Question',
+            question_type=Question.Question_type.MULTIPLETEXT,
+            is_required=True,
+            is_multiple=True,
+        )
+        question.save()
+
+        url = reverse(
+            'question-detail', kwargs={'question_pk': question.pk})
+        data = {
+            'section': self.section,
+            'text': 'Test Question failed',
+            'question_type': Question.Question_type.MULTIPLETEXT,
+            'is_required': True,
+            'is_multiple': True,
+        }
+        response = self.client.put(url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 403)
