@@ -5,8 +5,16 @@ from django.contrib.auth import forms as auth_forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy as _
+from app.gamification.models.survey_section import SurveySection
+
+from app.gamification.models.survey_template import SurveyTemplate
+
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership, FeedbackSurvey, Question
+
 
 from .models import Assignment, CustomUser, Course, Registration, Team, Membership, Artifact
+
+
 
 class SignUpForm(forms.ModelForm):
 
@@ -109,7 +117,7 @@ class CourseForm(forms.ModelForm):
         model = Course
         fields = ('course_number', 'course_name', 'syllabus',
                   'semester', 'visible')
-    
+
     def clean_course_number(self):
         course_number = self.cleaned_data.get('course_number')
         if course_number == '':
@@ -127,7 +135,6 @@ class CourseForm(forms.ModelForm):
                 code='course_name_empty',
             )
         return course_name
-
 
     def clean_file(self):
         file = self.cleaned_data.get('file')
@@ -222,9 +229,10 @@ class AssignmentForm(forms.ModelForm):
         }
 
 
-class TeamForm(forms.ModelForm):
+class AddSurveyForm(forms.ModelForm):
 
     class Meta:
+
         model = Team
         fields = ('name', 'course')
 
@@ -241,3 +249,11 @@ class ArtifactForm(forms.ModelForm):
             'assignment': forms.HiddenInput(),
             'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
+
+        model = FeedbackSurvey
+        fields = ('template', 'assignment', 'date_due',
+                  'date_released')
+        widgets = {
+            'assignment': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }
+

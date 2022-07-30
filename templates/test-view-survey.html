@@ -1,0 +1,127 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Test View Survey{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-md-12 grid-margin" id="survey">
+    </div> <!-- end #survey -->
+  </div> <!-- end .row -->
+</div> <!-- end .content-wrapper -->
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/survey-template.css' %}">
+{% endblock css %}
+
+{% block js %}
+<script src="{% static 'js/survey-template.js' %}"></script>
+<script>
+
+  $(document).ready(function () {
+    var surveyDOM = document.getElementById('survey');
+    survey.render(surveyDOM);
+  });
+
+
+  var survey = null;
+
+  $.ajax({
+    async: false,
+    url: `/api/surveys/{{ survey_pk }}/`,
+    type: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      console.log(data);
+      survey = new Survey(
+        name = data.name,
+        description = data.instructions,
+        sections = [],
+        options = {
+          edit: false,
+        }
+      );
+      survey.setPk(data.pk);
+    }
+  });
+
+  $.ajax({
+    async: false,
+    url: `/api/surveys/${survey.pk}/sections/`,
+    type: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      // console.log(data);
+      for (var i = 0; i < data.length; i++) {
+        var section = new Section(
+          name = data[i].title,
+          description = data[i].description,
+          questions = [],
+          options = {
+            edit: false,
+          }
+        );
+        section.setPk(data[i].pk);
+
+        $.ajax({
+          async: false,
+          url: `/api/sections/${section.pk}/questions/`,
+          type: 'GET',
+          dataType: 'json',
+          success: function (data) {
+            // console.log(data);
+            for (var j = 0; j < data.length; j++) {
+              var question = null;
+              switch (data[j].question_type) {
+                case 'MULTIPLECHOICE':
+                  var choices = [];
+                  $.ajax({
+                    async: false,
+                    url: `/api/questions/${data[j].pk}/options/`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                      // console.log(data);
+                      for (var l = 0; l < data.length; l++) {
+                        choices.push({ text: data[l].text, value: data[l].text });
+                      }
+                    }
+                  });
+                  question = new MultipleChoiceQuestion(
+                    text = data[j].text,
+                    choices = choices,
+                    options = {
+                      edit: false,
+                    }
+                  );
+                  question.setPk(data[j].pk);
+                  break;
+                case 'FIXEDTEXT':
+                case 'MULTIPLETEXT':
+                  question = new TextInputQuestion(
+                    text = data[j].text,
+                    placeholder = '',
+                    displayLines = 1,
+                    options = {
+                      edit: false,
+                    }
+                  );
+                  question.setPk(data[j].pk);
+                  break;
+                default:
+                  break;
+              }
+              section.addQuestion(question);
+            }
+          }
+        });
+
+        survey.addSection(section);
+      }
+    }
+  });
+
+</script>
+{% endblock js %}

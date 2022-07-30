@@ -13,7 +13,9 @@ class Artifact(models.Model):
     
     # pdf
     file_extension_validator = FileExtensionValidator(
+
         allowed_extensions=['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'ppt', 'pptx', 'txt'])
+        allowed_extensions=['pdf'])
     
     entity =  models.ForeignKey(Entity, on_delete=models.CASCADE)
     
@@ -47,6 +49,5 @@ class Artifact(models.Model):
         db_table = 'artifact'
         verbose_name = _('artifact')
         verbose_name_plural = _('artifacts')
-    
-    
+
 
