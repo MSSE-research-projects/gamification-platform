@@ -263,7 +263,14 @@ class Section {
   registerEventOnRemove(survey) {
     var self = this;
     $(this.element).find('.remove-sec-btn').on('click', function () {
-      survey.removeSection(self);
+      $.ajax({
+        async: false,
+        type: 'DELETE',
+        url: `/api/sections/${self.pk}/`,
+        success: function (data) {
+          survey.removeSection(self);
+        }
+      });
     });
   }
 };
@@ -272,6 +279,22 @@ class Section {
 /*******************************************/
 /*********     Question Class      *********/
 /*******************************************/
+class OptionChoice {
+  constructor(text = '', value = null) {
+    this.text = text;
+    if (value === null) {
+      this.value = text;
+    } else {
+      this.value = value;
+    }
+  }
+
+  setPk(pk) {
+    this.pk = pk;
+  }
+}
+
+
 class Question {
   constructor(text = '', options = {}) {
     this.text = text;
@@ -355,7 +378,14 @@ class Question {
   registerEventOnRemove(section) {
     var self = this;
     $(this.element).find('.remove-que-btn').on('click', function () {
-      section.removeQuestion(self);
+      $.ajax({
+        async: false,
+        url: `/api/questions/${self.pk}/`,
+        type: 'DELETE',
+        success: function () {
+          section.removeQuestion(self);
+        }
+      });
     });
   }
 }
@@ -383,6 +413,34 @@ class MultipleChoiceQuestion extends Question {
     html += '</div>';
 
     return htmlToElement(html);
+  }
+
+  getChoiceByText(text) {
+    return this.choices.find(function (choice) {
+      return choice.text === text;
+    });
+  }
+
+  addChoice(choice) {
+    this.choices.push(choice);
+
+    this.updateElement();
+  }
+
+  addChoiceByText(text) {
+    var choice = new OptionChoice(text);
+    this.addChoice(choice);
+  }
+
+  removeChoice(choice) {
+    this.choices.splice(this.choices.indexOf(choice), 1);
+
+    this.updateElement();
+  }
+
+  removeChoiceByText(text) {
+    var choice = this.getChoiceByText(text);
+    this.removeChoice(choice);
   }
 }
 
@@ -424,7 +482,7 @@ class TextareaQuestion extends Question {
 
   _buildAnswerElement() {
     var html = '';
-    html += '    <textarea class="form-control" rows="' + this.displayLines + '" placeholder="' + this.placeholder + '"></textarea>';
+    html += '<textarea class="form-control" rows="' + this.displayLines + '" placeholder="' + this.placeholder + '"></textarea>';
 
     return htmlToElement(html);
   }

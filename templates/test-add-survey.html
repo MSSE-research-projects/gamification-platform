@@ -265,7 +265,8 @@
           title: sectionName,
           description: sectionDescription,
         },
-        success: function () {
+        success: function (data) {
+          section.setPk(data.pk);
           section.updateElement();
         },
         error: function (data) {
@@ -373,13 +374,15 @@
             for (var i = 0; i < choices.length; i++) {
               $.ajax({
                 async: false,
-                url: `/api/questions/${question.pk}/choices/`,
+                url: `/api/questions/${question.pk}/options/`,
                 type: 'POST',
                 data: {
                   csrfmiddlewaretoken: '{{ csrf_token }}',
                   text: choices[i].text,
                 },
-                success: function (data) { },
+                success: function (data) {
+                  choices[i].setPk(data.pk);
+                },
                 error: function (data) {
                   console.log(data);
                 }
@@ -389,7 +392,7 @@
             // Post # of display lines to server if it is a text question
             $.ajax({
               async: false,
-              url: `/api/questions/${question.pk}/choices/`,
+              url: `/api/questions/${question.pk}/options/`,
               type: 'POST',
               data: {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
@@ -462,7 +465,8 @@
           var choices = [];
           this.modal.find('#choices').find('input').each(function () {
             if ($(this).val() != '') {
-              choices.push({ text: $(this).val(), value: $(this).val() });
+              var choice = new OptionChoice($(this).val(), $(this).val());
+              choices.push(choice);
             }
           });
           question.choices = choices;
@@ -484,6 +488,7 @@
           question_type: queTypeMap[questionType],
         },
         success: function (data) {
+          question.setPk(data.pk);
           question.updateElement();
         },
         error: function (data) {
@@ -492,40 +497,51 @@
       });
 
       // TODO: Complete modifying question option logic
-      // if (questionType == 'mcq') {
-      //   // Modify choices if it is a multiple choice question
-      //   for (var i = 0; i < choices.length; i++) {
-      //     $.ajax({
-      //       async: false,
-      //       url: `/api/options/`,
-      //       type: 'PUT',
-      //       data: {
-      //         csrfmiddlewaretoken: '{{ csrf_token }}',
-      //         text: choices[i].text,
-      //       },
-      //       success: function (data) { },
-      //       error: function (data) {
-      //         console.log(data);
-      //       }
-      //     });
-      //   }
-      // } else if (questionType == 'text' || questionType == 'textarea') {
-      //   // Modify # of display lines if it is a text question
-      //   $.ajax({
-      //     async: false,
-      //     url: `/api/questions/${question.pk}/options/`,
-      //     type: 'POST',
-      //     data: {
-      //       csrfmiddlewaretoken: '{{ csrf_token }}',
-      //       text: '',
-      //       number_of_text: displayNum,
-      //     },
-      //     success: function (data) { },
-      //     error: function (data) {
-      //       console.log(data);
-      //     }
-      //   });
-      // }
+      if (questionType == 'mcq') {
+        // Modify choices if it is a multiple choice question
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/`,
+          type: 'PUT',
+          data: JSON.stringify(choices),
+          success: function (data) {
+            var choices = [];
+            for (var i = 0; i < data.length; i++) {
+              var choice = new OptionChoice(data[i].text, data[i].text);
+              choice.setPk(data[i].pk);
+              choices.push(choice);
+            }
+            question.choices = choices;
+          },
+          error: function (data) {
+            console.log(data);
+          }
+        });
+      } else if (questionType == 'text' || questionType == 'textarea') {
+        // Modify # of display lines if it is a text question
+        var emptyChoicePK = null;
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/`,
+          type: 'GET',
+          success: function (data) {
+            emptyChoicePK = data[0].pk;
+          }
+        });
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/${emptyChoicePK}/`,
+          type: 'PUT',
+          data: {
+            text: '',
+            number_of_text: displayNum,
+          },
+          success: function (data) { },
+          error: function (data) {
+            console.log(data);
+          }
+        });
+      }
 
 
       // Hide modal
@@ -609,7 +625,9 @@
                     success: function (data) {
                       // console.log(data);
                       for (var l = 0; l < data.length; l++) {
-                        choices.push({ text: data[l].text, value: data[l].text });
+                        var choice = new OptionChoice(text = data[l].text);
+                        choice.setPk(data[l].pk);
+                        choices.push(choice);
                       }
                     }
                   });
@@ -627,7 +645,7 @@
                   question = new TextInputQuestion(
                     text = data[j].text,
                     placeholder = '',
-                    displayLines = 1,
+                    displayLines = data[j].number_of_text,
                     options = {
                       edit: true,
                     }
