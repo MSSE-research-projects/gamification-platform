@@ -14,4 +14,4 @@ class AnswerSerializer(serializers.ModelSerializer):
 class ArtifactReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArtifactReview
-        fields = ['pk', 'artifact', 'user']
+        fields = ['pk', 'artifact', 'regisration']

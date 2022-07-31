@@ -84,6 +84,7 @@ urlpatterns = [
     path('answers/<int:answer_pk>', AnswerDetail.as_view(), name='answer-detail'),
     
     # Get answers of artifact review, post answer of an artifact
+    # TODO:option_pk
     path('answers/<int:artifact_review_pk>/<option_pk>', ArtifactAnswer.as_view(), name='artifact-answer'),
 
     # Get list of artifact reviews

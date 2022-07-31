@@ -6,7 +6,7 @@ class Answer(models.Model):
     """
     artifact = models.ForeignKey('Artifact', on_delete=models.CASCADE)
 
-    registration = models.ForeignKey('Registration', on_delete=models.CASCADE)
+    #registration = models.ForeignKey('Registration', on_delete=models.CASCADE)
 
     questionOption = models.ForeignKey('QuestionOption', on_delete=models.CASCADE)
 
