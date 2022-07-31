@@ -83,9 +83,20 @@ urlpatterns = [
     # Get detail of answer, update an answer, delete an answer
     path('answers/<int:answer_pk>', AnswerDetail.as_view(), name='answer-detail'),
     
-    # Get answers of artifact review, post answer of an artifact
+    # Get answers of artifact review
+    # TODO:add put
     # TODO:option_pk
-    path('answers/<int:artifact_review_pk>/<option_pk>', ArtifactAnswer.as_view(), name='artifact-answer'),
+    # TODO: response details(dict = 'question': 'answer') and answer_pk
+    path('answers/<int:artifact_review_pk>/', ArtifactAnswer.as_view(), name='artifact-answer'),
+
+    # Post answer to artifact(response answer_pk)
+    # TODO: multiple choice: option_pk, question_pk, option_choice.text
+    # 
+    # TODO： question type
+    path('answers/<int:artifact_review_pk>/<question_pk>', ArtifactAnswer.as_view(), name='artifact-answer'),
+
+    # Put (artifact_review_pk/answer_pk) need a type, delete
+    path(),
 
     # Get list of artifact reviews
     path('artifact_review/', ArtifactReviewList.as_view(), name="artifact-review-list"),
