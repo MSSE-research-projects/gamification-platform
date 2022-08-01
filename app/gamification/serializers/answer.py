@@ -5,21 +5,19 @@ from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.question import Question
 
 
-
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ['pk', 'artifact', 'questionOption', 'answerText']
+        fields = ['pk', 'question_option', 'artifact_review', 'answer_text']
+
 
 class ArtifactFeedbackSerializer(serializers.ModelSerializer):
-    answer = AnswerSerializer()
-    class Meta:
-        model = ArtifactFeedback
-        fields = ['pk', 'page', 'answer']
+    model = ArtifactFeedback
+    fields = ['pk', 'question_option',
+              'artifact_review', 'answer_text', 'page']
 
 
 class ArtifactReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArtifactReview
-        fields = ['pk', 'artifact', 'regisration']
-
+        fields = ['pk', 'artifact', 'user']

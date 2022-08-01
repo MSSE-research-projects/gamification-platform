@@ -126,7 +126,7 @@ def test_add_survey(request):
 
 def test_view_survey(request):
     user = request.user
-    return render(request, 'test-view-survey.html', {'survey_pk': 1})
+    return render(request, 'test-view-survey.html', {'survey_pk': 1, 'artifact_review_pk': 1})
 
 
 @login_required

@@ -200,8 +200,11 @@ class Section {
 
   _buildHeaderElement() {
     var html = '';
+    html += '<div>';
     html += '<p class="card-description">' + this.description + '</p>';
-
+    // add button
+    html += '<button class="btn btn-outline-primary btn-sm save-button">Save</button>';
+    html += '</div>';
     return htmlToElement(html);
   }
 

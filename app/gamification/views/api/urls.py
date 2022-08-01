@@ -6,7 +6,8 @@ from rest_framework.reverse import reverse
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, ArtifactReview, CreateArtifactAnswer
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CreateArtifactReview, CreateArtifactAnswer
+
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -82,23 +83,28 @@ urlpatterns = [
 
     # Get detail of answer, update an answer, delete an answer
     path('answers/<int:answer_pk>', AnswerDetail.as_view(), name='answer-detail'),
-    
+
     # Get answers of artifact review
     # TODO:add put
     # TODO: response details(dict = 'question': 'answer') and answer_pk
-    path('artifact_review/<int:artifact_review_pk>/answers/', ArtifactAnswerList.as_view(), name='artifact-answer'),
+    path('artifact_review/<int:artifact_review_pk>/answers/',
+         ArtifactAnswerList.as_view(), name='artifact-answer'),
 
     # Post answer to artifact(response answer_pk)
-    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers', CreateArtifactAnswer.as_view(), name='create-artifact-answer'),
+    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers',
+         CreateArtifactAnswer.as_view(), name='create-artifact-answer'),
 
     # Get list of artifact reviews
-    path('artifact_review/', ArtifactReviewList.as_view(), name="artifact-review-list"),
+    path('artifact_review/', ArtifactReviewList.as_view(),
+         name="artifact-review-list"),
 
     # Get detail of an artifact review. delete an artifact review
-    path('artifact_review/<int:artifact_review_id>', ArtifactReviewDetail.as_view(), name="artifact-review-detail"),
+    path('artifact_review/<int:artifact_review_id>',
+         ArtifactReviewDetail.as_view(), name="artifact-review-detail"),
 
     # Get artifact review of an artifact, post a new artifact review
-    path('artifact_review/<int:artifact_pk>/<int:registration_pk>', ArtifactReview.as_view(), name = "artifact-review")
+    path('artifact_review/<int:artifact_pk>/<int:registration_pk>',
+         CreateArtifactReview.as_view(), name="artifact-review")
 
 
 

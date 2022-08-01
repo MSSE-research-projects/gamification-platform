@@ -1,17 +1,14 @@
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-from app.gamification.models import option_choice
+from django.shortcuts import get_object_or_404
+from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.artifact import Artifact
 from app.gamification.models.answer import Answer, ArtifactFeedback
 from app.gamification.models.artifact_review import ArtifactReview
-from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.question import Question
 from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
-from app.gamification.models.survey_section import SurveySection
-from app.gamification.models.survey_template import SurveyTemplate
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer
 
 
@@ -19,7 +16,6 @@ class AnswerList(generics.ListAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
-
 
 
 class AnswerDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -43,46 +39,54 @@ class ArtifactAnswerList(generics.ListCreateAPIView):
         serializer = self.get_serializer(answer)
         return Response(serializer.data)
 
-class CreateArtifactAnswer(generics.ListCreateAPIView):
+
+class CreateArtifactAnswer(generics.CreateAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
     def post(self, request, artifact_review_pk, question_pk, *args, **kwargs):
-        question_type = request.data.get('question_type')
+
         option_text = request.data.get('option_text')
-        artifact_review = get_object_or_404(ArtifactReview, id=artifact_review_pk)
+        artifact_review = get_object_or_404(
+            ArtifactReview, id=artifact_review_pk)
         answer_text = request.data.get('answer_text')
-        question = Question.objects.get(id = question_pk)
+        question = Question.objects.get(id=question_pk)
+        question_type = question.question_type
         page = request.data.get('page')
-        question_option = get_object_or_404(QuestionOption, question = question, option_choice_text = option_text)
-        if question_type == Question.question_type.MULTIPLECHOICE:
-            answer = Answer.objects.get_or_create(
-            question_option=question_option,
-            artifact_review=artifact_review,
-            answer_text=option_text
+        question_option = get_object_or_404(
+            QuestionOption, question=question, option_choice=OptionChoice.objects.get(text=answer_text))
+        if question_type == Question.Question_type.MULTIPLECHOICE:
+            self.serializer_class = AnswerSerializer
+            answer, _ = Answer.objects.get_or_create(
+                question_option=question_option,
+                artifact_review=artifact_review,
+                # TODO: change answer_text to option_text
+                answer_text=answer_text
             )
+            print(answer, answer.question_option)
             serializer = self.get_serializer(answer)
+            print(serializer.data)
             return Response(serializer.data)
-        elif question_type == Question.question_type.FIXEDTEXT or question_type == Question.question_type.MULTIPLETEXT:
-            answer = Answer.objects.get_or_create(
-            question_option=question_option,
-            artifact_review=artifact_review,
-            answer_text=answer_text
+        elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT:
+            self.serializer_class = AnswerSerializer
+            answer, _ = Answer.objects.get_or_create(
+                question_option=question_option,
+                artifact_review=artifact_review,
+                answer_text=answer_text
             )
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
         else:
             self.serializer_class = ArtifactFeedbackSerializer
-            answer = ArtifactFeedback.objects.get_or_create(
+            answer, _ = ArtifactFeedback.objects.get_or_create(
                 question_option=question_option,
                 artifact_review=artifact_review,
                 answer_text=answer_text,
-                page = page,
+                page=page,
             )
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
-
 
 
 class ArtifactReviewList(generics.ListCreateAPIView):
@@ -90,28 +94,33 @@ class ArtifactReviewList(generics.ListCreateAPIView):
     serializer_class = ArtifactReviewSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
+
 class ArtifactReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = ArtifactReview.objects.all()
     serializer_class = ArtifactReviewSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
-    def get(self, request, artifact_review_pk, *args, **kwargs):
-        artifact_review = get_object_or_404(ArtifactReview, artifact_review_id=artifact_review_pk)
+    def get(self, request, artifact_review_id, *args, **kwargs):
+        artifact_review = get_object_or_404(
+            ArtifactReview, artifact_review_pk=artifact_review_id)
         serializer = self.get_serializer(artifact_review)
         return Response(serializer.data)
 
-    def delete(self, request, artifact_review_pk, *args, **kwargs):
-        artifact_review = get_object_or_404(ArtifactReview, id=artifact_review_pk)
+    def delete(self, request, artifact_review_id, *args, **kwargs):
+        artifact_review = get_object_or_404(
+            ArtifactReview, id=artifact_review_id)
         artifact_review.delete()
         return Response(status=204)
 
-class ArtifactReview(generics.ListCreateAPIView):
+
+class CreateArtifactReview(generics.ListCreateAPIView):
     queryset = ArtifactReview.objects.all()
     serializer_class = ArtifactReviewSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, artifact_pk, registration_pk, *args, **kwargs):
-        artifact_review = get_object_or_404(ArtifactReview, artifact_id=artifact_pk, user_id = registration_pk)
+        artifact_review = get_object_or_404(
+            ArtifactReview, artifact_id=artifact_pk, user_id=registration_pk)
         serializer = self.get_serializer(artifact_review)
         return Response(serializer.data)
 

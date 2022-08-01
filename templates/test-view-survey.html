@@ -23,6 +23,27 @@
   $(document).ready(function () {
     var surveyDOM = document.getElementById('survey');
     survey.render(surveyDOM);
+    
+    $('.save-button').on('click', function (event) {
+      var sectionName = $(this).closest("fieldset").children("legend").text();
+      var section = survey.getSectionByName(sectionName);
+      for (var j = 0; j < section.questions.length; j++) {
+        $.ajax({
+          async: false,
+          url: `api/artifact_review/{{ artifact_review_pk }}/questions/${section.questions[j].pk}/answers/`,
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            option_text: option_text, 
+            answer_text: answer_text,
+          },
+          success: function (data) {
+            console.log(data);
+          }
+        });
+      }
+    });
   });
 
 
@@ -117,8 +138,13 @@
             }
           }
         });
+        
+        
+
 
         survey.addSection(section);
+
+
       }
     }
   });
