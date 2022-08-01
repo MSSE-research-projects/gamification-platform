@@ -6,7 +6,7 @@ from rest_framework.reverse import reverse
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswer, ArtifactReviewList, ArtifactReviewDetail, ArtifactReview
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, ArtifactReview, CreateArtifactAnswer
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -85,18 +85,11 @@ urlpatterns = [
     
     # Get answers of artifact review
     # TODO:add put
-    # TODO:option_pk
     # TODO: response details(dict = 'question': 'answer') and answer_pk
-    path('answers/<int:artifact_review_pk>/', ArtifactAnswer.as_view(), name='artifact-answer'),
+    path('artifact_review/<int:artifact_review_pk>/answers/', ArtifactAnswerList.as_view(), name='artifact-answer'),
 
     # Post answer to artifact(response answer_pk)
-    # TODO: multiple choice: option_pk, question_pk, option_choice.text
-    # 
-    # TODO： question type
-    path('answers/<int:artifact_review_pk>/<question_pk>', ArtifactAnswer.as_view(), name='artifact-answer'),
-
-    # Put (artifact_review_pk/answer_pk) need a type, delete
-    path(),
+    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers', CreateArtifactAnswer.as_view(), name='create-artifact-answer'),
 
     # Get list of artifact reviews
     path('artifact_review/', ArtifactReviewList.as_view(), name="artifact-review-list"),
