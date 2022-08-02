@@ -1,0 +1,58 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Test Fill in Survey{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-md-12 grid-margin" id="survey">
+    </div> <!-- end #survey -->
+  </div> <!-- end .row -->
+</div> <!-- end .content-wrapper -->
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/survey-template.css' %}">
+{% endblock css %}
+
+{% block js %}
+<script src="{% static 'js/survey-template.js' %}"></script>
+<script src="{% static 'js/survey-page.js' %}"></script>
+<script>
+
+  $(document).ready(function () {
+    var surveyDOM = document.getElementById('survey');
+    survey.render(surveyDOM);
+
+    survey.on('click', '.save-section-btn', function (e) {
+      var button = $(e.currentTarget);
+      var sectionTitle = button.closest('.section').find('.section-title').text();
+      var section = this.getSectionByTitle(sectionTitle);
+
+      for (var i = 0; i < section.questions.length; i++) {
+        var question = section.questions[i];
+        var answers = question.getAnswers();
+        console.log(question.pk, answers);
+
+        // Put the ajax call here
+      }
+    });
+
+    survey.on('click', '.submit-survey-btn', function (e) {
+      // Do something here
+    });
+  });
+
+  $(function () {
+    $.ajaxSetup({
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    });
+  });
+
+  var survey = getSurvey('{{ survey_pk }}', { editable: false, live: true });
+
+  var artifact_review_pk = '{{ artifact_review_pk }}';
+
+</script>
+{% endblock js %}

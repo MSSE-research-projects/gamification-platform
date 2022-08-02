@@ -223,7 +223,7 @@
     });
 
     survey.on('click', '.remove-question-btn', function (e) {
-      var button = $(e.currentTarget)
+      var button = $(e.currentTarget);
       var questionText = button.closest('.question').find('.question-text').text();
       var sectionTitle = button.closest('.section').find('.section-title').text();
 

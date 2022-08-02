@@ -129,6 +129,11 @@ def test_view_survey(request):
     return render(request, 'test-view-survey.html', {'survey_pk': 1})
 
 
+def test_fill_survey(request):
+    user = request.user
+    return render(request, 'test-fill-survey.html', {'survey_pk': 1, 'artifact_review_pk': 1})
+
+
 @login_required
 def course_list(request):
     def get_registrations(user):

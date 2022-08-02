@@ -60,6 +60,11 @@ class Survey {
 
     $(this.element).find('.card-body').append(this.headerElement);
     $(this.element).find('.card-body').append(this.sectionElement);
+
+    if (this.options.live) {
+      this.footerElement = this._buildFooterElement();
+      $(this.element).find('.card-body').append(this.footerElement);
+    }
   }
 
   _buildWrapperElement() {
@@ -112,6 +117,19 @@ class Survey {
       div.appendChild(section.element);
     }
     return div;
+  }
+
+  _buildFooterElement() {
+    var html = '';
+    html += '<div class="survey-footer row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="d-grid col text-end">';
+    html += '    <button class="btn btn-primary submit-survey-btn">';
+    html += '      <i class="fa fa-arrow-circle-right"></i> Submit Survey';
+    html += '    </button>';
+    html += '  </div>';
+    html += '</div>';
+
+    return htmlToElement(html);
   }
 
   // Functions for manipulating the survey
@@ -201,12 +219,17 @@ class Section {
 
     this.element.appendChild(this.headerElement);
     this.element.appendChild(this.questionElement);
+
+    if (this.options.live) {
+      this.footerElement = this._buildFooterElement();
+      this.element.appendChild(this.footerElement);
+    }
   }
 
   _buildWrapperElement() {
     var html = '';
     html += '<fieldset class="section">';
-    html += '  <legend class="section-title">' + this.title + '</legend>';
+    html += `  <legend class="section-title">${this.title}${this.is_required ? '' : ' - Optional'}</legend>`;
     html += '</fieldset>';
 
     return htmlToElement(html);
@@ -242,10 +265,20 @@ class Section {
     div.classList.add('section-questions');
     for (var i = 0; i < this.questions.length; i++) {
       var question = this.questions[i];
-      question.registerEventOnRemove(this);
       div.appendChild(question.element);
     }
     return div;
+  }
+
+  _buildFooterElement() {
+    var html = '';
+    html += '<div class="section-footer row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="col text-end">';
+    html += '    <button type="button" class="btn btn-sm btn-primary save-section-btn"><i class="fa fa-save"></i> Save</button>';
+    html += '  </div>';
+    html += '</div>';
+
+    return htmlToElement(html);
   }
 
   // Functions for manipulating the section
@@ -274,20 +307,6 @@ class Section {
     var question = this.getQuestionByText(text);
     this.removeQuestion(question);
   }
-
-  // registerEventOnRemove(survey) {
-  //   var self = this;
-  //   $(this.element).find('.remove-sec-btn').on('click', function () {
-  //     $.ajax({
-  //       async: false,
-  //       type: 'DELETE',
-  //       url: `/api/sections/${self.pk}/`,
-  //       success: function (data) {
-  //         survey.removeSection(self);
-  //       }
-  //     });
-  //   });
-  // }
 };
 
 

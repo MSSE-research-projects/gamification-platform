@@ -16,7 +16,6 @@ var queTypeMapRev = {
 
 getSurvey = function (survey_pk, options) {
   var survey = null;
-  var editable = options.editable;
 
   $.ajax({
     async: false,
@@ -28,9 +27,7 @@ getSurvey = function (survey_pk, options) {
       survey = new Survey(
         data,
         sections = [],
-        options = {
-          editable: editable,
-        }
+        options = options
       );
     }
   });
@@ -47,9 +44,7 @@ getSurvey = function (survey_pk, options) {
         var section = new Section(
           data[i],
           questions = [],
-          options = {
-            editable: editable,
-          }
+          options = options
         );
 
         $.ajax({
@@ -81,9 +76,7 @@ getSurvey = function (survey_pk, options) {
                   data[j].choices = choices;
                   question = new MultipleChoiceQuestion(
                     data[j],
-                    options = {
-                      editable: editable,
-                    }
+                    options = options
                   );
                   break;
                 case 'FIXEDTEXT':
@@ -105,9 +98,7 @@ getSurvey = function (survey_pk, options) {
                   data[j].numberOfText = numberOfText;
                   question = new TextInputQuestion(
                     data[j],
-                    options = {
-                      editable: editable,
-                    }
+                    options = options
                   );
                   break;
                 default:
