@@ -43,89 +43,112 @@
         </div>
       </div>
     </div>
+    {% comment %} survey {% endcomment %}
+    {% for section in sections %}
     <div class="border-bottom py-4">
-        <h2> Software Engineering Problem</h2>
-    <div class="row">
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Line chart</h4>
-            <canvas id="lineChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Bar chart</h4>
-            <canvas id="barChart" style="display: block; height: 300px; width: 601px;" width="751" height="375" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieChartc" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieChartd" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
+        {% for row in section %}
+          {% if forloop.counter0  == 0 %}
+            <h2> {{row}} </h2>
+          {% else %}
+            <div class="row">
+              {% for card in row %}
+              <div class="col-lg-3 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                    <h4 class="card-title">{{card.title}}</h4>
+                    <canvas id="{{card.name}}" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
     </div>
+    {% endfor %}
+    <div class="border-bottom py-4">
+      <h2> Software Engineering Problem</h2>
+      <div class="row">
+        <div class="col-lg-3 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Line chart</h4>
+              <canvas id="lineChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Bar chart</h4>
+              <canvas id="barChart" style="display: block; height: 300px; width: 601px;" width="751" height="375" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Pie chart</h4>
+              <canvas id="pieChart-0" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-3 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Pie chart</h4>
+              <canvas id="pieChart-1" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="border-bottom py-4">
-        <h2> Software Engineering Problem</h2>
-    <div class="row">
-      <div class="col-lg-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Area chart</h4>
-            <canvas id="areaChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+      <h2> Software Engineering Problem</h2>
+      <div class="row">
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Area chart</h4>
+              <canvas id="areaChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Doughnut chart</h4>
+              <canvas id="doughnutChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 grid-margin stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Pie chart</h4>
+              <canvas id="pieChart-2" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-lg-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Doughnut chart</h4>
-            <canvas id="doughnutChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+      <div class="row"> 
+        <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Pie chart</h4>
+              <canvas id="pieChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+          <div class="card">
+            <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+              <h4 class="card-title">Scatter chart</h4>
+              <canvas id="scatterChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-lg-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieCharta" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Scatter chart</h4>
-            <canvas id="scatterChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
     </div>
   </div>
   <!-- content-wrapper ends -->
@@ -139,3 +162,26 @@
   <!-- partial -->
 </div>
 {% endblock content %}
+
+
+{% comment %} {% block js %}
+
+{% for section in sections %}
+  {% for row in section %}
+    {% for card in row %}
+      <script language = "javascript" type = "text/javascript">
+      if ($("#pieChart").length) {
+        var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
+        var pieChart = new Chart(pieChartCanvas, {
+          type: 'pie',
+          data: doughnutPieData,
+          options: doughnutPieOptions
+        });
+      }
+      </script>
+    {% endfor %}
+  {% endfor %}
+{% endfor %}
+
+{% endblock js %} {% endcomment %}
+

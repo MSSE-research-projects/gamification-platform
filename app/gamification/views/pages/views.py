@@ -138,7 +138,40 @@ def report(request, course_id, andrew_id):
             membership.save()
             entity = Individual.objects.get(registration=registration, course=course)
     
-    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole}
+    # 'name': chart_type + "-" + unique_name
+    card1 = {'title': "title0", 'name': "pieChart-0", 'areaData': []}
+    card2 = {'title': "title1", 'name': "pieChart-1", 'areaData': []}
+    card3 = {'title': "title2", 'name': "pieChart-2", 'areaData': []}
+    row = []
+    row.append(card1)
+    row.append(card2)
+    row.append(card3)
+    card4 = {'title': "title3", 'name': "pieChart-3", 'areaData': []}
+    card5 = {'title': "title4", 'name': "pieChart-4", 'areaData': []}
+    card6 = {'title': "title5", 'name': "pieChart-5", 'areaData': []}
+    row2 = []
+    row2.append(card4)
+    row2.append(card5)
+    row2.append(card6)
+    section = []
+    section_name = "Software Engineering Problem"
+    section.append(section_name)
+    section.append(row)
+    section.append(row2)
+    
+    card7 = {'title': "title4", 'name': "areaChart", 'areaData': []}
+    card8 = {'title': "title5", 'name': "pieChart-5", 'areaData': []}
+    row = []
+    row.append(card7)
+    row.append(card8)
+    section_name = "Software Engineering Problem"
+    section.append(section_name)
+    section.append(row)
+    
+    sections = []
+    sections.append(section)
+    
+    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole, 'sections': sections}
     return render(request, 'report.html', context)
 
 
@@ -461,19 +494,30 @@ def artifact(request, course_id, assignment_id):
     registration = get_object_or_404(
         Registration, users=request.user, courses=course)
     userRole = registration.userRole
-    try:
-        entity = Team.objects.get(registration=registration, course=course)
-    except Team.DoesNotExist:
+    # TODO: check the assigment type.
+    assignment_type = assignment.assignment_type
+    print("assignment_type: " + assignment_type)
+    if assignment_type == "Individual":
         try:
             entity = Individual.objects.get(registration=registration, course=course)
         except Individual.DoesNotExist:
             # Create an Individual entity for the user
-            print("Team does not exist, create an individual entity for the user")
             individual = Individual(course=course)
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
             entity = Individual.objects.get(registration=registration, course=course)
+    elif assignment_type == "Team":
+        try:
+            entity = Team.objects.get(registration=registration, course=course)
+        except Team.DoesNotExist:
+            # TODO: Alert: you need to be a member of the team to upload the artifact
+            print("you need to be a member of the team to upload the artifact")
+            return redirect('assignment', course_id) 
+    else:
+        return redirect('assignment', course_id)
+    
+    
     
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
