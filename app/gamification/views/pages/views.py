@@ -1,3 +1,7 @@
+import os
+from ctypes import sizeof
+from hashlib import new
+from webbrowser import get
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -6,11 +10,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-
+from django.http import FileResponse
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual
 from .survey_views import *
 
 
@@ -132,6 +136,34 @@ def test_preview_survey(request):
 def test_fill_survey(request):
     user = request.user
     return render(request, 'test-fill-survey.html', {'survey_pk': 1, 'artifact_review_pk': 1})
+
+
+def report(request, course_id, andrew_id):
+    # user = request.user
+    user = get_object_or_404(CustomUser, andrew_id=andrew_id)
+    course = get_object_or_404(Course, pk=course_id)
+    registration = get_object_or_404(
+        Registration, users=user, courses=course)
+    userRole = registration.userRole
+    try:
+        entity = Team.objects.get(registration=registration, course=course)
+    except Team.DoesNotExist:
+        try:
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+        except Individual.DoesNotExist:
+            # Create an Individual entity for the user
+            print("Team does not exist, create an individual entity for the user")
+            individual = Individual(course=course)
+            individual.save()
+            membership = Membership(student=registration, entity=individual)
+            membership.save()
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
+    context = {'user': user, 'course': course,
+               'entity': entity, 'userRole': userRole}
+    return render(request, 'report.html', context)
 
 
 @login_required
@@ -341,6 +373,10 @@ def assignment(request, course_id):
         return render(request, 'assignment.html', context)
 
     if request.method == 'POST':
+        # redirect if user is student
+        if userRole == 'Student':
+            return redirect('assignment', course_id)
+
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()
@@ -377,6 +413,7 @@ def edit_assignment(request, course_id, assignment_id):
             request.POST, instance=assignment, label_suffix='')
 
         if form.is_valid():
+            # TO-DO: update upload_time
             assignment = form.save()
         return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form, 'userRole': userRole})
 
@@ -392,9 +429,208 @@ def edit_assignment(request, course_id, assignment_id):
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
-    return render(request, 'view_assignment.html', {'course_id': course_id, 'assignment': assignment})
+    userRole = Registration.objects.get(
+        users=request.user, courses=course_id).userRole
+    registration = get_object_or_404(
+        Registration, users=request.user, courses=course_id)
+    course = get_object_or_404(Course, pk=course_id)
+    try:
+        entity = Team.objects.get(registration=registration, course=course)
+    except Team.DoesNotExist:
+        try:
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+        except Individual.DoesNotExist:
+            # Create an Individual entity for the user
+            print("Team does not exist, create an individual entity for the user")
+            individual = Individual(course=course)
+            individual.save()
+            membership = Membership(student=registration, entity=individual)
+            membership.save()
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
+    try:
+        artifacts = Artifact.objects.filter(
+            assignment=assignment, entity=entity)
+        latest_artifact = artifacts.latest('upload_time')
+        artifact_id = latest_artifact.id
+    except Artifact.DoesNotExist:
+        latest_artifact = "None"
+        artifact_id = 99999
+
+    assignment_id = assignment.id
+    context = {'course_id': course_id,
+               'userRole': userRole,
+               'assignment': assignment,
+               'latest_artifact': latest_artifact,
+               'assignment_id': assignment_id,
+               'artifact_id': artifact_id}
+    return render(request, 'view_assignment.html', context)
+
+# return true if the user is the owner of the artifact
+
+
+def check_artifact_permisssion(artifact_id, user):
+    artifact = get_object_or_404(Artifact, pk=artifact_id)
+    entity = artifact.entity
+    members = entity.members
+    if user in members:
+        return True
+    else:
+        return False
+
+# TODO: remove redundant code in artifact section to improve performance in the future
+# TODO: create a directory for each course_assignment_team to store the files
 
 
 @login_required
-def feedback(request):
-    return render(request, 'feedback.html')
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def artifact(request, course_id, assignment_id):
+    course = get_object_or_404(Course, pk=course_id)
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    # TODO: rethink about permission control for staff(superuser) and instructor
+    registration = get_object_or_404(
+        Registration, users=request.user, courses=course)
+    userRole = registration.userRole
+    try:
+        entity = Team.objects.get(registration=registration, course=course)
+    except Team.DoesNotExist:
+        try:
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+        except Individual.DoesNotExist:
+            # Create an Individual entity for the user
+            print("Team does not exist, create an individual entity for the user")
+            individual = Individual(course=course)
+            individual.save()
+            membership = Membership(student=registration, entity=individual)
+            membership.save()
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
+    if request.method == 'POST':
+        form = ArtifactForm(request.POST, request.FILES, label_suffix='')
+        if form.is_valid():
+            form.save()
+        else:
+            print("form is not valid")
+        artifacts = Artifact.objects.filter(
+            assignment=assignment, entity=entity)
+        context = {'artifacts': artifacts,
+                   "course_id": course_id,
+                   "assignment_id": assignment_id,
+                   "course": course,
+                   "userRole": userRole,
+                   "assignment": assignment,
+                   "entity": entity}
+        return render(request, 'artifact.html', context)
+
+    if request.method == 'GET':
+        artifacts = Artifact.objects.filter(
+            assignment=assignment, entity=entity)
+        context = {'artifacts': artifacts,
+                   "course_id": course_id,
+                   "assignment_id": assignment_id,
+                   "course": course,
+                   "userRole": userRole,
+                   "assignment": assignment,
+                   "entity": entity}
+        return render(request, 'artifact.html', context)
+
+    else:
+        return redirect('assignment', course_id)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def artifact_admin(request, course_id, assignment_id):
+    course = get_object_or_404(Course, pk=course_id)
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    registration = get_object_or_404(
+        Registration, users=request.user, courses=course)
+    userRole = registration.userRole
+    if request.method == 'GET':
+        artifacts = Artifact.objects.filter(assignment=assignment)
+        context = {'artifacts': artifacts,
+                   "course_id": course_id,
+                   "course": course,
+                   "userRole": userRole,
+                   "assignment": assignment}
+        return render(request, 'artifact_admin.html', context)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def download_artifact(request, course_id, assignment_id, artifact_id):
+    if check_artifact_permisssion(artifact_id, request.user):
+        artifact = get_object_or_404(Artifact, pk=artifact_id)
+        filename = artifact.file.path
+        response = FileResponse(open(filename, 'rb'))
+        # TODO: return 404 if file does not exist
+        return response
+    else:
+        return redirect('assignment', course_id)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def view_artifact(request, course_id, assignment_id, artifact_id):
+    if check_artifact_permisssion(artifact_id, request.user):
+        artifact = get_object_or_404(Artifact, pk=artifact_id)
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'artifact': artifact})
+    else:
+        return redirect('assignment', course_id)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def delete_artifact(request, course_id, assignment_id, artifact_id):
+    if check_artifact_permisssion(artifact_id, request.user):
+        print("check_artifact_permisssion delete_artifact True")
+    else:
+        return redirect('assignment', course_id)
+
+    if request.method == 'GET':
+        artifact = get_object_or_404(Artifact, pk=artifact_id)
+        # delete the artifact file first
+        artifact.file.delete()
+        artifact.delete()
+        return redirect('artifact', course_id, assignment_id)
+    else:
+        return redirect('artifact', course_id, assignment_id)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def edit_artifact(request, course_id, assignment_id, artifact_id):
+    if check_artifact_permisssion(artifact_id, request.user):
+        print("check_artifact_permisssion edit_artifact True")
+    else:
+        return redirect('assignment', course_id)
+
+    artifact = get_object_or_404(Artifact, pk=artifact_id)
+    old_file_path = artifact.file
+    userRole = Registration.objects.get(
+        users=request.user, courses=course_id).userRole
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    if request.method == 'POST':
+        form = ArtifactForm(request.POST, request.FILES,
+                            instance=artifact, label_suffix='')
+        if form.is_valid():
+            # delete the artifact file first
+            new_file = os.path.split(str(form.cleaned_data['file']))[1]
+            if new_file == "False":
+                # delete the artifact if "clear" is selected
+                # print("old file deleted, old_file_path:", old_file_path)
+                old_file_path.delete()
+            artifact = form.save()
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
+
+    if request.method == 'GET':
+        form = ArtifactForm(instance=artifact)
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
+
+    else:
+        return redirect('artifact', course_id, assignment_id)

@@ -63,3 +63,6 @@ class Assignment(models.Model):
             return feedback_survey.template
         else:
             return None
+
+    def __str__(self):
+        return f'{self.assignment_name}'

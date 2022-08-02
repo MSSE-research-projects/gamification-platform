@@ -2,7 +2,7 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block title %}Assignment{% endblock %}
+{% block title %}Edit Artifact{% endblock %}
 
 {% block content %}
 <div class="content-wrapper">
@@ -11,10 +11,10 @@
       <div class="card">
         <div class="card-body">
           <div class="row">
-            {% comment %} <a href="{% url 'artifact' course_id %}"><button type="button"
-                class="btn btn-outline-primary">Back</button></a> {% endcomment %}
+            <a href="{% url 'artifact' course_id assignment_id %}"><button type="button"
+                class="btn btn-outline-primary">Back</button></a>
             <div class="col-lg-12">
-              {% if userRole == 'Instructor' or userRole == 'TA'%}
+              {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student' %}
               <form class="pt-3" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% include 'boilerplates/form.html' %}
@@ -24,7 +24,7 @@
                 </div>
               </form>
               {% else %}
-              <p>You are not authorized to edit this assignment.</p>
+                <p>You are not authorized to edit this assignment.</p>
               {% endif %}
             </div>
           </div>
@@ -35,7 +35,7 @@
 </div>
 {% endblock content %}
 
-{% block js %}
+{% block script %}
 <script>
   $('.datetimepicker').each(function () {
     new tempusDominus.TempusDominus(this, {

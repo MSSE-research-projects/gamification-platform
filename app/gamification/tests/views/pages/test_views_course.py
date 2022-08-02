@@ -6,6 +6,13 @@ from app.gamification.views.pages import course_list
 from app.gamification.tests.views.pages.utils import LogInUser
 
 
+"""Test the course view.
+    -  Using All Combinations of:
+        - User Type: Student in this course, Instructor in this course, TA in this course,
+                    Student in another course, Instructor in another course, TA in another course.
+        - Course: visible, hidden, deleted, not created.
+"""
+
 class CourseListTest(TestCase):
     fixtures = ['users.json', 'courses.json', 'registration.json']
 

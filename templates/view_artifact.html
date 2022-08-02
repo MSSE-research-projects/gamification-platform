@@ -1,0 +1,43 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}View Artifact{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="border-bottom text-center pb-4">
+                
+              </div>
+              <div class="border-bottom pb-4">
+                <p> </p>
+                <p3>
+                  <b>Description:</b>
+                  {% comment %} <p>{{ assignment.description|linebreaksbr }}</p> {% endcomment %}
+                </p3>
+              </div>
+              <p> </p>
+              <a href="{% url 'artifact' course_id assignment_id %}"><button type="button"
+                class="btn btn-outline-primary">Back</button></a>
+            </div>
+            <div class="col-lg-4">
+              <div class="border-bottom py-4">
+                <p>Reserved place</p>
+                <div>
+                  <p> due date</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

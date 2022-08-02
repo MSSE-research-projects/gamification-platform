@@ -20,6 +20,7 @@ class Entity(models.Model):
         membership = Membership.objects.filter(entity=self.pk)
         students = [e.student.users for e in membership]
         return students
+    
 
 
 class Individual(Entity):
@@ -37,3 +38,6 @@ class Team(Entity):
         db_table = 'teams'
         verbose_name = _('team')
         verbose_name_plural = _('teams')
+        
+    def __str__(self):
+        return f'{self.name}'

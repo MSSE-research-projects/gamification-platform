@@ -1,0 +1,141 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Report{% endblock %}
+
+{% block content %}
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="statistics-details d-flex align-items-center justify-content-between">
+          <div>
+            {% comment %} <p class="statistics-title">Bounce Rate</p> {% endcomment %}
+            <h1 class="rate-percentage">&nbsp&nbsp&nbsp{{entity.name}}</h1>
+            {% comment %} <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>-0.5%</span></p> {% endcomment %}
+          </div>
+          <div>
+            <b><p2 class="statistics-title">Content</p></b>
+            <center><h3 class="rate-percentage">8.00</h3></center>
+            <p class="text-success d-flex"><i class="mdi mdi-menu-up"></i><span>Perfect</span></p>
+          </div>
+          <div>
+            <b><p2 class="statistics-title">Design</p></b>
+            <center><h3 class="rate-percentage">6.00</h3></center>
+            <p class="text-warning d-flex"><i class="mdi mdi-menu-right"></i><span>Average</span></p>
+          </div>
+          <div class="d-none d-md-block">
+            <b><p2 class="statistics-title">Delivery</p></b>
+            <center><h3 class="rate-percentage">4.00</h3></center>
+            <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>Bad</span></p>
+          </div>
+          <div class="d-none d-md-block">
+            <b><p2 class="statistics-title">Overall</p></b>
+            <center><h3 class="rate-percentage">6.00</h3></center>
+            <center><p class="text-warning d-flex"><i class="mdi mdi-menu-right"></i><span>Average</span></p></center>
+          </div>
+          <div class="d-none d-md-block">
+            {% comment %} <p class="statistics-title">Avg. Time on Site</p> {% endcomment %}
+            <h1 class="rate-percentage">B+&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
+            {% comment %} <p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p> {% endcomment %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border-bottom py-4">
+        <h2> Software Engineering Problem</h2>
+    <div class="row">
+      <div class="col-lg-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Line chart</h4>
+            <canvas id="lineChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Bar chart</h4>
+            <canvas id="barChart" style="display: block; height: 300px; width: 601px;" width="751" height="375" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Pie chart</h4>
+            <canvas id="pieChartc" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Pie chart</h4>
+            <canvas id="pieChartd" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="border-bottom py-4">
+        <h2> Software Engineering Problem</h2>
+    <div class="row">
+      <div class="col-lg-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Area chart</h4>
+            <canvas id="areaChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Doughnut chart</h4>
+            <canvas id="doughnutChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Pie chart</h4>
+            <canvas id="pieCharta" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Pie chart</h4>
+            <canvas id="pieChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+        <div class="card">
+          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+            <h4 class="card-title">Scatter chart</h4>
+            <canvas id="scatterChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+  <!-- content-wrapper ends -->
+  <!-- partial:../../partials/_footer.html -->
+  <footer class="footer">
+    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+      <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
+      <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2021. All rights reserved.</span>
+    </div>
+  </footer>
+  <!-- partial -->
+</div>
+{% endblock content %}

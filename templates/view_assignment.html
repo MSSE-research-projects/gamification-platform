@@ -13,7 +13,6 @@
           <div class="row">
             <div class="col-lg-8">
               <div class="border-bottom text-center pb-4">
-                {% comment %} <h3>course: {{ assignment.id }}</h3> {% endcomment %}
                 <p> </p>
                 {% if assignment.assignment_name %}
                 <h2>{{ assignment.assignment_name }}</h2>
@@ -44,13 +43,35 @@
               <p> </p>
               <a href="{% url 'assignment' course_id %}"><button type="button"
                   class="btn btn-outline-primary">Back</button></a>
+              {% if userRole == 'Student'%}
+              <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
+                class="btn btn-outline-primary">Upload Artifact</button></a>
+              {% endif %}
+              {% if userRole == 'Instructor' or userRole == 'TA'%}
+              <a href="{% url 'artifact_admin' course_id assignment.id%}"><button type="button"
+                class="btn btn-outline-primary">Artifact Admin</button></a>
+              {% endif %}
             </div>
             <div class="col-lg-4">
-              <div class="border-bottom py-4">
-                <p>Reserved place</p>
-                <div>
-                  <p> Rfsfdfsdfsdfsdfsdfsdf</p>
+              {% if latest_artifact != 'None' %}
+                <div class="border-bottom py-4">
+                  <p><b>Submission:</b></p>
+                  <p> Latest Submission: {{ latest_artifact.upload_time }}</p>
+                  <a href="{% url 'download_artifact' course_id assignment_id artifact_id%}"><button type="button"
+                    class="btn btn-success btn-sm">Download</button></a>
                 </div>
+              {% else %}
+                <div class="border-bottom py-4">
+                  <p><b>Submission:</b></p>
+                  <p> No Submission found</p>
+                </div>
+              {% endif %}
+              {% comment %} <div class="border-bottom py-4">
+                <a href="{% url 'test'%}"><button type="button"
+                  class="btn btn-success btn-sm">Survey</button></a>
+              </div> {% endcomment %}
+              <div class="border-bottom py-4">
+                <p><b>Comments: </b></p>
               </div>
             </div>
           </div>

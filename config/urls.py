@@ -44,7 +44,6 @@ urlpatterns = [
          name='test_preview_survey'),
     path('test_fill_survey/', page_views.test_fill_survey, name='test_fill_survey'),
 
-    path('feedback/', page_views.feedback, name='feedback'),
     path('course/', include([
         path('', page_views.course_list, name='course'),
 
@@ -82,7 +81,23 @@ urlpatterns = [
                             ])),
                         ])),
                     ])),
-                ])),
+
+                    path('artifact/', include([
+                        path('', page_views.artifact, name='artifact'),
+                        path('admin/', page_views.artifact_admin,
+                             name='artifact_admin'),
+                        path('<int:artifact_id>/', include([
+                            path('delete/', page_views.delete_artifact,
+                                 name='delete_artifact'),
+                            path('edit/', page_views.edit_artifact,
+                                 name='edit_artifact'),
+                            path('view/', page_views.view_artifact,
+                                 name='view_artifact'),
+                            path('download/', page_views.download_artifact,
+                                 name='download_artifact'),
+                        ])),
+                    ])),
+                ]))
             ])),
 
 
@@ -91,6 +106,10 @@ urlpatterns = [
                 path('<str:andrew_id>/', include([
                     path('delete/', page_views.delete_member,
                          name='delete_member'),
+                ])),
+                path('<str:andrew_id>/', include([
+                    path('report/', page_views.report,
+                         name='report'),
                 ]))
             ])),
         ])),
