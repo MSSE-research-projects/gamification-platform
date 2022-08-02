@@ -1,4 +1,4 @@
-function PDFCarousel(carousel, options = null) {
+function PDFCarousel(carousel, options = {}) {
   this.carousel = carousel;
   this.options = options;
 
@@ -28,8 +28,8 @@ PDFCarousel.prototype.init = function () {
   this.pageNumPending = null;
   this.scale = 0.8;
 
-  this.prevButton.addEventListener('click', () => this.onPrevPage());
-  this.nextButton.addEventListener('click', () => this.onNextPage());
+  this.prevButton.addEventListener('click', this.onPrevPage.bind(this));
+  this.nextButton.addEventListener('click', this.onNextPage.bind(this));
 
   this.renderPage = this.renderPage.bind(this);
   this.renderPDF = this.renderPDF.bind(this);
@@ -67,7 +67,10 @@ PDFCarousel.prototype.renderPage = function (num) {
       if (this.feedbacks[num]) {
         this.feedbackTextArea.value = this.feedbacks[num];
       }
-      this.feedbackTextArea.focus();
+
+      if (this.options.focus === true) {
+        this.feedbackTextArea.focus();
+      }
     }.bind(this));
   }.bind(this));
 
@@ -99,6 +102,10 @@ PDFCarousel.prototype.onPrevPage = function () {
     this.pageNum--;
   }
   this.queueRenderPage(this.pageNum);
+
+  if (this.options.onPrevPage) {
+    this.options.onPrevPage();
+  }
 }
 
 /**
@@ -113,6 +120,10 @@ PDFCarousel.prototype.onNextPage = function () {
     this.pageNum++;
   }
   this.queueRenderPage(this.pageNum);
+
+  if (this.options.onNextPage) {
+    this.options.onNextPage();
+  }
 }
 
 PDFCarousel.prototype.renderPDF = function (url) {

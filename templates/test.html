@@ -219,7 +219,18 @@
   // header on that server.
   var url = "{% static 'test.pdf' %}";
 
-  var carousel = new PDFCarousel(document.getElementById('pdfPreviewCarousel'));
+  var carousel = new PDFCarousel(
+    document.getElementById('pdfPreviewCarousel'),
+    options = {
+      focus: true,
+      onPrevPage: function () {
+        console.log('Clicking on prev page');
+      },
+      onNextPage: function () {
+        console.log('Clicking on next page');
+      }
+    }
+  );
   carousel.renderPDF(url);
 
   var carousel2 = new PDFCarousel(document.getElementById('pdfPreviewCarousel-2'));
