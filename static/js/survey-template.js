@@ -25,43 +25,46 @@ function htmlToElements(html) {
 /*********      Survey Class      **********/
 /*******************************************/
 class Survey {
-  constructor(name = '', instructions = '', sections = [], options = {}) {
-    this.name = name;
-    this.instructions = instructions;
+  constructor(data = {}, sections = [], options = {}) {
+    this.pk = data.pk;
+    this.name = data.name;
+    this.instructions = data.instructions;
+    this.other_info = data.other_info;
+
     this.sections = sections;
     this.options = options;
 
     this.buildElement();
-
-    // Redirect to student view page
-    $(this.element).find('.student-view-btn').on('click', function () {
-      window.location.href = '/test_view_survey/';
-    }.bind(this));
   }
 
-  // Set Database pk
-  setPk(pk) {
-    this.pk = pk;
+  on(event, selector, handler) {
+    if (handler == null) {
+      handler = selector;
+      selector = null;
+      $(this.element).on(event, handler.bind(this));
+    } else {
+      $(this.element).on(event, selector, handler.bind(this));
+    }
   }
+
 
   // Functions for building the DOM element
   buildElement() {
     this.element = this._buildWrapperElement();
-    this.headerElement = this._buildHeaderElement();
-    this.editableHeaderElement = this._buildEditableHeaderElement();
+    if (this.options.editable) {
+      this.headerElement = this._buildEditableHeaderElement();
+    } else {
+      this.headerElement = this._buildNormalHeaderElement();
+    }
     this.sectionElement = this._buildSectionElement();
 
-    if (this.options.edit) {
-      $(this.element).find('.card-body').append(this.editableHeaderElement);
-    } else {
-      $(this.element).find('.card-body').append(this.headerElement);
-    }
+    $(this.element).find('.card-body').append(this.headerElement);
     $(this.element).find('.card-body').append(this.sectionElement);
   }
 
   _buildWrapperElement() {
     var html = '';
-    html += '<div class="card">';
+    html += '<div class="card survey">';
     html += '  <div class="card-body">';
     html += '  </div>';
     html += '</div>';
@@ -69,20 +72,22 @@ class Survey {
     return htmlToElement(html);
   }
 
-  _buildHeaderElement() {
+  _buildNormalHeaderElement() {
     var html = '';
-    html += '<h2 class="card-title">' + this.name + '</h2>';
-    html += '<p class="card-description">' + this.instructions + '</p>';
+    html += '<div class="survey-header">';
+    html += '  <h2 class="card-title survey-name">' + this.name + '</h2>';
+    html += '  <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '</div>';
 
     return htmlToElement(html);
   }
 
   _buildEditableHeaderElement() {
     var html = '';
-    html += '<div class="row mb-3 align-items-center justify-content-between">';
+    html += '<div class="survey-header row mb-3 align-items-center justify-content-between">';
     html += '  <div class="col-md-6 col-sm-12 text-start">';
-    html += '    <h2 class="card-title">' + this.name + '</h2>';
-    html += '    <p class="card-description">' + this.instructions + '</p>';
+    html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
+    html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
     html += '    <button class="btn btn-secondary student-view-btn">';
@@ -90,7 +95,7 @@ class Survey {
     html += '    </button>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
-    html += '    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
+    html += '    <button class="btn btn-primary add-section-btn" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
     html += '      <i class="fa fa-plus"></i> Add Section';
     html += '    </button>';
     html += '  </div>';
@@ -101,28 +106,28 @@ class Survey {
 
   _buildSectionElement() {
     var div = document.createElement('div');
+    div.classList.add('survey-sections');
     for (var i = 0; i < this.sections.length; i++) {
       var section = this.sections[i];
-      section.registerEventOnRemove(this);
       div.appendChild(section.element);
     }
     return div;
   }
 
   // Functions for manipulating the survey
+  updateElement() {
+    $(this.element).find('.survey-name').text(this.name);
+    $(this.element).find('.survey-instructions').text(this.instructions);
+  }
+
   addSection(section) {
-    section.registerEventOnRemove(this);
     this.sections.push(section);
     this.sectionElement.appendChild(section.element);
   }
 
-  addSectionByName(name, description) {
-    var section = new Section(name, description);
+  addSectionByTitle(title, description) {
+    var section = new Section(title, description);
     this.addSection(section);
-  }
-
-  updateElement() {
-    this.buildElement();
   }
 
   removeSection(section) {
@@ -130,8 +135,8 @@ class Survey {
     this.sectionElement.removeChild(section.element);
   }
 
-  removeSectionByName(name) {
-    var section = this.getSectionByName(name);
+  removeSectionByTitle(title) {
+    var section = this.getSectionByTitle(title);
     this.removeSection(section);
   }
 
@@ -140,9 +145,9 @@ class Survey {
     this.removeSection(section);
   }
 
-  getSectionByName(name) {
+  getSectionByTitle(title) {
     return this.sections.find(function (section) {
-      return section.name === name;
+      return section.title === title;
     });
   }
 
@@ -160,61 +165,72 @@ class Survey {
 /*********      Section Class      *********/
 /*******************************************/
 class Section {
-  constructor(name = '', description = '', questions = [], options = {}) {
-    this.name = name;
-    this.description = description;
+  constructor(data = {}, questions = [], options = {}) {
+    this.pk = data.pk;
+    this.title = data.title;
+    this.description = data.description;
+    this.is_required = data.is_required;
+    this.survey = data.survey;
+
     this.questions = questions;
     this.options = options;
 
     this.buildElement();
   }
 
-  // Set Database pk
-  setPk(pk) {
-    this.pk = pk;
+  on(event, selector, handler) {
+    if (handler == null) {
+      handler = selector;
+      selector = null;
+      $(this.element).on(event, handler.bind(this));
+    } else {
+      $(this.element).on(event, selector, handler.bind(this));
+    }
   }
 
   // Functions for building the DOM element
   buildElement() {
     this.element = this._buildWrapperElement();
-    this.headerElement = this._buildHeaderElement();
-    this.editableHeaderElement = this._buildEditableHeaderElement();
+    this.headerElement;
+    if (this.options.editable) {
+      this.headerElement = this._buildEditableHeaderElement();
+    } else {
+      this.headerElement = this._buildNormalHeaderElement();
+    }
     this.questionElement = this._buildQuestionElement();
 
-    if (this.options.edit) {
-      this.element.appendChild(this.editableHeaderElement);
-    } else {
-      this.element.appendChild(this.headerElement);
-    }
+    this.element.appendChild(this.headerElement);
     this.element.appendChild(this.questionElement);
   }
 
   _buildWrapperElement() {
     var html = '';
     html += '<fieldset class="section">';
-    html += '  <legend>' + this.name + '</legend>';
+    html += '  <legend class="section-title">' + this.title + '</legend>';
     html += '</fieldset>';
 
     return htmlToElement(html);
   }
 
-  _buildHeaderElement() {
+  _buildNormalHeaderElement() {
     var html = '';
-    html += '<p class="card-description">' + this.description + '</p>';
+    html += '<div class="section-header">';
+    html += '  <p class="card-description section-description">' + this.description + '</p>';
+    html += '</div>';
 
     return htmlToElement(html);
   }
 
   _buildEditableHeaderElement() {
     var html = '';
-    html += '<div class="row mb-3 align-items-center justify-content-between">';
+    html += '<div class="section-header row mb-3 align-items-center justify-content-between">';
     html += '  <div class="col-md-9 col-sm-12 text-start">';
-    html += '    <p class="card-description">' + this.description + '</p>';
+    html += '    <p class="card-description section-description">' + this.description + '</p>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
     html += '    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal"><i class="fa fa-plus"></i></button>';
     html += '      <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editSectionModal"><i class="fa fa-edit"></i></button>';
-    html += '    <button type="button" class="btn btn-sm btn-danger remove-sec-btn"><i class="fa fa-trash"></i></button>';
+    html += '    <button type="button" class="btn btn-sm btn-danger remove-section-btn"><i class="fa fa-trash"></i></button>';
     html += '  </div>';
     html += '</div>';
 
@@ -223,6 +239,7 @@ class Section {
 
   _buildQuestionElement() {
     var div = document.createElement('div');
+    div.classList.add('section-questions');
     for (var i = 0; i < this.questions.length; i++) {
       var question = this.questions[i];
       question.registerEventOnRemove(this);
@@ -232,6 +249,11 @@ class Section {
   }
 
   // Functions for manipulating the section
+  updateElement() {
+    $(this.element).find('.section-title').text(this.title);
+    $(this.headerElement).find('.section-description').text(this.description);
+  }
+
   getQuestionByText(text) {
     return this.questions.find(function (question) {
       return question.text === text;
@@ -239,7 +261,6 @@ class Section {
   }
 
   addQuestion(question) {
-    question.registerEventOnRemove(this);
     this.questions.push(question);
     this.questionElement.appendChild(question.element);
   }
@@ -254,25 +275,19 @@ class Section {
     this.removeQuestion(question);
   }
 
-  updateElement() {
-    $(this.element).find('legend').text(this.name);
-    $(this.headerElement).find('p.card-description').text(this.description);
-    $(this.editableHeaderElement).find('p.card-description').text(this.description);
-  }
-
-  registerEventOnRemove(survey) {
-    var self = this;
-    $(this.element).find('.remove-sec-btn').on('click', function () {
-      $.ajax({
-        async: false,
-        type: 'DELETE',
-        url: `/api/sections/${self.pk}/`,
-        success: function (data) {
-          survey.removeSection(self);
-        }
-      });
-    });
-  }
+  // registerEventOnRemove(survey) {
+  //   var self = this;
+  //   $(this.element).find('.remove-sec-btn').on('click', function () {
+  //     $.ajax({
+  //       async: false,
+  //       type: 'DELETE',
+  //       url: `/api/sections/${self.pk}/`,
+  //       success: function (data) {
+  //         survey.removeSection(self);
+  //       }
+  //     });
+  //   });
+  // }
 };
 
 
@@ -280,89 +295,73 @@ class Section {
 /*********     Question Class      *********/
 /*******************************************/
 class OptionChoice {
-  constructor(text = '', value = null) {
-    this.text = text;
-    if (value === null) {
-      this.value = text;
+  constructor(data = {}) {
+    this.pk = data.pk;
+    this.text = data.text;
+    if (data.value == undefined) {
+      this.value = data.text;
     } else {
-      this.value = value;
+      this.value = data.value;
     }
-  }
 
-  setPk(pk) {
-    this.pk = pk;
+    this.question = data.question;
   }
 }
 
 
 class Question {
-  constructor(text = '', options = {}) {
-    this.text = text;
+  constructor(data = {}, options = {}) {
+    this.pk = data.pk;
+    this.text = data.text;
+    this.section = data.section;
+
     this.options = options;
+
+    if (new.target === Question) {
+      throw new TypeError('Cannot construct Question instances directly');
+    }
+
+    if (this._buildWrapperElement == undefined) {
+      throw new TypeError('Question subclass must implement _buildWrapperElement');
+    }
+    if (this._buildTextElement == undefined) {
+      throw new TypeError('Question subclass must implement _buildTextElement');
+    }
+    if (this._buildOptionElement == undefined) {
+      throw new TypeError('Question subclass must implement _buildOptionElement');
+    }
   }
 
-  // Set Database pk
-  setPk(pk) {
-    this.pk = pk;
+  on(event, selector, handler) {
+    if (handler == null) {
+      handler = selector;
+      selector = null;
+      $(this.element).on(event, handler.bind(this));
+    } else {
+      $(this.element).on(event, selector, handler.bind(this));
+    }
   }
 
   // Functions for building the DOM element
   buildElement() {
     this.element = this._buildWrapperElement();
     this.textElement = this._buildTextElement();
-    this.answerElement = this._buildAnswerElement();
-
-    this.answerWrapperElement;
-    this.answerWrapperElement = this._buildAnswerWrapperElement();
+    this.optionElement = this._buildOptionElement();
 
     this.element.appendChild(this.textElement);
-    this.answerWrapperElement.appendChild(this.answerElement);
-    this.element.appendChild(this.answerWrapperElement);
+    this.element.appendChild(this.optionElement);
 
-    if (this.options.edit) {
-      this.element.appendChild(this._buildEditElement());
+    if (this.options.editable) {
+      this.editElement = this._buildEditElement();
+      this.element.appendChild(this.editElement);
     }
-  }
-
-  _buildWrapperElement() {
-    var html = '';
-    html += '<div class="row mb-3 align-items-center justify-content-center question">';
-    html += '</div>';
-
-    return htmlToElement(html);
-  }
-
-  _buildTextElement() {
-    var html = '';
-    html += '<label class="col-lg-4 col-xxl-6 col-form-label">' + this.text + '</label>';
-
-    return htmlToElement(html);
-  }
-
-  _buildAnswerWrapperElement() {
-    var html = '';
-
-    if (this.options.edit) {
-      html += '<div class="col-lg-6 col-xxl-5">';
-      html += '</div>';
-    } else {
-      html += '<div class="col-lg-8 col-xxl-6">';
-      html += '</div>';
-    }
-
-    return htmlToElement(html);
-  }
-
-  _buildAnswerElement() {
-    var html = '';
-    return htmlToElement(html);
   }
 
   _buildEditElement() {
     var html = '';
     html += '<div class="col-lg-2 col-xxl-1 text-end">';
-    html += '  <button type="button" class="btn btn-sm btn-warning edit-que-btn" data-bs-toggle="modal" data-bs-target="#editQuestionModal"><i class="fa fa-edit"></i></button>';
-    html += '  <button type="button" class="btn btn-sm btn-danger remove-que-btn"><i class="fa fa-trash"></i></button>';
+    html += '  <button type="button" class="btn btn-sm btn-warning edit-quetions-btn" data-bs-toggle="modal" data-bs-target="#editQuestionModal"><i class="fa fa-edit"></i></button>';
+    html += '  <button type="button" class="btn btn-sm btn-danger remove-question-btn"><i class="fa fa-trash"></i></button>';
     html += '</div>';
 
     return htmlToElement(html);
@@ -371,48 +370,155 @@ class Question {
   updateElement() {
     $(this.textElement).text(this.text);
 
-    this.answerElement = this._buildAnswerElement();
-    this.answerWrapperElement.replaceChild(this.answerElement, this.answerWrapperElement.firstChild);
-  }
-
-  registerEventOnRemove(section) {
-    var self = this;
-    $(this.element).find('.remove-que-btn').on('click', function () {
-      $.ajax({
-        async: false,
-        url: `/api/questions/${self.pk}/`,
-        type: 'DELETE',
-        success: function () {
-          section.removeQuestion(self);
-        }
-      });
-    });
+    this.oldOptionElement = this.optionElement;
+    this.optionElement = this._buildOptionElement();
+    this.element.replaceChild(this.optionElement, this.oldOptionElement);
   }
 }
 
-class MultipleChoiceQuestion extends Question {
-  constructor(text = '', choices = [], options = {}) {
-    super(text, options);
-    this.choices = choices;
+class InlineStyleQuestion extends Question {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+
+    if (new.target === InlineStyleQuestion) {
+      throw new TypeError('Cannot construct InlineStyleQuestion instances directly');
+    }
+
+    if (this._buildOption == undefined) {
+      throw new TypeError('InlineStyleQuestion subclass must implement _buildOption');
+    }
+  }
+
+  _buildWrapperElement() {
+    var html = '';
+    html += '<div class="question row mb-3 align-items-center justify-content-center">';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildTextElement() {
+    var html = '';
+    html += '<label class="question-text col-lg-4 col-xxl-6 col-form-label">' + this.text + '</label>';
+
+    return htmlToElement(html);
+  }
+
+  _buildOptionElement() {
+    var html = '';
+    html += '<div class="question-option col">';
+    html += '</div>';
+
+    var optionWrapper = htmlToElement(html);
+
+    optionWrapper.appendChild(this._buildOption());
+
+    return optionWrapper;
+  }
+}
+
+class DefaultStyleQuestion extends Question {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+
+    if (new.target === DefaultStyleQuestion) {
+      throw new TypeError('Cannot construct DefaultStyleQuestion instances directly');
+    }
+
+    if (this._buildOption == undefined) {
+      throw new TypeError('DefaultStyleQuestion subclass must implement _buildOption');
+    }
+  }
+
+  buildElement() {
+    if (this.options.editable) {
+
+      function _buildQuestionContentElement() {
+        var html = '';
+        html += '<div class="question-content col-lg-10 col-xxl-11">';
+        html += '</div>';
+
+        return htmlToElement(html);
+      }
+
+      this.element = this._buildWrapperElement();
+      this.textElement = this._buildTextElement();
+      this.optionElement = this._buildOptionElement();
+      this.editElement = this._buildEditElement();
+
+      this.questionContentElement = _buildQuestionContentElement();
+      this.questionContentElement.appendChild(this.textElement);
+      this.questionContentElement.appendChild(this.optionElement);
+
+      this.element.appendChild(this.questionContentElement);
+      this.element.appendChild(this.editElement);
+    } else {
+      super.buildElement();
+    }
+  }
+
+  _buildWrapperElement() {
+    var html = '';
+    html += '<div class="question row mb-3 align-items-center justify-content-center">';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildTextElement() {
+    var html = '';
+    html += '<label class="question-text form-label">' + this.text + '</label>';
+
+    return htmlToElement(html);
+  }
+
+  _buildOptionElement() {
+    var html = '';
+    html += '<div class="question-option">';
+    html += '</div>';
+
+    var optionWrapper = htmlToElement(html);
+
+    optionWrapper.appendChild(this._buildOption());
+
+    return optionWrapper;
+  }
+}
+
+class MultipleChoiceQuestion extends InlineStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.choices = data.choices ? data.choices : [];
     this.type = 'mcq';
 
     this.buildElement();
   }
 
-  _buildAnswerElement() {
+  _buildOption() {
+    var randomString = Math.random().toString(36).substring(2, 15);
     var html = '';
     html += '<div class="row">';
     for (var i = 0; i < this.choices.length; i++) {
       html += '  <div class="col-sm">';
       html += '    <div class="form-check">';
-      html += '      <input class="form-check-input" type="radio" name="gridRadios" value="' + this.choices[i].value + '">';
-      html += '      <label class="form-check-label">' + this.choices[i].text + '</label>';
+      html += `      <input class="form-check-input" type="radio" name="${randomString}" value="${this.choices[i].value}">`;
+      html += `      <label class="form-check-label">${this.choices[i].text}</label>`;
       html += '    </div>';
       html += '  </div>';
     }
     html += '</div>';
 
     return htmlToElement(html);
+  }
+
+  getAnswers() {
+    // Get all chekced buttons
+    var checkedButtons = $(this.element).find('input:checked');
+    var answers = [];
+    for (var i = 0; i < checkedButtons.length; i++) {
+      answers.push(checkedButtons[i].value);
+    }
+    return answers;
   }
 
   getChoiceByText(text) {
@@ -444,47 +550,61 @@ class MultipleChoiceQuestion extends Question {
   }
 }
 
-class TextInputQuestion extends Question {
-  constructor(text = '', placeholder = '', displayLines = 1, options = {}) {
-    super(text, options);
-    this.placeholder = placeholder;
-    this.displayLines = displayLines;
+class TextInputQuestion extends DefaultStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.placeholder = data.placeholder ? data.placeholder : '';
+    this.numberOfText = data.numberOfText ? data.numberOfText : 1;
     this.type = 'text';
 
     this.buildElement();
   }
 
-  _buildAnswerElement() {
+  _buildOption() {
     var html = '';
     html += '<div>';
-    for (var i = 0; i < this.displayLines; i++) {
+    for (var i = 0; i < this.numberOfText; i++) {
       if (i === 0) {
-        html += '<input type="text" class="form-control" placeholder="' + this.placeholder + '">';
+        html += '<input type="text" class="form-control mb-2" placeholder="' + this.placeholder + '">';
       } else {
-        html += '<input type="text" class="form-control mt-2">';
+        html += '<input type="text" class="form-control mb-2">';
       }
     }
     html += '</div>';
 
     return htmlToElement(html);
   }
+
+  getAnswers() {
+    var inputs = $(this.element).find('input');
+    var answers = [];
+    for (var i = 0; i < inputs.length; i++) {
+      answers.push(inputs[i].value);
+    }
+    return answers;
+  }
 }
 
-class TextareaQuestion extends Question {
-  constructor(text = '', placeholder = '', displayLines = 5, options = {}) {
-    super(text, options);
-    this.placeholder = placeholder;
-    this.displayLines = displayLines;
-    this.type = 'textarea';
+class TextAreaQuestion extends DefaultStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.placeholder = data.placeholder ? data.placeholder : '';
+    this.numberOfText = data.numberOfText ? data.numberOfText : 5;
+    this.type = 'text';
 
     this.buildElement();
   }
 
-  _buildAnswerElement() {
+  _buildOption() {
     var html = '';
-    html += '<textarea class="form-control" rows="' + this.displayLines + '" placeholder="' + this.placeholder + '"></textarea>';
+    html += '<textarea class="form-control" rows="' + this.numberOfText + '" placeholder="' + this.placeholder + '"></textarea>';
 
     return htmlToElement(html);
+  }
+
+  getAnswers() {
+    var answer = $(this.element).find('textarea').val();
+    return answer;
   }
 }
 
@@ -560,7 +680,7 @@ class QuestionModal {
   addMcqOption() {
     this.modal.find('#choices').append(
       '<div class="input-group mb-2">' +
-      '  <input type="text" class="form-control" placeholder="New Option">' +
+      '  <input type="text" class="form-control" placeholder="New Option" required>' +
       '  <button class="btn btn-outline-danger remove-option-btn" type="button">Remove</button>' +
       '</div>'
     );
@@ -586,7 +706,7 @@ class QuestionModal {
     this.modal.find('#questionType').trigger('change');
     // Reset MCQ Options fields
     this.modal.find('#choices').html(
-      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option">'
+      '<input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option" required>'
     );
     this.modal.find('#mcqOptions').val('');
     // Reset the number of blanks in text fields

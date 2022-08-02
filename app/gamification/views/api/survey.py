@@ -285,6 +285,8 @@ class QuestionOptionDetail(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
         number_of_text = request.data.get('number_of_text', 1)
         question_option.number_of_text = number_of_text
         question_option.save()
+
+        option.number_of_text = number_of_text
         serializer = self.get_serializer(option)
         return Response(serializer.data)
 
