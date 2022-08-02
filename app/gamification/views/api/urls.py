@@ -6,7 +6,7 @@ from rest_framework.reverse import reverse
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CreateArtifactReview, CreateArtifactAnswer
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail
 
 
 @api_view(['GET'])

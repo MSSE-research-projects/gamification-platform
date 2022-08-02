@@ -9,7 +9,7 @@ from app.gamification.models.artifact_review import ArtifactReview
 from app.gamification.models.question import Question
 from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
-from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer
+from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
 
 
 class AnswerList(generics.ListAPIView):
@@ -28,6 +28,43 @@ class AnswerDetail(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(answer)
         return Response(serializer.data)
 
+    def put(self, request, answer_pk, *args, **kwargs):
+        answer = get_object_or_404(Answer, id=answer_pk)
+        answer_text = request.data.get('answer_text')
+        answer.answer_text = answer_text
+        answer.save()
+        serializer = self.get_serializer(answer)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, answer_pk, *args, **kwargs):
+        answer = get_object_or_404(Answer, id=answer_pk)
+        answer.delete()
+        return Response(status=204)
+
+
+class FeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ArtifactFeedback.objects.all()
+    serializer_class = ArtifactFeedbackSerializer
+    # permission_classes = [IsAdminOrReadOnly]
+
+    def get(self, request, feedback_pk, *args, **kwargs):
+        feedback = get_object_or_404(ArtifactFeedback, id=feedback_pk)
+        serializer = self.get_serializer(feedback)
+        return Response(serializer.data)
+
+    def put(self, request, feedback_pk, *args, **kwargs):
+        feedback = get_object_or_404(ArtifactFeedback, id=feedback_pk)
+        answer_text = request.data.get('answer_text')
+        feedback.answer_text = answer_text
+        feedback.save()
+        serializer = self.get_serializer(feedback)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, feedback_pk, *args, **kwargs):
+        feedback = get_object_or_404(ArtifactFeedback, id=feedback_pk)
+        feedback.delete()
+        return Response(status=204)
+
 
 class ArtifactAnswerList(generics.ListCreateAPIView):
     queryset = Answer.objects.all()
@@ -42,39 +79,42 @@ class ArtifactAnswerList(generics.ListCreateAPIView):
 
 class CreateArtifactAnswer(generics.CreateAPIView):
     queryset = Answer.objects.all()
-    serializer_class = AnswerSerializer
+    serializer_class = CreateAnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
     def post(self, request, artifact_review_pk, question_pk, *args, **kwargs):
-
+        # Multiple Choice text -> option_text
         option_text = request.data.get('option_text')
         artifact_review = get_object_or_404(
             ArtifactReview, id=artifact_review_pk)
+        # Text input -> answer_text
         answer_text = request.data.get('answer_text')
+        # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
         page = request.data.get('page')
-        question_option = get_object_or_404(
-            QuestionOption, question=question, option_choice=OptionChoice.objects.get(text=answer_text))
         if question_type == Question.Question_type.MULTIPLECHOICE:
-            self.serializer_class = AnswerSerializer
+            question_option = get_object_or_404(
+                QuestionOption, question=question, option_choice=OptionChoice.objects.get(text=option_text))
             answer, _ = Answer.objects.get_or_create(
                 question_option=question_option,
                 artifact_review=artifact_review,
                 # TODO: change answer_text to option_text
-                answer_text=answer_text
+                answer_text=option_text
             )
             print(answer, answer.question_option)
             serializer = self.get_serializer(answer)
             print(serializer.data)
             return Response(serializer.data)
         elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT:
-            self.serializer_class = AnswerSerializer
-            answer, _ = Answer.objects.get_or_create(
-                question_option=question_option,
-                artifact_review=artifact_review,
-                answer_text=answer_text
-            )
+            question_option = question.options
+            #answer_text = [texts]
+            for answerText in answer_text:
+                answer, _ = Answer.objects.get_or_create(
+                    question_option=question_option,
+                    artifact_review=artifact_review,
+                    answer_text=answerText,
+                )
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
         else:
