@@ -114,7 +114,12 @@ getSurvey = function (survey_pk, options) {
           }
         });
 
+
+
+
         survey.addSection(section);
+
+
       }
     }
   });

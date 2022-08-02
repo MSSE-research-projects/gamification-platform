@@ -4,15 +4,22 @@ class Answer(models.Model):
     """
     Model for Answer
     """
-    artifact = models.ForeignKey('Artifact', on_delete=models.CASCADE)
+    artifact_review = models.ForeignKey('ArtifactReview', on_delete=models.CASCADE)
 
-    registration = models.ForeignKey('Registration', on_delete=models.CASCADE)
+    #registration = models.ForeignKey('Registration', on_delete=models.CASCADE)
 
-    questionOption = models.ForeignKey('QuestionOption', on_delete=models.CASCADE)
+    question_option = models.ForeignKey('QuestionOption', on_delete=models.CASCADE)
 
-    answerText = models.TextField(blank=True)
+    answer_text = models.TextField(blank=True)
 
     class Meta:
         db_table = 'answer'
         verbose_name = 'answer'
         verbose_name_plural = 'answers'
+
+class ArtifactFeedback(Answer):
+    page = models.CharField(('page'), max_length=150, blank=True)
+    class Meta():
+        db_table = 'artifact_feedback'
+        verbose_name = ('artifact_feedback')
+        verbose_name_plural = ('artifact_feedback')

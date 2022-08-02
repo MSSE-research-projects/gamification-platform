@@ -9,7 +9,7 @@ from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
-from app.gamification.serializers.survey import OptionChoiceSerializer, QuestionSerializer, SectionSerializer, SurveySerializer
+from app.gamification.serializers.survey import OptionChoiceSerializer, OptionChoiceWithoutNumberOfTextSerializer, QuestionSerializer, SectionSerializer, SurveySerializer
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -233,7 +233,6 @@ class QuestionOptionList(generics.ListCreateAPIView, mixins.UpdateModelMixin, ge
         original_texts = [
             option_choice.text for option_choice in original_option_choices]
         texts = json.loads(request.body.decode())
-        print(texts)
         for text in texts:
             if text not in original_texts:
                 option_choice, _ = OptionChoice.objects.get_or_create(
@@ -299,7 +298,7 @@ class QuestionOptionDetail(mixins.UpdateModelMixin, mixins.DestroyModelMixin, ge
 
 class OptionList(generics.ListCreateAPIView):
     queryset = OptionChoice.objects.all()
-    serializer_class = OptionChoiceSerializer
+    serializer_class = OptionChoiceWithoutNumberOfTextSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
 

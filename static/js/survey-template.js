@@ -248,7 +248,8 @@ class Section {
   _buildWrapperElement() {
     var html = '';
     html += '<fieldset class="section">';
-    html += `  <legend class="section-title">${this.title}${this.is_required ? '' : ' - Optional'}</legend>`;
+    // html += `  <legend class="section-title">${this.title}${this.is_required ? '' : ' - Optional'}</legend>`;
+    html += `  <legend class="section-title">${this.title}</legend>`;
     html += '</fieldset>';
 
     return htmlToElement(html);

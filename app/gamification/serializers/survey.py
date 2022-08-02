@@ -27,10 +27,10 @@ class QuestionSerializer(serializers.ModelSerializer):
                   'dependent_question', 'question_type', 'option_choices']
 
 
-class QuestionOptionSerializer(serializers.ModelSerializer):
+class OptionChoiceWithoutNumberOfTextSerializer(serializers.ModelSerializer):
     class Meta:
-        model = QuestionOption
-        fields = ['number_of_text']
+        model = OptionChoice
+        fields = ['pk', 'text']
 
 
 class OptionChoiceSerializer(serializers.ModelSerializer):
