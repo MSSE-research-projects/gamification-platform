@@ -91,7 +91,7 @@ urlpatterns = [
          ArtifactAnswerList.as_view(), name='artifact-answer'),
 
     # Post answer to artifact(response answer_pk)
-    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers',
+    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers/',
          CreateArtifactAnswer.as_view(), name='create-artifact-answer'),
 
     # Get list of artifact reviews
@@ -99,7 +99,7 @@ urlpatterns = [
          name="artifact-review-list"),
 
     # Get detail of an artifact review. delete an artifact review
-    path('artifact_review/<int:artifact_review_id>',
+    path('artifact_review/<int:artifact_review_id>/',
          ArtifactReviewDetail.as_view(), name="artifact-review-detail"),
 
     # Get artifact review of an artifact, post a new artifact review
