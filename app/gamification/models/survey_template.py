@@ -23,4 +23,4 @@ class SurveyTemplate(models.Model):
 
     @property
     def sections(self):
-        return SurveySection.objects.filter(template=self)
+        return SurveySection.objects.filter(template=self).order_by('pk')

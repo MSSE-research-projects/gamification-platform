@@ -34,20 +34,15 @@
         var question = section.questions[i];
         var answers = question.getAnswers();
         console.log(question.pk, answers);
-        console.log(answers);
         // Put the ajax call here
         $.ajax({
-          url: `/api/artifact_review/1/questions/4/answers/`,
+          url: `/api/artifact_review/1/questions/${question.pk}/answers/`,
           type: 'PUT',
           data: {
             answer_text: JSON.stringify(answers),
           },
           success: function (data) {
-            console.log('-------');
             console.log(data);
-          },
-          failure: function (data) {
-            console.log(answers);
           },
         });
       }

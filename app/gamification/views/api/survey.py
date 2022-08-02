@@ -75,7 +75,8 @@ class SurveySectionList(generics.ListCreateAPIView):
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, survey_pk, *args, **kwargs):
-        sections = SurveySection.objects.filter(template=survey_pk)
+        sections = SurveySection.objects.filter(
+            template=survey_pk).order_by('pk')
         serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
@@ -141,7 +142,7 @@ class SectionQuestionList(generics.ListCreateAPIView):
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, section_pk, *args, **kwargs):
-        questions = Question.objects.filter(section=section_pk)
+        questions = Question.objects.filter(section=section_pk).order_by('pk')
         serializer = self.get_serializer(questions, many=True)
         return Response(serializer.data)
 
