@@ -17,6 +17,11 @@ var queTypeMapRev = {
 getSurvey = function (survey_pk, options) {
   var survey = null;
 
+  if (options.preview) {
+    options.editable = false;
+    options.live = false;
+  }
+
   $.ajax({
     async: false,
     url: `/api/surveys/${survey_pk}/`,

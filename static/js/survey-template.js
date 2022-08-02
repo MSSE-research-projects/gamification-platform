@@ -51,7 +51,9 @@ class Survey {
   // Functions for building the DOM element
   buildElement() {
     this.element = this._buildWrapperElement();
-    if (this.options.editable) {
+    if (this.options.preview) {
+      this.headerElement = this._buildPreviewHeaderElement();
+    } else if (this.options.editable) {
       this.headerElement = this._buildEditableHeaderElement();
     } else {
       this.headerElement = this._buildNormalHeaderElement();
@@ -82,6 +84,23 @@ class Survey {
     html += '<div class="survey-header">';
     html += '  <h2 class="card-title survey-name">' + this.name + '</h2>';
     html += '  <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildPreviewHeaderElement() {
+    var html = '';
+    html += '<div class="survey-header row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="col-md-6 col-sm-12 text-start">';
+    html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
+    html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary back-btn">';
+    html += '      Back';
+    html += '    </button>';
+    html += '  </div>';
     html += '</div>';
 
     return htmlToElement(html);

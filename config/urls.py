@@ -40,7 +40,8 @@ urlpatterns = [
     path('test_survey_template/', page_views.test_survey_template,
          name='test_survey_template'),
     path('test_add_survey/', page_views.test_add_survey, name='test_add_survey'),
-    path('test_view_survey/', page_views.test_view_survey, name='test_view_survey'),
+    path('test_preview_survey/', page_views.test_preview_survey,
+         name='test_preview_survey'),
     path('test_fill_survey/', page_views.test_fill_survey, name='test_fill_survey'),
 
     path('feedback/', page_views.feedback, name='feedback'),

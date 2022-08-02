@@ -124,9 +124,9 @@ def test_add_survey(request):
     return render(request, 'test-add-survey.html', {'survey_pk': 1})
 
 
-def test_view_survey(request):
+def test_preview_survey(request):
     user = request.user
-    return render(request, 'test-view-survey.html', {'survey_pk': 1})
+    return render(request, 'test-preview-survey.html', {'survey_pk': 1})
 
 
 def test_fill_survey(request):
