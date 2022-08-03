@@ -104,13 +104,11 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
             ArtifactReview, id=artifact_review_pk)
         # Text input -> answer_text []
         answer_texts = json.loads(request.data.get('answer_text'))
-
         if '' in answer_texts:
             answer_texts = [i for i in answer_texts if i != '']
         # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
-        page = request.data.get('page')
 
         if question_type == Question.Question_type.MULTIPLECHOICE:
             # delete original answer
@@ -135,7 +133,6 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
                         answer.question_option = question_option
                         answer.save()
                     else:
-                        print('delete')
                         # original answers more than new answers
                         answer.delete()
             # new answers more than original answers
@@ -171,14 +168,18 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
         else:
+            page = request.data.get('page')
+            answer_text = answer_texts[0]
             self.serializer_class = ArtifactFeedbackSerializer
+            question_option = get_object_or_404(QuestionOption, question=question)
+            #all answers of the slide question
             answer, _ = ArtifactFeedback.objects.get_or_create(
                 question_option=question_option,
                 artifact_review=artifact_review,
-                # TODO: Need to fix
-                answer_text=answer_texts[0],
                 page=page,
             )
+            answer.answer_text = answer_text
+            answer.save()
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
 
