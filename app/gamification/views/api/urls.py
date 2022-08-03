@@ -18,8 +18,8 @@ def api_root(request, format=None):
         'sections': reverse('section-list', request=request, format=format),
         'questions': reverse('question-list', request=request, format=format),
         'options': reverse('option-list', request=request, format=format),
-        'answer': reverse('answer-list', request=request, format=format),
-        'artifact_review': reverse('artifact-review-list', request=request, format=format),
+        'answers': reverse('answer-list', request=request, format=format),
+        'artifact_reviews': reverse('artifact-review-list', request=request, format=format),
     })
 
 
@@ -85,25 +85,23 @@ urlpatterns = [
     path('answers/<int:answer_pk>', AnswerDetail.as_view(), name='answer-detail'),
 
     # Get answers of artifact review
-    # TODO:add put
-    # TODO: response details(dict = 'question': 'answer') and answer_pk
-    path('artifact_review/<int:artifact_review_pk>/answers/',
+    path('artifact_reviews/<int:artifact_review_pk>/answers/',
          ArtifactAnswerList.as_view(), name='artifact-answer'),
 
-    # Post answer to artifact(response answer_pk)
-    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers',
+    # Get answers of a question, Post answer to artifact(response answer_pk)
+    path('artifact_reviews/<int:artifact_review_pk>/questions/<question_pk>/answers/',
          CreateArtifactAnswer.as_view(), name='create-artifact-answer'),
 
     # Get list of artifact reviews
-    path('artifact_review/', ArtifactReviewList.as_view(),
+    path('artifact_reviews/', ArtifactReviewList.as_view(),
          name="artifact-review-list"),
 
     # Get detail of an artifact review. delete an artifact review
-    path('artifact_review/<int:artifact_review_id>',
+    path('artifact_reviews/<int:artifact_review_id>/',
          ArtifactReviewDetail.as_view(), name="artifact-review-detail"),
 
     # Get artifact review of an artifact, post a new artifact review
-    path('artifact_review/<int:artifact_pk>/<int:registration_pk>',
+    path('artifact_reviews/<int:artifact_pk>/<int:registration_pk>',
          CreateArtifactReview.as_view(), name="artifact-review")
 
 

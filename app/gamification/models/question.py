@@ -38,4 +38,4 @@ class Question(models.Model):
 
     @property
     def options(self):
-        return QuestionOption.objects.filter(question=self)
+        return QuestionOption.objects.filter(question=self).order_by('pk')

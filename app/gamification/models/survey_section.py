@@ -23,7 +23,7 @@ class SurveySection(models.Model):
 
     @property
     def questions(self):
-        return Question.objects.filter(section=self)
+        return Question.objects.filter(section=self).order_by('pk')
 
     def __str__(self):
         return self.title

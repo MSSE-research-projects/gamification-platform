@@ -192,6 +192,10 @@ class Survey {
     return this.sections[index];
   }
 
+  getSections() {
+    return this.sections;
+  }
+
   render(e) {
     e.appendChild(this.element);
   }
@@ -409,9 +413,8 @@ class Question {
   updateElement() {
     $(this.textElement).text(this.text);
 
-    this.oldOptionElement = this.optionElement;
     this.optionElement = this._buildOptionElement();
-    this.element.replaceChild(this.optionElement, this.oldOptionElement);
+    $(this.element).find('.question-option').replaceWith(this.optionElement);
   }
 }
 
@@ -658,7 +661,7 @@ class SectionModal {
   }
 
   reset() {
-    this.modal.find('#sectionName').val('');
+    this.modal.find('#sectionTitle').val('');
     this.modal.find('#sectionDescription').val('');
   }
 
@@ -739,7 +742,7 @@ class QuestionModal {
   }
 
   reset() {
-    this.modal.find('#sectionNameInQuestionModal').val('');
+    this.modal.find('#sectionTitleInQuestionModal').val('');
     this.modal.find('#questionText').val('');
     this.modal.find('#questionType').val('');
     this.modal.find('#questionType').trigger('change');
@@ -749,7 +752,7 @@ class QuestionModal {
     );
     this.modal.find('#mcqOptions').val('');
     // Reset the number of blanks in text fields
-    this.modal.find('#displayNum').val('');
+    this.modal.find('#numberOfText').val('');
   }
 
   on(event, selector, handler) {

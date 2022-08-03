@@ -213,7 +213,7 @@
         type: 'DELETE',
         url: `/api/sections/${section.pk}/`,
         success: function (data) {
-          this.removeSection(section);
+          survey.removeSection(section);
         },
         error: function (data) {
           console.log(data);
