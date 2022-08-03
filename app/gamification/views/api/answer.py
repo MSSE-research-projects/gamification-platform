@@ -92,9 +92,9 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
         answers = []
         for question_option in question_options:
             if Answer.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
-                answer = Answer.objects.get(
+                answer = Answer.objects.filter(
                     question_option=question_option, artifact_review=artifact_review)
-                answers.append(answer)
+                answers.extend(answer)
         serializer = self.get_serializer(answers, many=True)
         return Response(serializer.data)
 
@@ -171,8 +171,9 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
             page = request.data.get('page')
             answer_text = answer_texts[0]
             self.serializer_class = ArtifactFeedbackSerializer
-            question_option = get_object_or_404(QuestionOption, question=question)
-            #all answers of the slide question
+            question_option = get_object_or_404(
+                QuestionOption, question=question)
+            # all answers of the slide question
             answer, _ = ArtifactFeedback.objects.get_or_create(
                 question_option=question_option,
                 artifact_review=artifact_review,
