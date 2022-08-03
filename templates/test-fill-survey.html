@@ -36,7 +36,7 @@
         console.log(question.pk, answers);
         // Put the ajax call here
         $.ajax({
-          url: `/api/artifact_review/1/questions/${question.pk}/answers/`,
+          url: `/api/artifact_review/${artifact_review_pk}/questions/${question.pk}/answers/`,
           type: 'PUT',
           data: {
             answer_text: JSON.stringify(answers),
@@ -49,7 +49,27 @@
     });
 
     survey.on('click', '.submit-survey-btn', function (e) {
-      // Do something here
+      var button = $(e.currentTarget);
+      var sections = this.getSections();
+      console.log(sections);
+      for (var j = 0; j < sections.length; j++) {
+        for (var i = 0; i < sections[j].questions.length; i++) {
+          var question = sections[j].questions[i];
+          var answers = question.getAnswers();
+          console.log(question.pk, answers);
+          // Put the ajax call here
+          $.ajax({
+            url: `/api/artifact_review/${artifact_review_pk}/questions/${question.pk}/answers/`,
+            type: 'PUT',
+            data: {
+              answer_text: JSON.stringify(answers),
+            },
+            success: function (data) {
+              console.log(data);
+            },
+          });
+        }
+      }
     });
   });
 

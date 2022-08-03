@@ -192,6 +192,10 @@ class Survey {
     return this.sections[index];
   }
 
+  getSections() {
+    return this.sections;
+  }
+
   render(e) {
     e.appendChild(this.element);
   }
