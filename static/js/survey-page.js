@@ -6,12 +6,14 @@ $(function () {
 
 var queTypeMap = {
   'mcq': 'MULTIPLECHOICE',
-  'text': 'FIXEDTEXT',
+  'fixed-text': 'FIXEDTEXT',
+  'multi-text': 'MULTIPLETEXT',
   'textarea': 'FIXEDTEXT',
 };
 var queTypeMapRev = {
   'MULTIPLECHOICE': 'mcq',
-  'FIXEDTEXT': 'text',
+  'FIXEDTEXT': 'fixed-text',
+  'MULTIPLETEXT': 'multi-text',
 };
 
 getSurvey = function (survey_pk, options) {
@@ -87,6 +89,26 @@ getSurvey = function (survey_pk, options) {
                   );
                   break;
                 case 'FIXEDTEXT':
+                  var numberOfText;
+                  $.ajax({
+                    async: false,
+                    url: `/api/questions/${data[j].pk}/options/`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                      if (data.length > 0) {
+                        numberOfText = data[0].number_of_text;
+                      } else {
+                        numberOfText = 1;
+                      }
+                    }
+                  });
+                  data[j].numberOfText = numberOfText;
+                  question = new FixedTextInputQuestion(
+                    data[j],
+                    options = options
+                  );
+                  break;
                 case 'MULTIPLETEXT':
                   var numberOfText;
                   $.ajax({
@@ -103,7 +125,7 @@ getSurvey = function (survey_pk, options) {
                     }
                   });
                   data[j].numberOfText = numberOfText;
-                  question = new TextInputQuestion(
+                  question = new MultiTextInputQuestion(
                     data[j],
                     options = options
                   );

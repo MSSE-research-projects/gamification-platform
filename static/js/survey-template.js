@@ -648,7 +648,7 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
   }
 }
 
-class TextInputQuestion extends DefaultStyleQuestion {
+class FixedTextInputQuestion extends DefaultStyleQuestion {
   constructor(data = {}, options = {}) {
     super(data, options);
     this.placeholder = data.placeholder ? data.placeholder : '';
@@ -683,7 +683,88 @@ class TextInputQuestion extends DefaultStyleQuestion {
     var inputs = $(this.element).find('input');
     var answers = [];
     for (var i = 0; i < inputs.length; i++) {
-      answers.push(inputs[i].value);
+      if (inputs[i].value) {
+        answers.push(inputs[i].value);
+      }
+    }
+    return answers;
+  }
+}
+
+class MultiTextInputQuestion extends DefaultStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.placeholder = data.placeholder ? data.placeholder : '';
+    this.numberOfText = data.numberOfText ? data.numberOfText : 1;
+    this.type = 'text';
+
+    this.buildElement();
+
+    this.on('click', '.add-text-input-btn', this.addTextInput.bind(this));
+    this.on('click', '.remove-text-input-btn', this.removeTextInput.bind(this));
+  }
+
+  buildElement() {
+    super.buildElement();
+
+    var footerElement = this._buildFooterElement();
+    this.element.appendChild(footerElement);
+  }
+
+  _buildOption() {
+    var html = '';
+    html += '<div class="text-lines">';
+    for (var i = 0; i < this.numberOfText; i++) {
+      if (i === 0) {
+        html += '<input type="text" class="form-control mb-2" placeholder="' + this.placeholder + '">';
+      } else {
+        html += '<input type="text" class="form-control mb-2">';
+      }
+    }
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildFooterElement() {
+    var html = '';
+    html += '<div class="col text-end">';
+    html += '  <button type="button" class="btn btn-sm btn-primary add-text-input-btn"><i class="fa fa-plus"></i> Add New Line</button>';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  addTextInput() {
+    $(this.element).find('.text-lines').append(
+      '<div class="input-group mb-2">' +
+      '  <input type="text" class="form-control">' +
+      '  <button class="btn btn-outline-danger remove-text-input-btn" type="button">Remove</button>' +
+      '</div>'
+    );
+  }
+
+  removeTextInput(event) {
+    var button = $(event.currentTarget);
+    button.closest('.input-group').remove();
+  }
+
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      if (i >= this.numberOfText) {
+        this.addTextInput();
+      }
+      $(this.element).find('input')[i].value = values[i];
+    }
+  }
+
+  getAnswers() {
+    var inputs = $(this.element).find('input');
+    var answers = [];
+    for (var i = 0; i < inputs.length; i++) {
+      if (inputs[i].value) {
+        answers.push(inputs[i].value);
+      }
     }
     return answers;
   }
@@ -804,7 +885,8 @@ class QuestionModal {
         this.modal.find('#mcqFields').show();
         this.modal.find('#textFields').hide();
         break;
-      case 'text':
+      case 'fixed-text':
+      case 'multi-text':
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').show();
         break;

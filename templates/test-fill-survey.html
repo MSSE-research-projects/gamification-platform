@@ -77,6 +77,7 @@
       var button = $(e.currentTarget);
       var sectionTitle = button.closest('.section').find('.section-title').text();
       var section = this.getSectionByTitle(sectionTitle);
+      var hasError = false;
 
       for (var i = 0; i < section.questions.length; i++) {
         var question = section.questions[i];
@@ -92,7 +93,16 @@
           success: function (data) {
             // console.log(data);
           },
+          failure: function (err) {
+            hasError = true;
+          }
         });
+      }
+
+      if (!hasError) {
+        alert('Saved!');
+      } else {
+        alert('Error saving!');
       }
     });
 

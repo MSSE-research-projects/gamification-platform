@@ -95,7 +95,8 @@
           <select class="form-control" id="questionType">
             <option value="">Select Question Type</option>
             <option value="mcq">Multiple Choice Question</option>
-            <option value="text">Text</option>
+            <option value="fixed-text">Fixed Text</option>
+            <option value="multi-text">Multi-line Text</option>
             <option value="textarea">Textarea</option>
           </select>
         </div>
@@ -154,7 +155,8 @@
           <select class="form-control" id="questionType" disabled>
             <option value="">Select Question Type</option>
             <option value="mcq">Multiple Choice Question</option>
-            <option value="text">Text</option>
+            <option value="fixed-text">Fixed Text</option>
+            <option value="multi-text">Multi-line Text</option>
             <option value="textarea">Textarea</option>
           </select>
         </div>
@@ -366,8 +368,16 @@
                 }
               );
               break;
-            case 'text':
-              question = new TextInputQuestion(
+            case 'fixed-text':
+              question = new FixedTextInputQuestion(
+                data,
+                options = {
+                  editable: true,
+                }
+              );
+              break;
+            case 'multi-text':
+              question = new MultiTextInputQuestion(
                 data,
                 options = {
                   editable: true,
@@ -424,7 +434,8 @@
             }
           });
           break;
-        case 'text':
+        case 'fixed-text':
+        case 'multi-text':
           var numberOfText;
           if (this.modal.find('#numberOfText').val() != '') {
             numberOfText = parseInt(this.modal.find('#numberOfText').val());
@@ -490,7 +501,8 @@
             $(element).val(question.choices[index].text);
           });
           break;
-        case 'text':
+        case 'fixed-text':
+        case 'multi-text':
           this.modal.find('#numberOfText').val(question.numberOfText);
           break;
         case 'textarea':
@@ -565,7 +577,8 @@
             }
           });
           break;
-        case 'text':
+        case 'fixed-text':
+        case 'multi-text':
           // Modify # of display lines if it is a text question
           var emptyChoicePK = null;
           $.ajax({
