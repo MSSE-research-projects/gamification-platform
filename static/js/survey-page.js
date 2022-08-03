@@ -28,7 +28,6 @@ getSurvey = function (survey_pk, options) {
     type: 'GET',
     dataType: 'json',
     success: function (data) {
-      // console.log(data);
       survey = new Survey(
         data,
         sections = [],
@@ -43,8 +42,11 @@ getSurvey = function (survey_pk, options) {
     type: 'GET',
     dataType: 'json',
     success: function (data) {
-      // console.log(data);
       for (var i = 0; i < data.length; i++) {
+        if (data[i].title == 'artifactReview') {
+          continue;
+        }
+
         data[i].survey = survey;
         var section = new Section(
           data[i],
@@ -58,12 +60,13 @@ getSurvey = function (survey_pk, options) {
           type: 'GET',
           dataType: 'json',
           success: function (data) {
-            // console.log(data);
             for (var j = 0; j < data.length; j++) {
               var question = null;
               data[j].section = section;
+
               switch (data[j].question_type) {
                 case 'MULTIPLECHOICE':
+                  // Retrive all choices
                   var choices = [];
                   $.ajax({
                     async: false,
@@ -71,7 +74,6 @@ getSurvey = function (survey_pk, options) {
                     type: 'GET',
                     dataType: 'json',
                     success: function (data) {
-                      // console.log(data);
                       for (var l = 0; l < data.length; l++) {
                         var choice = new OptionChoice(data[l]);
                         choices.push(choice);
@@ -109,20 +111,36 @@ getSurvey = function (survey_pk, options) {
                 default:
                   break;
               }
+
               section.addQuestion(question);
             }
           }
         });
 
-
-
-
         survey.addSection(section);
-
-
       }
     }
   });
 
   return survey;
+}
+
+updateAnswers = function (survey, artifact_review_pk) {
+  for (var i = 0; i < survey.sections.length; i++) {
+    var section = survey.sections[i];
+    for (var j = 0; j < section.questions.length; j++) {
+      var question = section.questions[j];
+      var answers = [];
+      $.ajax({
+        async: false,
+        url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          data.map(({ answer_text }) => answers.push(answer_text));
+        }
+      });
+      question.setAnswers(answers);
+    }
+  }
 }

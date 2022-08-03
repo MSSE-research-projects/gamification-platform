@@ -23,7 +23,10 @@
       <div class="modal-body">
         <div class="form-group">
           <label for="sectionTitle">Section Title</label>
-          <input type="text" class="form-control" id="sectionTitle" placeholder="Section Title" required>
+          <input type="text" list="titleCandidates" class="form-control" id="sectionTitle" placeholder="Section Title"
+            required>
+          <datalist id="titleCandidates">
+          </datalist>
         </div>
         <div class="form-group">
           <label for="sectionDescription">Section Description</label>
@@ -82,7 +85,10 @@
         </div>
         <div class="form-group">
           <label for="questionText">Question Text</label>
-          <input type="text" class="form-control" id="questionText" placeholder="Question Text" required>
+          <input type="text" list="textCandidates" class="form-control" id="questionText" placeholder="Question Text"
+            required>
+          <datalist id="textCandidates">
+          </datalist>
         </div>
         <div class="form-group">
           <label for="questionType">Question Type</label>
@@ -192,6 +198,7 @@
 {% block js %}
 <script src="{% static 'js/survey-template.js' %}"></script>
 <script src="{% static 'js/survey-page.js' %}"></script>
+<script src="{% static 'js/pdf-carousel.js' %}"></script>
 <script>
 
   $(document).ready(function () {

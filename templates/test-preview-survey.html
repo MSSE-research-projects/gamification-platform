@@ -10,15 +10,63 @@
     </div> <!-- end #survey -->
   </div> <!-- end .row -->
 </div> <!-- end .content-wrapper -->
+
+<div class="modal fade" id="artifactPreviewModal" tabindex="-1" aria-labelledby="artifactPreviewModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="artifactPreviewModalLabel">PDF Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <div id="artifactPreviewCarousel" class="carousel slide" data-bs-touch="false" data-bs-interval="false">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <canvas style="border: 1px solid black; width: 100%"></canvas>
+              <div class="carousel-caption d-none d-md-block">
+                <span class="page-number"></span> / <span class="page-count"></span>
+              </div>
+            </div>
+          </div>
+          <button id="prev" class="carousel-control-prev" type="button">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button id="next" class="carousel-control-next" type="button">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+
+        <div class="mb-3 feedback-textarea">
+          <label class="form-label">Enter your feedback here</label>
+          <textarea class="form-control" rows="5"></textarea>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/survey-template.css' %}">
+<link rel="stylesheet" href="{% static 'css/pdf-carousel.css' %}">
 {% endblock css %}
 
 {% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"
+  integrity="sha512-dw+7hmxlGiOvY3mCnzrPT5yoUwN/MRjVgYV7HGXqsiXnZeqsw1H9n9lsnnPu4kL2nx2bnrjFcuWK+P3lshekwQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"
+  integrity="sha512-fahFaRPTP2xrdxAbzgG31V4Vr+Ga/hp4gQu3ZBq83bhKO10NoWfTJ20OWg9ufEyT1Y4ZyCuh9wLHY9CHi6l95Q=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script src="{% static 'js/survey-template.js' %}"></script>
 <script src="{% static 'js/survey-page.js' %}"></script>
+<script src="{% static 'js/pdf-carousel.js' %}"></script>
 <script>
 
   $(document).ready(function () {
@@ -31,6 +79,10 @@
       window.location.href = '/test_add_survey/';
       // window.location.href = '/survey/' + this.pk + '/student';
     });
+
+    var artifactPreviewDOM = document.getElementById('artifactPreviewCarousel')
+    var carousel = new PDFCarousel(artifactPreviewDOM);
+    carousel.renderPDF(pdfURL);
   });
 
   $(function () {
@@ -40,6 +92,8 @@
   });
 
   var survey = getSurvey('{{ survey_pk }}', { preview: true });
+
+  var pdfURL = "{% static 'test.pdf' %}";
 
 </script>
 {% endblock js %}

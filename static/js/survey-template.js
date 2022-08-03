@@ -81,9 +81,16 @@ class Survey {
 
   _buildNormalHeaderElement() {
     var html = '';
-    html += '<div class="survey-header">';
-    html += '  <h2 class="card-title survey-name">' + this.name + '</h2>';
-    html += '  <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '<div class="survey-header row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="col-md-6 col-sm-12 text-start">';
+    html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
+    html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary artifact-preview-btn" data-bs-toggle="modal" data-bs-target="#artifactPreviewModal">';
+    html += '      Artifact Preview';
+    html += '    </button>';
+    html += '  </div>';
     html += '</div>';
 
     return htmlToElement(html);
@@ -95,6 +102,11 @@ class Survey {
     html += '  <div class="col-md-6 col-sm-12 text-start">';
     html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
     html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary artifact-preview-btn" data-bs-toggle="modal" data-bs-target="#artifactPreviewModal">';
+    html += '      Artifact Preview';
+    html += '    </button>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
     html += '    <button class="btn btn-primary back-btn">';
@@ -527,6 +539,44 @@ class DefaultStyleQuestion extends Question {
   }
 }
 
+// class GridStyleQuestion extends Question {
+//   constructor(data = {}, options = {}) {
+//     super(data, options);
+
+//     if (new.target === GridStyleQuestion) {
+//       throw new TypeError('Cannot construct GridStyleQuestion instances directly');
+//     }
+
+//     if (this._buildOption == undefined) {
+//       throw new TypeError('GridStyleQuestion subclass must implement _buildOption');
+//     }
+//   }
+
+//   _buildWrapperElement() {
+//     var html = '';
+//     html += '<div class="row mb-3 align-items-center justify-content-center">';
+//     html += '</div>';
+
+//     return htmlToElement(html);
+//   }
+
+//   _buildTextElement() {
+//     var html = '';
+//     html += '<label class="question-text col-auto form-label">' + this.text + '</label>';
+
+//     return htmlToElement(html);
+//   }
+
+//   _buildOptionElement() {
+//     var html = '';
+//     html += '<input type="number" min="1" max="10" step="1" class="question-option col form-control">';
+
+//     return htmlToElement(html);
+//   }
+// }
+
+
+
 class MultipleChoiceQuestion extends InlineStyleQuestion {
   constructor(data = {}, options = {}) {
     super(data, options);
@@ -551,6 +601,12 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
     html += '</div>';
 
     return htmlToElement(html);
+  }
+
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      $(this.element).find(`input[value="${values[i]}"]`).prop('checked', true);
+    }
   }
 
   getAnswers() {
@@ -617,6 +673,12 @@ class TextInputQuestion extends DefaultStyleQuestion {
     return htmlToElement(html);
   }
 
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      $(this.element).find('input')[i].value = values[i];
+    }
+  }
+
   getAnswers() {
     var inputs = $(this.element).find('input');
     var answers = [];
@@ -644,9 +706,43 @@ class TextAreaQuestion extends DefaultStyleQuestion {
     return htmlToElement(html);
   }
 
+  setAnswer(value) {
+    $(this.element).find('textarea').val(value);
+  }
+
   getAnswers() {
     var answer = $(this.element).find('textarea').val();
     return answer;
+  }
+}
+
+class NumericInputQuestion extends InlineStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.minValue = data.minValue ? data.minValue : 1;
+    this.maxValue = data.maxValue ? data.maxValue : 10;
+    this.step = data.step ? data.step : 1;
+    this.type = 'number';
+
+    this.buildElement();
+  }
+
+  _buildOption() {
+    var html = '';
+    // html += '<div>';
+    html += `<input type="number" min="${this.minValue}" max="${this.maxValue}" step="${this.step}" class="col form-control">`;
+    // html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  getAnswers() {
+    var inputs = $(this.element).find('input');
+    var answers = [];
+    for (var i = 0; i < inputs.length; i++) {
+      answers.push(inputs[i].value);
+    }
+    return answers;
   }
 }
 
