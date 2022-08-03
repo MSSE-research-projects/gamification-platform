@@ -74,6 +74,13 @@
                     <button type="button" class="btn-sm btn-primary">delete</button>
                   </a>
                 </td>
+                {% else %}
+                <td>
+                  {% comment %} TODO: add a new html for survey list  {% endcomment %}
+                  <a href="{% url 'test_fill_survey' %}">
+                    <button type="button" class="btn-sm btn-primary">Survey</button>
+                  </a>
+                </td>
                 {% endif %}
               </tr>
             </tbody>
