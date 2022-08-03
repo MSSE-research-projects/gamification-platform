@@ -85,7 +85,23 @@ def email_user(request, andrew_id):
 
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    def get_registrations(user):
+        registration = []
+        for reg in Registration.objects.filter(users=user):
+            if reg.userRole == Registration.UserRole.Student and reg.courses.visible == False:
+                continue
+            else:
+                registration.append(reg)
+        return registration
+
+    if request.method == 'GET':
+        andrew_id = request.user.andrew_id
+        form = CourseForm(label_suffix='')
+        unsorted_registration = get_registrations(request.user)
+        # TODO: sort registration by semester in a better way
+        registration = sorted(unsorted_registration, key=lambda x: x.courses.semester, reverse=True)
+        context = {'registration': registration, 'form': form, 'andrew_id': andrew_id}
+        return render(request, 'dashboard.html', context)
 
 
 @login_required
@@ -160,7 +176,7 @@ def report(request, course_id, andrew_id):
             membership.save()
             entity = Individual.objects.get(registration=registration, course=course)
     
-    # 'name': chart_type + "-" + unique_name
+    # 'name': chart_type + "-" + unique_name(use number here)
     card1 = {'title': "title0", 'name': "pieChart-0", 'areaData': []}
     card2 = {'title': "title1", 'name': "pieChart-1", 'areaData': []}
     card3 = {'title': "title2", 'name': "pieChart-2", 'areaData': []}
@@ -181,19 +197,36 @@ def report(request, course_id, andrew_id):
     section.append(row)
     section.append(row2)
     
-    card7 = {'title': "title4", 'name': "areaChart", 'areaData': []}
-    card8 = {'title': "title5", 'name': "pieChart-5", 'areaData': []}
+    card7 = {'title': "title6", 'name': "areaChart", 'areaData': []}
+    card8 = {'title': "title7", 'name': "lineChart", 'areaData': []}
+    card9 = {'title': "title8", 'name': "barChart", 'areaData': []}
+    card11 = {'title': "title10", 'name': "scatterChart", 'areaData': []}
     row = []
     row.append(card7)
     row.append(card8)
-    section_name = "Software Engineering Problem"
-    section.append(section_name)
-    section.append(row)
+    row.append(card9)
+    row.append(card11)
+    section2 = []
+    section_name2 = "Software Engineering Problem2"
+    section2.append(section_name2)
+    section2.append(row)
     
     sections = []
     sections.append(section)
-    
-    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole, 'sections': sections}
+    sections.append(section2)
+    #
+    score_list = []
+    score1 = {'name': 'Content','value': 8.00, 'max_value': 10.00}
+    score2 = {'name': 'Design','value': 6.00, 'max_value': 10.00}
+    score3 = {'name': 'Delivery','value': 4.00, 'max_value': 10.00}
+    score4 = {'name': 'Overall','value': 6.00, 'max_value': 10.00}
+    score_list.append(score1)
+    score_list.append(score2)
+    score_list.append(score3)
+    score_list.append(score4)
+    final_score = 'A-'
+    #
+    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole, 'sections': sections, 'score_list': score_list, 'final_score': final_score}
     return render(request, 'report.html', context)
 
 
