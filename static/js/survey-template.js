@@ -301,6 +301,7 @@ class Section {
     div.classList.add('section-questions');
     for (var i = 0; i < this.questions.length; i++) {
       var question = this.questions[i];
+      div.appendChild(htmlToElement('<hr>'));
       div.appendChild(question.element);
     }
     return div;
@@ -308,9 +309,12 @@ class Section {
 
   _buildFooterElement() {
     var html = '';
-    html += '<div class="section-footer row mb-3 align-items-center justify-content-between">';
-    html += '  <div class="col text-end">';
-    html += '    <button type="button" class="btn btn-sm btn-primary save-section-btn"><i class="fa fa-save"></i> Save</button>';
+    html += '<div>';
+    html += '  <hr>';
+    html += '  <div class="section-footer row mb-3 align-items-center justify-content-between">';
+    html += '    <div class="col text-end">';
+    html += '      <button type="button" class="btn btn-sm btn-primary save-section-btn"><i class="fa fa-save"></i> Save</button>';
+    html += '    </div>';
     html += '  </div>';
     html += '</div>';
 
@@ -331,11 +335,13 @@ class Section {
 
   addQuestion(question) {
     this.questions.push(question);
+    this.questionElement.appendChild(htmlToElement('<hr>'));
     this.questionElement.appendChild(question.element);
   }
 
   removeQuestion(question) {
     this.questions.splice(this.questions.indexOf(question), 1);
+    this.questionElement.removeChild(question.element.previousElementSibling);
     this.questionElement.removeChild(question.element);
   }
 

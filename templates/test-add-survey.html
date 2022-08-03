@@ -359,42 +359,30 @@
         success: function (data) {
           data.section = section;
 
+          var questionClass;
           switch (questionType) {
             case 'mcq':
-              question = new MultipleChoiceQuestion(
-                data,
-                options = {
-                  editable: true,
-                }
-              );
+              questionClass = MultipleChoiceQuestion;
               break;
             case 'fixed-text':
-              question = new FixedTextInputQuestion(
-                data,
-                options = {
-                  editable: true,
-                }
-              );
+              questionClass = FixedTextInputQuestion;
               break;
             case 'multi-text':
-              question = new MultiTextInputQuestion(
-                data,
-                options = {
-                  editable: true,
-                }
-              );
+              questionClass = MultiTextInputQuestion;
               break;
             case 'textarea':
-              question = new TextAreaQuestion(
-                data,
-                options = {
-                  editable: true,
-                }
-              );
+              questionClass = TextAreaQuestion;
               break;
             default:
               break;
           }
+
+          question = new questionClass(
+            data,
+            options = {
+              editable: true,
+            }
+          );
 
           section.addQuestion(question);
         },
@@ -625,6 +613,7 @@
     });
   });
 
-  var survey = getSurvey('{{ survey_pk }}', { editable: true });
+  var survey_pk = '{{ survey_pk }}'
+  var survey = getSurvey(survey_pk, { editable: true });
 </script>
 {% endblock js %}

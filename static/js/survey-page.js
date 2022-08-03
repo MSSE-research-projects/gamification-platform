@@ -66,6 +66,7 @@ getSurvey = function (survey_pk, options) {
               var question = null;
               data[j].section = section;
 
+              var questionClass = null;
               switch (data[j].question_type) {
                 case 'MULTIPLECHOICE':
                   // Retrive all choices
@@ -83,10 +84,8 @@ getSurvey = function (survey_pk, options) {
                     }
                   });
                   data[j].choices = choices;
-                  question = new MultipleChoiceQuestion(
-                    data[j],
-                    options = options
-                  );
+
+                  questionClass = MultipleChoiceQuestion;
                   break;
                 case 'FIXEDTEXT':
                   var numberOfText;
@@ -104,10 +103,8 @@ getSurvey = function (survey_pk, options) {
                     }
                   });
                   data[j].numberOfText = numberOfText;
-                  question = new FixedTextInputQuestion(
-                    data[j],
-                    options = options
-                  );
+
+                  questionClass = FixedTextInputQuestion;
                   break;
                 case 'MULTIPLETEXT':
                   var numberOfText;
@@ -125,14 +122,17 @@ getSurvey = function (survey_pk, options) {
                     }
                   });
                   data[j].numberOfText = numberOfText;
-                  question = new MultiTextInputQuestion(
-                    data[j],
-                    options = options
-                  );
+
+                  questionClass = MultiTextInputQuestion;
                   break;
                 default:
                   break;
               }
+
+              question = new questionClass(
+                data[j],
+                options = options
+              );
 
               section.addQuestion(question);
             }
