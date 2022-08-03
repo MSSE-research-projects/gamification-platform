@@ -36,7 +36,7 @@
         console.log(question.pk, answers);
         // Put the ajax call here
         $.ajax({
-          url: `/api/artifact_review/${artifact_review_pk}/questions/${question.pk}/answers/`,
+          url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
           type: 'PUT',
           data: {
             answer_text: JSON.stringify(answers),
@@ -59,7 +59,7 @@
           console.log(question.pk, answers);
           // Put the ajax call here
           $.ajax({
-            url: `/api/artifact_review/${artifact_review_pk}/questions/${question.pk}/answers/`,
+            url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
             type: 'PUT',
             data: {
               answer_text: JSON.stringify(answers),

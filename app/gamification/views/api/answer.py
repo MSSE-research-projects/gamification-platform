@@ -79,10 +79,24 @@ class ArtifactAnswerList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
 
-class CreateArtifactAnswer(generics.UpdateAPIView):
+class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
     queryset = Answer.objects.all()
     serializer_class = CreateAnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
+
+    def get(self, request, artifact_review_pk, question_pk, * args, **kwargs):
+        question = get_object_or_404(Question, id=question_pk)
+        artifact_review = get_object_or_404(
+            ArtifactReview, id=artifact_review_pk)
+        question_options = question.options
+        answers = []
+        for question_option in question_options:
+            if Answer.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
+                answer = Answer.objects.get(
+                    question_option=question_option, artifact_review=artifact_review)
+                answers.append(answer)
+        serializer = self.get_serializer(answers, many=True)
+        return Response(serializer.data)
 
     def put(self, request, artifact_review_pk, question_pk, *args, **kwargs):
         # Multiple Choice text -> option_text
@@ -90,10 +104,14 @@ class CreateArtifactAnswer(generics.UpdateAPIView):
             ArtifactReview, id=artifact_review_pk)
         # Text input -> answer_text []
         answer_texts = json.loads(request.data.get('answer_text'))
+
+        if '' in answer_texts:
+            answer_texts = [i for i in answer_texts if i != '']
         # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
         page = request.data.get('page')
+
         if question_type == Question.Question_type.MULTIPLECHOICE:
             # delete original answer
             if len(answer_texts) == 0:
@@ -132,11 +150,10 @@ class CreateArtifactAnswer(generics.UpdateAPIView):
             return Response(serializer.data)
 
         elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT:
+            answer = None
             question_option = question.options[0]
             answers = Answer.objects.filter(
                 question_option=question_option, artifact_review=artifact_review)
-            if '' in answer_texts:
-                answer_texts.remove('')
             for answer in answers:
                 if len(answer_texts) > 0:
                     current_answer = answer_texts.pop(0)
@@ -145,6 +162,7 @@ class CreateArtifactAnswer(generics.UpdateAPIView):
                 else:
                     # original answers more than new answers
                     answer.delete()
+
             while len(answer_texts) != 0:
                 current_answer = answer_texts.pop(0)
                 answer = Answer(answer_text=current_answer,
