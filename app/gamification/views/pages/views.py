@@ -142,14 +142,23 @@ def test_survey_template(request):
     return render(request, 'test-survey-template.html')
 
 
-def test_add_survey(request):
-    user = request.user
-    return render(request, 'test-add-survey.html', {'survey_pk': 1})
+def test_add_survey(request, course_id, assignment_id):
+    if request.method == 'GET':
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = get_object_or_404(
+            FeedbackSurvey, assignment=assignment)
+        survey_template = feedback_survey.template.pk
+        return render(request, 'test-add-survey.html', {'survey_pk': survey_template})
+    else:
+        return render(request, 'test-add-survey.html')
 
 
-def test_preview_survey(request):
-    user = request.user
-    return render(request, 'test-preview-survey.html', {'survey_pk': 1})
+def test_preview_survey(request, course_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    feedback_survey = get_object_or_404(
+        FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template.pk
+    return render(request, 'test-preview-survey.html', {'survey_pk': survey_template})
 
 
 def test_fill_survey(request):
