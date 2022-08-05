@@ -14,7 +14,7 @@ from django.http import FileResponse
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, FeedbackSurvey
 from app.gamification.models.artifact_review import ArtifactReview
 from .survey_views import *
 
