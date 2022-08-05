@@ -55,6 +55,8 @@ urlpatterns = [
             path('assignment/', include([
                 path('', page_views.assignment, name='assignment'),
                 path('<int:assignment_id>/', include([
+                    path('review_survey/', page_views.review_survey,
+                         name='review_survey'),
                     path('delete/', page_views.delete_assignment,
                          name='delete_assignment'),
                     path('edit/', page_views.edit_assignment,

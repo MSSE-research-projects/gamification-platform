@@ -727,3 +727,25 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
 
     else:
         return redirect('artifact', course_id, assignment_id)
+
+    
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def review_survey(request, course_id, assignment_id):
+    #team, button_survey
+    user = request.user
+    course = get_object_or_404(Course, id = course_id)
+    assignment = get_object_or_404(Assignment, id = assignment_id, course=course)
+    assignment_type = assignment.assignment_type
+    artifacts = Artifact.objects.filter(assignment = assignment)
+    #find artifact_review(registration, )
+    registration = get_object_or_404(Registration, users = user, courses = course)
+    artifact_reviews = []
+    for artifact in artifacts:
+        artifact_reviews.append(ArtifactReview.objects.filter(artifact=artifact, user=registration))
+    context = dict()
+    if assignment_type == "Team":
+        context[]
+
+    return render(request, 'survey_list.html')
+

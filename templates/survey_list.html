@@ -1,0 +1,47 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Assignment{% endblock %}
+
+{% block content %}
+<div class="container-scroller" style="width: 100%; height: 60%">
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button"
+              class="btn btn-outline-primary">Back</button>
+        </h4>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  {{ assignment_type }}
+                </th>
+
+              </tr>
+            </thead>
+            {% for survey in surveys %}
+            <tbody>
+              <tr>
+                <td>
+                  {{ survey.name}}
+                </td>
+
+                <td>
+                  <a href="{% url 'test_fill_survey'%}">
+                    <button type="button" class="btn-sm btn-primary">Survey</button>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
