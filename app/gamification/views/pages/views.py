@@ -594,7 +594,7 @@ def artifact(request, course_id, assignment_id):
             if assignment_type == 'Team':
                 team_members = [i.pk for i in entity.members]
                 registrations = [i for i in Registration.objects.filter(
-                     courses=course) if i.users.pk not in team_members]
+                    courses=course) if i.users.pk not in team_members]
                 for registration in registrations:
                     artifact_review = ArtifactReview(
                         artifact=artifact, user=registration)
@@ -728,24 +728,35 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
     else:
         return redirect('artifact', course_id, assignment_id)
 
-    
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def review_survey(request, course_id, assignment_id):
     #team, button_survey
     user = request.user
-    course = get_object_or_404(Course, id = course_id)
-    assignment = get_object_or_404(Assignment, id = assignment_id, course=course)
+    course = get_object_or_404(Course, id=course_id)
+    assignment = get_object_or_404(Assignment, id=assignment_id, course=course)
     assignment_type = assignment.assignment_type
-    artifacts = Artifact.objects.filter(assignment = assignment)
-    #find artifact_review(registration, )
-    registration = get_object_or_404(Registration, users = user, courses = course)
+    artifacts = Artifact.objects.filter(assignment=assignment)
+    # find artifact_review(registration, )
+    registration = get_object_or_404(Registration, users=user, courses=course)
     artifact_reviews = []
     for artifact in artifacts:
-        artifact_reviews.append(ArtifactReview.objects.filter(artifact=artifact, user=registration))
-    context = dict()
-    if assignment_type == "Team":
-        context[]
+        artifact_reviews.extend(ArtifactReview.objects.filter(
+            artifact=artifact, user=registration))
+    names = []
+    for artifact_review in artifact_reviews:
+        artifact = artifact_review.artifact
+        if assignment_type == "Team":
+            entity = artifact.entity
+            team = entity.team
+            names.append(team.name)
 
-    return render(request, 'survey_list.html')
+        else:
+            entity = artifact.entity
+            names.append(Membership.objects.get(
+                entity=entity).student.users.get_full_name())
 
+    print(names)
+
+    return render(request, 'survey_list.html', {'names': names, 'assignment_type': assignment_type})
