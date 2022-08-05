@@ -15,6 +15,7 @@ from django.http import FileResponse
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual
+from app.gamification.models.artifact_review import ArtifactReview
 from .survey_views import *
 
 
@@ -99,8 +100,10 @@ def dashboard(request):
         form = CourseForm(label_suffix='')
         unsorted_registration = get_registrations(request.user)
         # TODO: sort registration by semester in a better way
-        registration = sorted(unsorted_registration, key=lambda x: x.courses.semester, reverse=True)
-        context = {'registration': registration, 'form': form, 'andrew_id': andrew_id}
+        registration = sorted(unsorted_registration,
+                              key=lambda x: x.courses.semester, reverse=True)
+        context = {'registration': registration,
+                   'form': form, 'andrew_id': andrew_id}
         return render(request, 'dashboard.html', context)
 
 
@@ -174,8 +177,9 @@ def report(request, course_id, andrew_id):
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
-    
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
     # 'name': chart_type + "-" + unique_name(use number here)
     card1 = {'title': "title0", 'name': "pieChart-0", 'areaData': []}
     card2 = {'title': "title1", 'name': "pieChart-1", 'areaData': []}
@@ -196,7 +200,7 @@ def report(request, course_id, andrew_id):
     section.append(section_name)
     section.append(row)
     section.append(row2)
-    
+
     card7 = {'title': "title6", 'name': "areaChart", 'areaData': []}
     card8 = {'title': "title7", 'name': "lineChart", 'areaData': []}
     card9 = {'title': "title8", 'name': "barChart", 'areaData': []}
@@ -210,23 +214,24 @@ def report(request, course_id, andrew_id):
     section_name2 = "Software Engineering Problem2"
     section2.append(section_name2)
     section2.append(row)
-    
+
     sections = []
     sections.append(section)
     sections.append(section2)
     #
     score_list = []
-    score1 = {'name': 'Content','value': 8.00, 'max_value': 10.00}
-    score2 = {'name': 'Design','value': 6.00, 'max_value': 10.00}
-    score3 = {'name': 'Delivery','value': 4.00, 'max_value': 10.00}
-    score4 = {'name': 'Overall','value': 6.00, 'max_value': 10.00}
+    score1 = {'name': 'Content', 'value': 8.00, 'max_value': 10.00}
+    score2 = {'name': 'Design', 'value': 6.00, 'max_value': 10.00}
+    score3 = {'name': 'Delivery', 'value': 4.00, 'max_value': 10.00}
+    score4 = {'name': 'Overall', 'value': 6.00, 'max_value': 10.00}
     score_list.append(score1)
     score_list.append(score2)
     score_list.append(score3)
     score_list.append(score4)
     final_score = 'A-'
     #
-    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole, 'sections': sections, 'score_list': score_list, 'final_score': final_score}
+    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole,
+               'sections': sections, 'score_list': score_list, 'final_score': final_score}
     return render(request, 'report.html', context)
 
 
@@ -570,23 +575,37 @@ def artifact(request, course_id, assignment_id):
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
+            entity = Individual.objects.get(
+                registration=registration, course=course)
     elif assignment_type == "Team":
         try:
             entity = Team.objects.get(registration=registration, course=course)
         except Team.DoesNotExist:
             # TODO: Alert: you need to be a member of the team to upload the artifact
             print("you need to be a member of the team to upload the artifact")
-            return redirect('assignment', course_id) 
+            return redirect('assignment', course_id)
     else:
         return redirect('assignment', course_id)
-    
-    
-    
+
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
         if form.is_valid():
-            form.save()
+            artifact = form.save()
+            if assignment_type == Assignment.AssignmentType.Team:
+                team_members = entity.members
+                registrations = [i for i in Registration.objects.filter(
+                    courses=course) if i not in team_members]
+                for registration in registrations:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=registration)
+                    artifact_review.save()
+            else:
+                registrations = [i for i in Registration.objects.filter(
+                    courses=course) if i.id != registration.id]
+                for single_registration in registrations:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=single_registration)
+                    artifact_review.save()
         else:
             print("form is not valid")
         artifacts = Artifact.objects.filter(
