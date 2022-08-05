@@ -591,10 +591,10 @@ def artifact(request, course_id, assignment_id):
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
         if form.is_valid():
             artifact = form.save()
-            if assignment_type == Assignment.AssignmentType.Team:
-                team_members = entity.members
+            if assignment_type == 'Team':
+                team_members = [i.pk for i in entity.members]
                 registrations = [i for i in Registration.objects.filter(
-                    courses=course) if i not in team_members]
+                     courses=course) if i.users.pk not in team_members]
                 for registration in registrations:
                     artifact_review = ArtifactReview(
                         artifact=artifact, user=registration)
