@@ -14,7 +14,7 @@ from django.http import FileResponse
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, FeedbackSurvey
 from app.gamification.models.artifact_review import ArtifactReview
 from .survey_views import *
 
@@ -142,9 +142,14 @@ def test_survey_template(request):
     return render(request, 'test-survey-template.html')
 
 
-def test_add_survey(request):
+def test_add_survey(request, course_id, assignment_id):
     user = request.user
-    return render(request, 'test-add-survey.html', {'survey_pk': 1})
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    course = get_object_or_404(Course, pk=course_id)
+    feedback_survey = get_object_or_404(FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template
+
+    return render(request, 'test-add-survey.html', {'survey_pk': survey_template.pk})
 
 
 def test_preview_survey(request):

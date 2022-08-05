@@ -31,6 +31,7 @@ def add_survey(request, course_id, assignment_id):
         )
         feedback_survey.save()
         messages.success(request, 'Survey added successfully')
+        # return render(request, 'test_add_survey.html', {'course_id': course_id, 'assignment_id': assignment_id})
         return redirect('test_add_survey')
     else:
         return render(request, 'add_survey.html', {'course_id': course_id, 'assignment_id': assignment_id})
