@@ -81,7 +81,9 @@ $(function() {
   };
   var doughnutPieData = {
     datasets: [{
-      data: [30, 40, 30],
+      label: 'Dataset 1',
+      data: [100, 70, 30],
+      percentage: [50, 35, 15],
       backgroundColor: [
         'rgba(255, 99, 132, 0.5)',
         'rgba(54, 162, 235, 0.5)',
@@ -102,11 +104,12 @@ $(function() {
 
     // These labels appear in the legend and in the tooltips when hovering different arcs
     labels: [
-      'Pink',
-      'Blue',
-      'Yellow',
+      'Agree',
+      'Undecided',
+      'Disagree',
     ]
   };
+
   var doughnutPieOptions = {
     responsive: true,
     animation: {
@@ -114,6 +117,23 @@ $(function() {
       animateRotate: true
     }
   };
+
+
+  var doughnutPieOptionsNew = {
+    responsive: true,
+    animation: {
+      animateScale: true,
+      animateRotate: true
+    },
+    tooltips: {
+      callbacks: {
+        label: function(tooltipItem, data) {
+          return data['datasets'][0]['data'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' +  + data['datasets'][0]['percentage'][tooltipItem['index']] + ')';
+        }
+      }
+    }
+  }
+
   var areaData = {
     labels: ["2013", "2014", "2015", "2016", "2017"],
     datasets: [{
@@ -330,7 +350,10 @@ $(function() {
       var pieChart = new Chart(pieChartCanvas, {
         type: 'pie',
         data: doughnutPieData,
-        options: doughnutPieOptions
+        // data: {
+        //   datasets: doughnutPieDataNew
+        // },
+        options: doughnutPieOptionsNew
       });
     }
   }
