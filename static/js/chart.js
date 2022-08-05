@@ -4,6 +4,7 @@ $(function() {
    * Data and config for chartjs
    */
   'use strict';
+  const MAXPIECHART = 10;
   var data = {
     labels: ["2013", "2014", "2014", "2015", "2016", "2017"],
     datasets: [{
@@ -314,46 +315,24 @@ $(function() {
     });
   }
 
-  if ($("#pieChart").length) {
-    var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
-    var pieChart = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-
-  if ($("#pieCharta").length) {
-    var pieChartCanvas = $("#pieCharta").get(0).getContext("2d");
-    var pieCharta = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-  if ($("#pieChartb").length) {
-    var pieChartCanvas = $("#pieChartb").get(0).getContext("2d");
-    var pieChartb = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-  if ($("#pieChartc").length) {
-    var pieChartCanvas = $("#pieChartc").get(0).getContext("2d");
-    var pieChartc = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-  if ($("#pieChartd").length) {
-    var pieChartCanvas = $("#pieChartd").get(0).getContext("2d");
-    var pieChartd = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
+  // if ($("#pieChart").length) {
+  //   var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
+  //   var pieChart = new Chart(pieChartCanvas, {
+  //     type: 'pie',
+  //     data: doughnutPieData,
+  //     options: doughnutPieOptions
+  //   });
+  // }
+  // TODO: clear js cache on heroku
+  for(var i = 0; i < MAXPIECHART; i++){
+    if ($("#pieChart-" + i).length) {
+      var pieChartCanvas = $("#pieChart-" + i).get(0).getContext("2d");
+      var pieChart = new Chart(pieChartCanvas, {
+        type: 'pie',
+        data: doughnutPieData,
+        options: doughnutPieOptions
+      });
+    }
   }
 
   if ($("#areaChart").length) {

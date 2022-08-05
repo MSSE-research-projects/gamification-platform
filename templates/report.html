@@ -15,119 +15,43 @@
             <h1 class="rate-percentage">&nbsp&nbsp&nbsp{{entity.name}}</h1>
             {% comment %} <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>-0.5%</span></p> {% endcomment %}
           </div>
+          {% for score in score_list %}
           <div>
-            <b><p2 class="statistics-title">Content</p></b>
-            <center><h3 class="rate-percentage">8.00</h3></center>
-            <p class="text-success d-flex"><i class="mdi mdi-menu-up"></i><span>Perfect</span></p>
+            <b><p2 class="statistics-title">{{score.name}}</p></b>
+            <center><h3 class="rate-percentage">{{score.value}}/{{score.max_value}}</h3></center>
           </div>
-          <div>
-            <b><p2 class="statistics-title">Design</p></b>
-            <center><h3 class="rate-percentage">6.00</h3></center>
-            <p class="text-warning d-flex"><i class="mdi mdi-menu-right"></i><span>Average</span></p>
-          </div>
-          <div class="d-none d-md-block">
-            <b><p2 class="statistics-title">Delivery</p></b>
-            <center><h3 class="rate-percentage">4.00</h3></center>
-            <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>Bad</span></p>
-          </div>
-          <div class="d-none d-md-block">
-            <b><p2 class="statistics-title">Overall</p></b>
-            <center><h3 class="rate-percentage">6.00</h3></center>
-            <center><p class="text-warning d-flex"><i class="mdi mdi-menu-right"></i><span>Average</span></p></center>
-          </div>
+          {% endfor %}
           <div class="d-none d-md-block">
             {% comment %} <p class="statistics-title">Avg. Time on Site</p> {% endcomment %}
-            <h1 class="rate-percentage">B+&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
+            <h1 class="rate-percentage">{{final_score}}&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
             {% comment %} <p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p> {% endcomment %}
           </div>
         </div>
       </div>
     </div>
+    {% comment %} survey {% endcomment %}
+    {% for section in sections %}
     <div class="border-bottom py-4">
-        <h2> Software Engineering Problem</h2>
-    <div class="row">
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Line chart</h4>
-            <canvas id="lineChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Bar chart</h4>
-            <canvas id="barChart" style="display: block; height: 300px; width: 601px;" width="751" height="375" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieChartc" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-3 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieChartd" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
+        {% for row in section %}
+          {% if forloop.counter0  == 0 %}
+            <h2> {{row}} </h2>
+          {% else %}
+            <div class="row">
+              {% for card in row %}
+              <div class="col-lg-4 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                    <h4 class="card-title">{{card.title}}</h4>
+                    <canvas id="{{card.name}}" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
     </div>
-    </div>
-    <div class="border-bottom py-4">
-        <h2> Software Engineering Problem</h2>
-    <div class="row">
-      <div class="col-lg-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Area chart</h4>
-            <canvas id="areaChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Doughnut chart</h4>
-            <canvas id="doughnutChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieCharta" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Pie chart</h4>
-            <canvas id="pieChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-        <div class="card">
-          <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-            <h4 class="card-title">Scatter chart</h4>
-            <canvas id="scatterChart" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-  </div>
+    {% endfor %}
   <!-- content-wrapper ends -->
   <!-- partial:../../partials/_footer.html -->
   <footer class="footer">
@@ -139,3 +63,21 @@
   <!-- partial -->
 </div>
 {% endblock content %}
+
+{% comment %} {% block js %}
+
+  <script language = "javascript" type = "text/javascript">
+    const MAXPIECHART = 10;
+    for(var i = 0; i < MAXPIECHART; i++){
+      if ($("#pieChart-" + i).length) {
+        var pieChartCanvas = $("#pieChart-" + i).get(0).getContext("2d");
+        var pieChart = new Chart(pieChartCanvas, {
+          type: 'pie',
+          data: doughnutPieData,
+          options: doughnutPieOptions
+        });
+      }
+    }
+  </script>
+{% endblock js %} {% endcomment %}
+

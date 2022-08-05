@@ -20104,6 +20104,12 @@ code {
   }
 }
 
+.img-course-pic {
+  width: 194.17px;
+  /* width: auto; */
+  height: 120px;
+}
+
 .img-lg {
   width: 92px;
   height: 92px;
@@ -21222,8 +21228,13 @@ code {
   color: #cc8c00;
 }
 
-.badge-opacity-danger {
+/* .badge-opacity-danger {
   background: white;
+  color: #f73122;
+} */
+
+.badge-opacity-danger {
+  background: #ffbb26;
   color: #f73122;
 }
 
