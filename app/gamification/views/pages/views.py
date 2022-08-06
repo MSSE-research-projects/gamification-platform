@@ -161,9 +161,13 @@ def test_preview_survey(request, course_id, assignment_id):
     return render(request, 'test-preview-survey.html', {'survey_pk': survey_template})
 
 
-def test_fill_survey(request):
+def test_fill_survey(request, course_id, assignment_id, artifact_review_id):
     user = request.user
-    return render(request, 'test-fill-survey.html', {'survey_pk': 1, 'artifact_review_pk': 1})
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    feedback_survey = get_object_or_404(
+        FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template.pk
+    return render(request, 'test-fill-survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id})
 
 
 def report(request, course_id, andrew_id):
@@ -753,19 +757,21 @@ def review_survey(request, course_id, assignment_id):
     for artifact in artifacts:
         artifact_reviews.extend(ArtifactReview.objects.filter(
             artifact=artifact, user=registration))
-    names = []
+    infos = []
     for artifact_review in artifact_reviews:
+        artifact_review_with_name = dict()
         artifact = artifact_review.artifact
+        artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
         if assignment_type == "Team":
             entity = artifact.entity
             team = entity.team
-            names.append(team.name)
+            artifact_review_with_name["name"] = team.name
 
         else:
             entity = artifact.entity
-            names.append(Membership.objects.get(
-                entity=entity).student.users.get_full_name())
+            name = Membership.objects.get(
+                entity=entity).student.users.get_full_name()
+            artifact_review_with_name["name"] = name
+        infos.append(artifact_review_with_name)
 
-    print(names)
-
-    return render(request, 'survey_list.html', {'names': names, 'assignment_type': assignment_type})
+    return render(request, 'survey_list.html', {'course_id': course_id, 'assignment_id': assignment_id, 'infos': infos, 'assignment_type': assignment_type})

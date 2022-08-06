@@ -22,15 +22,15 @@
 
               </tr>
             </thead>
-            {% for name in names %}
+            {% for info in infos %}
             <tbody>
               <tr>
                 <td>
-                  {{ name}}
+                  {{ info.name }}
                 </td>
 
                 <td>
-                  <a href="{% url 'test_fill_survey'%}">
+                  <a href="{% url 'fill_survey' course_id assignment_id info.artifact_review_pk%}">
                     <button type="button" class="btn-sm btn-primary">Survey</button>
                   </a>
                 </td>
