@@ -13,6 +13,8 @@ class Question(models.Model):
         FIXEDTEXT = 'FIXEDTEXT'
         MULTIPLECHOICE = 'MULTIPLECHOICE'
         SLIDEREVIEW = 'SLIDEREVIEW'
+        TEXTAREA = 'TEXTAREA'
+        NUMBER = 'NUMBER'
 
     section = models.ForeignKey('SurveySection', on_delete=models.CASCADE)
 

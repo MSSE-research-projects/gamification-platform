@@ -146,7 +146,7 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
 
-        elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT:
+        elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT or question_type == Question.Question_type.TEXTAREA or question_type == Question.Question_type.NUMBER:
             answer = None
             question_option = question.options[0]
             answers = Answer.objects.filter(

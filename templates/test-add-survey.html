@@ -212,6 +212,11 @@
       window.location.href = 'preview';
     });
 
+    survey.on('click', '.edit-template-btn', function (e) {
+      e.preventDefault();
+      window.location.href = `/course/{{course_id}}/assignment/{{assignment_id}}/template/edit_survey_template/`
+    });
+
     survey.on('click', '.remove-section-btn', function (e) {
       var button = $(e.currentTarget);
       var sectionTitle = button.closest('.section').find('.section-title').text();

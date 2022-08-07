@@ -39,10 +39,6 @@ urlpatterns = [
     path('test/', page_views.test, name='test'),
     path('test_survey_template/', page_views.test_survey_template,
          name='test_survey_template'),
-    #     path('test_add_survey/', page_views.test_add_survey, name='test_add_survey'),
-    #     path('test_preview_survey/', page_views.test_preview_survey,
-    #          name='test_preview_survey'),
-    path('test_fill_survey/', page_views.test_fill_survey, name='test_fill_survey'),
 
     path('course/', include([
         path('', page_views.course_list, name='course'),
@@ -76,6 +72,8 @@ urlpatterns = [
                               path('preview/', page_views.test_preview_survey,
                                    name='preview_survey'),
                               ])),
+                         path('edit_survey_template/', page_views.edit_survey_template,
+                              name='edit_survey_template'),
                          ])),
 
                     path('artifact/', include([

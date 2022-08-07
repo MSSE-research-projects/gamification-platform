@@ -16,7 +16,7 @@ from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, FeedbackSurvey
 from app.gamification.models.artifact_review import ArtifactReview
-from .survey_views import *
+from app.gamification.models.survey_template import SurveyTemplate
 
 
 def signup(request):
@@ -132,6 +132,78 @@ def instructor_admin(request):
     return render(request, 'instructor_admin.html')
 
 
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def add_survey(request, course_id, assignment_id):
+    if request.method == 'POST':
+
+        survey_template_name = request.POST.get('template_name')
+        survey_template_instruction = request.POST.get('instructions')
+        survey_template_other_info = request.POST.get('other_info')
+        feedback_survey_date_released = request.POST.get('date_released')
+        feedback_survey_date_due = request.POST.get('date_due')
+        survey_template = SurveyTemplate(
+            name=survey_template_name, instructions=survey_template_instruction, other_info=survey_template_other_info)
+        survey_template.save()
+        feedback_survey = FeedbackSurvey(
+            assignment_id=assignment_id,
+            template=survey_template,
+            date_released=feedback_survey_date_released,
+            date_due=feedback_survey_date_due
+        )
+        feedback_survey.save()
+        messages.success(request, 'Survey added successfully')
+        return redirect('edit_survey', course_id, assignment_id)
+    else:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = FeedbackSurvey.objects.filter(assignment=assignment)
+        if feedback_survey.count() > 0:
+            return redirect('edit_survey', course_id, assignment_id)
+        return render(request, 'add_survey.html', {'course_id': course_id, 'assignment_id': assignment_id})
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_survey_template(request, course_id, assignment_id):
+    if request.method == 'POST':
+
+        survey_template_name = request.POST.get('template_name')
+        survey_template_instruction = request.POST.get('instructions')
+        survey_template_other_info = request.POST.get('other_info')
+        feedback_survey_date_released = request.POST.get('date_released')
+        feedback_survey_date_due = request.POST.get('date_due')
+        feedback_survey = FeedbackSurvey.objects.get(
+            assignment_id=assignment_id
+        )
+        survey_template = feedback_survey.template
+
+        survey_template.name = survey_template_name
+        survey_template.instructions = survey_template_instruction
+        survey_template.other_info = survey_template_other_info
+        survey_template.save()
+
+        feedback_survey.template = survey_template
+        feedback_survey.date_released = feedback_survey_date_released
+        feedback_survey.date_due = feedback_survey_date_due
+        feedback_survey.save()
+        messages.success(request, 'Survey edited successfully')
+        return redirect('edit_survey', course_id, assignment_id)
+    else:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = FeedbackSurvey.objects.get(assignment=assignment)
+        survey_template = feedback_survey.template
+        context = {
+            'course_id': course_id,
+            'assignment_id': assignment_id,
+            'survey_template_name': survey_template.name,
+            'survey_template_instruction': survey_template.instructions,
+            'survey_template_other_info': survey_template.other_info,
+            'feedback_survey_date_released': feedback_survey.date_released,
+            'feedback_survey_date_due': feedback_survey.date_due
+        }
+        return render(request, 'edit_survey_template.html', context)
+
+
 def test(request):
     user = request.user
     return render(request, 'test.html')
@@ -148,7 +220,7 @@ def test_add_survey(request, course_id, assignment_id):
         feedback_survey = get_object_or_404(
             FeedbackSurvey, assignment=assignment)
         survey_template = feedback_survey.template.pk
-        return render(request, 'test-add-survey.html', {'survey_pk': survey_template})
+        return render(request, 'test-add-survey.html', {'survey_pk': survey_template, 'course_id': course_id, 'assignment_id': assignment_id})
     else:
         return render(request, 'test-add-survey.html')
 
