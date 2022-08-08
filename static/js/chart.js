@@ -4,6 +4,7 @@ $(function() {
    * Data and config for chartjs
    */
   'use strict';
+  const MAXPIECHART = 10;
   var data = {
     labels: ["2013", "2014", "2014", "2015", "2016", "2017"],
     datasets: [{
@@ -80,7 +81,9 @@ $(function() {
   };
   var doughnutPieData = {
     datasets: [{
-      data: [30, 40, 30],
+      label: 'Dataset 1',
+      data: [100, 70, 30],
+      percentage: [50, 35, 15],
       backgroundColor: [
         'rgba(255, 99, 132, 0.5)',
         'rgba(54, 162, 235, 0.5)',
@@ -101,11 +104,12 @@ $(function() {
 
     // These labels appear in the legend and in the tooltips when hovering different arcs
     labels: [
-      'Pink',
-      'Blue',
-      'Yellow',
+      'Agree',
+      'Undecided',
+      'Disagree',
     ]
   };
+
   var doughnutPieOptions = {
     responsive: true,
     animation: {
@@ -113,6 +117,23 @@ $(function() {
       animateRotate: true
     }
   };
+
+
+  var doughnutPieOptionsNew = {
+    responsive: true,
+    animation: {
+      animateScale: true,
+      animateRotate: true
+    },
+    tooltips: {
+      callbacks: {
+        label: function(tooltipItem, data) {
+          return data['datasets'][0]['data'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' +  + data['datasets'][0]['percentage'][tooltipItem['index']] + ')';
+        }
+      }
+    }
+  }
+
   var areaData = {
     labels: ["2013", "2014", "2015", "2016", "2017"],
     datasets: [{
@@ -314,46 +335,27 @@ $(function() {
     });
   }
 
-  if ($("#pieChart").length) {
-    var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
-    var pieChart = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-
-  if ($("#pieCharta").length) {
-    var pieChartCanvas = $("#pieCharta").get(0).getContext("2d");
-    var pieCharta = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-  if ($("#pieChartb").length) {
-    var pieChartCanvas = $("#pieChartb").get(0).getContext("2d");
-    var pieChartb = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-  if ($("#pieChartc").length) {
-    var pieChartCanvas = $("#pieChartc").get(0).getContext("2d");
-    var pieChartc = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
-  }
-  if ($("#pieChartd").length) {
-    var pieChartCanvas = $("#pieChartd").get(0).getContext("2d");
-    var pieChartd = new Chart(pieChartCanvas, {
-      type: 'pie',
-      data: doughnutPieData,
-      options: doughnutPieOptions
-    });
+  // if ($("#pieChart").length) {
+  //   var pieChartCanvas = $("#pieChart").get(0).getContext("2d");
+  //   var pieChart = new Chart(pieChartCanvas, {
+  //     type: 'pie',
+  //     data: doughnutPieData,
+  //     options: doughnutPieOptions
+  //   });
+  // }
+  // TODO: clear js cache on heroku
+  for(var i = 0; i < MAXPIECHART; i++){
+    if ($("#pieChart-" + i).length) {
+      var pieChartCanvas = $("#pieChart-" + i).get(0).getContext("2d");
+      var pieChart = new Chart(pieChartCanvas, {
+        type: 'pie',
+        data: doughnutPieData,
+        // data: {
+        //   datasets: doughnutPieDataNew
+        // },
+        options: doughnutPieOptionsNew
+      });
+    }
   }
 
   if ($("#areaChart").length) {

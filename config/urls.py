@@ -33,9 +33,19 @@ urlpatterns = [
     path('email_user/<str:andrew_id>/', page_views.email_user, name='email_user'),
 
     path('dashboard/', page_views.dashboard, name='dashboard'),
+    path('todo_list/', include([
+        path('add/', page_views.add_todo_list, name='add_todo_list'),
+     #    path('<int:todo_list_id>/', page_views.todo_list_detail, name='todo_list_detail'),
+     #    path('<int:todo_list_id>/edit/', page_views.edit_todo_list, name='edit_todo_list'),
+        path('<int:todo_list_id>/delete/', page_views.delete_todo_list, name='delete_todo_list'),
+    ])),
+
     path('profile/', page_views.profile, name='profile'),
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
+
     path('test/', page_views.test, name='test'),
+    path('test_survey_template/', page_views.test_survey_template,
+         name='test_survey_template'),
 
     path('course/', include([
         path('', page_views.course_list, name='course'),
@@ -48,31 +58,49 @@ urlpatterns = [
             path('assignment/', include([
                 path('', page_views.assignment, name='assignment'),
                 path('<int:assignment_id>/', include([
+                    path('review_survey/', include([
+                         path('', page_views.review_survey,
+                              name='review_survey'),
+                         path('<int:artifact_review_id>/fill_survey', page_views.test_fill_survey,
+                              name='fill_survey'),
+                         ])),
+
                     path('delete/', page_views.delete_assignment,
                          name='delete_assignment'),
                     path('edit/', page_views.edit_assignment,
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
+                    path('template/', include([
+                         path('add/', page_views.add_survey, name='add_survey'),
+                         path('edit/', include([
+                              path('', page_views.test_add_survey,
+                                   name='edit_survey'),
+                              path('preview/', page_views.test_preview_survey,
+                                   name='preview_survey'),
+                              ])),
+                         path('edit_survey_template/', page_views.edit_survey_template,
+                              name='edit_survey_template'),
+                         ])),
+
                     path('artifact/', include([
                         path('', page_views.artifact, name='artifact'),
                         path('admin/', page_views.artifact_admin,
-                                name='artifact_admin'),
+                             name='artifact_admin'),
                         path('<int:artifact_id>/', include([
                             path('delete/', page_views.delete_artifact,
-                                name='delete_artifact'),
+                                 name='delete_artifact'),
                             path('edit/', page_views.edit_artifact,
-                                name='edit_artifact'),
+                                 name='edit_artifact'),
                             path('view/', page_views.view_artifact,
-                                name='view_artifact'),
+                                 name='view_artifact'),
                             path('download/', page_views.download_artifact,
-                                name='download_artifact'),
+                                 name='download_artifact'),
                         ])),
                     ])),
-                         
-                    
                 ]))
             ])),
+
 
             path('member_list/', include([
                 path('', page_views.member_list, name='member_list'),

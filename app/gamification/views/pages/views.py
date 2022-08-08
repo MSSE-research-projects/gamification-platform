@@ -11,11 +11,13 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.http import FileResponse
+from django.utils.timezone import now
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, artifact, course, registration
-from app.gamification.models.entity import Individual
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, FeedbackSurvey
+from app.gamification.models.artifact_review import ArtifactReview
+from app.gamification.models.survey_template import SurveyTemplate
 
 
 def signup(request):
@@ -85,7 +87,67 @@ def email_user(request, andrew_id):
 
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    def get_registrations(user):
+        registration = []
+        for reg in Registration.objects.filter(users=user):
+            if reg.userRole == Registration.UserRole.Student and reg.courses.visible == False:
+                continue
+            else:
+                registration.append(reg)
+        return registration
+
+    def get_todo_list(user):
+        return TodoList.objects.filter(user=user)
+
+    if request.method == 'GET':
+        andrew_id = request.user.andrew_id
+        form = TodoListForm(label_suffix='')
+        unsorted_registration = get_registrations(request.user)
+        # TODO: sort registration by semester in a better way
+        registration = sorted(unsorted_registration,
+                              key=lambda x: x.courses.semester, reverse=True)
+        todo_list = get_todo_list(request.user)
+        # sort todo list by due date, excluding NoneType
+        sorted_todo_list = sorted(
+            todo_list, key=lambda x: x.due_date if x.due_date else now(), reverse=False)
+        # TODO: change timezone
+        time_now = now()
+        print(time_now)
+        user = request.user
+        context = {'registration': registration, 'request_user': user, 'form': form,
+                   'andrew_id': andrew_id, 'todo_list': sorted_todo_list, 'time_now': time_now}
+        return render(request, 'dashboard.html', context)
+
+
+@login_required
+def add_todo_list(request):
+    if request.method == 'POST':
+        form = TodoListForm(request.POST, label_suffix='')
+        print("form: ", form)
+        if form.is_valid():
+            # todo_list = form.save(commit=False)
+            # todo_list.user = request.user
+            form.save()
+        else:
+            print("form is not valid")
+        return redirect('dashboard')
+
+
+@login_required
+def delete_todo_list(request, todo_list_id):
+    if request.method == 'GET':
+        todo_list = get_object_or_404(TodoList, pk=todo_list_id)
+        # check if the user is the owner of the todo list
+        user = request.user
+        # if todo_list.user == user:
+        #     todo_list.delete()
+        #     return redirect('dashboard')
+        todo_list.delete()
+        print("deleted")
+        return redirect('dashboard')
+    else:
+        print("not deleted")
+        return redirect('dashboard')
 
 
 @login_required
@@ -113,9 +175,116 @@ def instructor_admin(request):
     return render(request, 'instructor_admin.html')
 
 
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def add_survey(request, course_id, assignment_id):
+    if request.method == 'POST':
+
+        survey_template_name = request.POST.get('template_name')
+        survey_template_instruction = request.POST.get('instructions')
+        survey_template_other_info = request.POST.get('other_info')
+        feedback_survey_date_released = request.POST.get('date_released')
+        feedback_survey_date_due = request.POST.get('date_due')
+        survey_template = SurveyTemplate(
+            name=survey_template_name, instructions=survey_template_instruction, other_info=survey_template_other_info)
+        survey_template.save()
+        feedback_survey = FeedbackSurvey(
+            assignment_id=assignment_id,
+            template=survey_template,
+            date_released=feedback_survey_date_released,
+            date_due=feedback_survey_date_due
+        )
+        feedback_survey.save()
+        return redirect('edit_survey', course_id, assignment_id)
+    else:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = FeedbackSurvey.objects.filter(assignment=assignment)
+        if feedback_survey.count() > 0:
+            return redirect('edit_survey', course_id, assignment_id)
+        return render(request, 'add_survey.html', {'course_id': course_id, 'assignment_id': assignment_id})
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_survey_template(request, course_id, assignment_id):
+    if request.method == 'POST':
+
+        survey_template_name = request.POST.get('template_name')
+        survey_template_instruction = request.POST.get('instructions')
+        survey_template_other_info = request.POST.get('other_info')
+        feedback_survey_date_released = request.POST.get('date_released')
+        feedback_survey_date_due = request.POST.get('date_due')
+        feedback_survey = FeedbackSurvey.objects.get(
+            assignment_id=assignment_id
+        )
+        survey_template = feedback_survey.template
+
+        survey_template.name = survey_template_name
+        survey_template.instructions = survey_template_instruction
+        survey_template.other_info = survey_template_other_info
+        survey_template.save()
+
+        feedback_survey.template = survey_template
+        feedback_survey.date_released = feedback_survey_date_released
+        feedback_survey.date_due = feedback_survey_date_due
+        feedback_survey.save()
+        return redirect('edit_survey', course_id, assignment_id)
+    else:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = FeedbackSurvey.objects.get(assignment=assignment)
+        survey_template = feedback_survey.template
+        context = {
+            'course_id': course_id,
+            'assignment_id': assignment_id,
+            'survey_template_name': survey_template.name,
+            'survey_template_instruction': survey_template.instructions,
+            'survey_template_other_info': survey_template.other_info,
+            'feedback_survey_date_released': feedback_survey.date_released,
+            'feedback_survey_date_due': feedback_survey.date_due
+        }
+        return render(request, 'edit_survey_template.html', context)
+
+
 def test(request):
     user = request.user
-    return render(request, 'test.html', {'user': user})
+    return render(request, 'test.html')
+
+
+def test_survey_template(request):
+    user = request.user
+    return render(request, 'test-survey-template.html')
+
+
+def test_add_survey(request, course_id, assignment_id):
+    if request.method == 'GET':
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = get_object_or_404(
+            FeedbackSurvey, assignment=assignment)
+        survey_template = feedback_survey.template.pk
+        return render(request, 'test-add-survey.html', {'survey_pk': survey_template, 'course_id': course_id, 'assignment_id': assignment_id})
+    else:
+        return render(request, 'test-add-survey.html')
+
+
+def test_preview_survey(request, course_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    feedback_survey = get_object_or_404(
+        FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template.pk
+    return render(request, 'test-preview-survey.html', {'survey_pk': survey_template})
+
+
+def test_fill_survey(request, course_id, assignment_id, artifact_review_id):
+    user = request.user
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    artifact = ArtifactReview.objects.get(
+        pk=artifact_review_id).artifact.file
+    print(artifact)
+    feedback_survey = get_object_or_404(
+        FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template.pk
+    return render(request, 'test-fill-survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id, 'picture': artifact})
+
 
 def report(request, course_id, andrew_id):
     # user = request.user
@@ -128,7 +297,8 @@ def report(request, course_id, andrew_id):
         entity = Team.objects.get(registration=registration, course=course)
     except Team.DoesNotExist:
         try:
-            entity = Individual.objects.get(registration=registration, course=course)
+            entity = Individual.objects.get(
+                registration=registration, course=course)
         except Individual.DoesNotExist:
             # Create an Individual entity for the user
             print("Team does not exist, create an individual entity for the user")
@@ -136,9 +306,61 @@ def report(request, course_id, andrew_id):
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
-    
-    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole}
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
+    # 'name': chart_type + "-" + unique_name(use number here)
+    card1 = {'title': "title0", 'name': "pieChart-0", 'areaData': []}
+    card2 = {'title': "title1", 'name': "pieChart-1", 'areaData': []}
+    card3 = {'title': "title2", 'name': "pieChart-2", 'areaData': []}
+    row = []
+    row.append(card1)
+    row.append(card2)
+    row.append(card3)
+    card4 = {'title': "title3", 'name': "pieChart-3", 'areaData': []}
+    card5 = {'title': "title4", 'name': "pieChart-4", 'areaData': []}
+    card6 = {'title': "title5", 'name': "pieChart-5", 'areaData': []}
+    row2 = []
+    row2.append(card4)
+    row2.append(card5)
+    row2.append(card6)
+    section = []
+    section_name = "Software Engineering Problem"
+    section.append(section_name)
+    section.append(row)
+    section.append(row2)
+
+    card7 = {'title': "title6", 'name': "areaChart", 'areaData': []}
+    card8 = {'title': "title7", 'name': "lineChart", 'areaData': []}
+    card9 = {'title': "title8", 'name': "barChart", 'areaData': []}
+    card11 = {'title': "title10", 'name': "scatterChart", 'areaData': []}
+    row = []
+    row.append(card7)
+    row.append(card8)
+    row.append(card9)
+    row.append(card11)
+    section2 = []
+    section_name2 = "Software Engineering Problem2"
+    section2.append(section_name2)
+    section2.append(row)
+
+    sections = []
+    sections.append(section)
+    sections.append(section2)
+    #
+    score_list = []
+    score1 = {'name': 'Content', 'value': 8.00, 'max_value': 10.00}
+    score2 = {'name': 'Design', 'value': 6.00, 'max_value': 10.00}
+    score3 = {'name': 'Delivery', 'value': 4.00, 'max_value': 10.00}
+    score4 = {'name': 'Overall', 'value': 6.00, 'max_value': 10.00}
+    score_list.append(score1)
+    score_list.append(score2)
+    score_list.append(score3)
+    score_list.append(score4)
+    final_score = 'A-'
+    #
+    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole,
+               'sections': sections, 'score_list': score_list, 'final_score': final_score}
     return render(request, 'report.html', context)
 
 
@@ -352,7 +574,7 @@ def assignment(request, course_id):
         # redirect if user is student
         if userRole == 'Student':
             return redirect('assignment', course_id)
-        
+
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()
@@ -407,13 +629,15 @@ def view_assignment(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
-    registration = get_object_or_404(Registration, users=request.user, courses=course_id)
+    registration = get_object_or_404(
+        Registration, users=request.user, courses=course_id)
     course = get_object_or_404(Course, pk=course_id)
     try:
         entity = Team.objects.get(registration=registration, course=course)
     except Team.DoesNotExist:
         try:
-            entity = Individual.objects.get(registration=registration, course=course)
+            entity = Individual.objects.get(
+                registration=registration, course=course)
         except Individual.DoesNotExist:
             # Create an Individual entity for the user
             print("Team does not exist, create an individual entity for the user")
@@ -421,26 +645,30 @@ def view_assignment(request, course_id, assignment_id):
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
-            
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
     try:
-        artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
+        artifacts = Artifact.objects.filter(
+            assignment=assignment, entity=entity)
         latest_artifact = artifacts.latest('upload_time')
         artifact_id = latest_artifact.id
     except Artifact.DoesNotExist:
         latest_artifact = "None"
         artifact_id = 99999
-        
+
     assignment_id = assignment.id
-    context = {'course_id': course_id, 
-               'userRole':userRole, 
-               'assignment': assignment, 
-               'latest_artifact': latest_artifact, 
-               'assignment_id': assignment_id, 
+    context = {'course_id': course_id,
+               'userRole': userRole,
+               'assignment': assignment,
+               'latest_artifact': latest_artifact,
+               'assignment_id': assignment_id,
                'artifact_id': artifact_id}
     return render(request, 'view_assignment.html', context)
 
 # return true if the user is the owner of the artifact
+
+
 def check_artifact_permisssion(artifact_id, user):
     artifact = get_object_or_404(Artifact, pk=artifact_id)
     entity = artifact.entity
@@ -452,6 +680,8 @@ def check_artifact_permisssion(artifact_id, user):
 
 # TODO: remove redundant code in artifact section to improve performance in the future
 # TODO: create a directory for each course_assignment_team to store the files
+
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def artifact(request, course_id, assignment_id):
@@ -461,38 +691,66 @@ def artifact(request, course_id, assignment_id):
     registration = get_object_or_404(
         Registration, users=request.user, courses=course)
     userRole = registration.userRole
-    try:
-        entity = Team.objects.get(registration=registration, course=course)
-    except Team.DoesNotExist:
+    # TODO: check the assigment type.
+    assignment_type = assignment.assignment_type
+    print("assignment_type: " + assignment_type)
+    if assignment_type == "Individual":
         try:
-            entity = Individual.objects.get(registration=registration, course=course)
+            entity = Individual.objects.get(
+                registration=registration, course=course)
         except Individual.DoesNotExist:
             # Create an Individual entity for the user
-            print("Team does not exist, create an individual entity for the user")
             individual = Individual(course=course)
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
-    
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+    elif assignment_type == "Team":
+        try:
+            entity = Team.objects.get(registration=registration, course=course)
+        except Team.DoesNotExist:
+            # TODO: Alert: you need to be a member of the team to upload the artifact
+            print("you need to be a member of the team to upload the artifact")
+            return redirect('assignment', course_id)
+    else:
+        return redirect('assignment', course_id)
+
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
         if form.is_valid():
-            form.save()
+            artifact = form.save()
+            if assignment_type == 'Team':
+                team_members = [i.pk for i in entity.members]
+                registrations = [i for i in Registration.objects.filter(
+                    courses=course) if i.users.pk not in team_members]
+                for registration in registrations:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=registration)
+                    artifact_review.save()
+            else:
+                registrations = [i for i in Registration.objects.filter(
+                    courses=course) if i.id != registration.id]
+                for single_registration in registrations:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=single_registration)
+                    artifact_review.save()
         else:
             print("form is not valid")
-        artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
+        artifacts = Artifact.objects.filter(
+            assignment=assignment, entity=entity)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
                    "assignment_id": assignment_id,
                    "course": course,
                    "userRole": userRole,
                    "assignment": assignment,
-                    "entity": entity}
+                   "entity": entity}
         return render(request, 'artifact.html', context)
 
     if request.method == 'GET':
-        artifacts = Artifact.objects.filter(assignment=assignment, entity=entity)
+        artifacts = Artifact.objects.filter(
+            assignment=assignment, entity=entity)
         context = {'artifacts': artifacts,
                    "course_id": course_id,
                    "assignment_id": assignment_id,
@@ -504,6 +762,7 @@ def artifact(request, course_id, assignment_id):
 
     else:
         return redirect('assignment', course_id)
+
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
@@ -522,6 +781,7 @@ def artifact_admin(request, course_id, assignment_id):
                    "assignment": assignment}
         return render(request, 'artifact_admin.html', context)
 
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def download_artifact(request, course_id, assignment_id, artifact_id):
@@ -534,15 +794,17 @@ def download_artifact(request, course_id, assignment_id, artifact_id):
     else:
         return redirect('assignment', course_id)
 
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_artifact(request, course_id, assignment_id, artifact_id):
     if check_artifact_permisssion(artifact_id, request.user):
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         assignment = get_object_or_404(Assignment, pk=assignment_id)
-        return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'artifact': artifact})
+        return render(request, 'view_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'artifact': artifact})
     else:
         return redirect('assignment', course_id)
+
 
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
@@ -551,7 +813,7 @@ def delete_artifact(request, course_id, assignment_id, artifact_id):
         print("check_artifact_permisssion delete_artifact True")
     else:
         return redirect('assignment', course_id)
-    
+
     if request.method == 'GET':
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         # delete the artifact file first
@@ -561,6 +823,7 @@ def delete_artifact(request, course_id, assignment_id, artifact_id):
     else:
         return redirect('artifact', course_id, assignment_id)
 
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def edit_artifact(request, course_id, assignment_id, artifact_id):
@@ -568,27 +831,63 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
         print("check_artifact_permisssion edit_artifact True")
     else:
         return redirect('assignment', course_id)
-    
+
     artifact = get_object_or_404(Artifact, pk=artifact_id)
     old_file_path = artifact.file
     userRole = Registration.objects.get(
         users=request.user, courses=course_id).userRole
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     if request.method == 'POST':
-        form = ArtifactForm(request.POST, request.FILES, instance=artifact, label_suffix='')
+        form = ArtifactForm(request.POST, request.FILES,
+                            instance=artifact, label_suffix='')
         if form.is_valid():
             # delete the artifact file first
-            new_file =  os.path.split(str(form.cleaned_data['file']))[1]
+            new_file = os.path.split(str(form.cleaned_data['file']))[1]
             if new_file == "False":
                 # delete the artifact if "clear" is selected
                 # print("old file deleted, old_file_path:", old_file_path)
-                old_file_path.delete()   
+                old_file_path.delete()
             artifact = form.save()
-        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
 
     if request.method == 'GET':
         form = ArtifactForm(instance=artifact)
-        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment':assignment, 'form': form, 'userRole': userRole})
+        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
 
     else:
         return redirect('artifact', course_id, assignment_id)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def review_survey(request, course_id, assignment_id):
+    #team, button_survey
+    user = request.user
+    course = get_object_or_404(Course, id=course_id)
+    assignment = get_object_or_404(Assignment, id=assignment_id, course=course)
+    assignment_type = assignment.assignment_type
+    artifacts = Artifact.objects.filter(assignment=assignment)
+    # find artifact_review(registration, )
+    registration = get_object_or_404(Registration, users=user, courses=course)
+    artifact_reviews = []
+    for artifact in artifacts:
+        artifact_reviews.extend(ArtifactReview.objects.filter(
+            artifact=artifact, user=registration))
+    infos = []
+    for artifact_review in artifact_reviews:
+        artifact_review_with_name = dict()
+        artifact = artifact_review.artifact
+        artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
+        if assignment_type == "Team":
+            entity = artifact.entity
+            team = entity.team
+            artifact_review_with_name["name"] = team.name
+
+        else:
+            entity = artifact.entity
+            name = Membership.objects.get(
+                entity=entity).student.users.get_full_name()
+            artifact_review_with_name["name"] = name
+        infos.append(artifact_review_with_name)
+
+    return render(request, 'survey_list.html', {'course_id': course_id, 'assignment_id': assignment_id, 'infos': infos, 'assignment_type': assignment_type})

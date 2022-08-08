@@ -21,3 +21,7 @@ class Registration(models.Model):
         db_table = 'registration'
         verbose_name = _('registration')
         verbose_name_plural = _('registrations')
+    
+    def __str__(self):
+        return f"{self.courses.course_name} - {self.users.andrew_id}"
+
