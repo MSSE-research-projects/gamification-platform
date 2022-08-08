@@ -1,4 +1,5 @@
 import json
+from tkinter import Widget
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth import forms as auth_forms
@@ -9,7 +10,7 @@ from app.gamification.models.survey_section import SurveySection
 
 from app.gamification.models.survey_template import SurveyTemplate
 
-from .models import Assignment, CustomUser, Course, Registration, Team, Membership, FeedbackSurvey, Question, Artifact
+from .models import Assignment, CustomUser, Course, Registration, Team, Membership, FeedbackSurvey, Question, Artifact, TodoList
 
 
 class SignUpForm(forms.ModelForm):
@@ -248,4 +249,14 @@ class ArtifactForm(forms.ModelForm):
             # 'assignment': forms.Select(attrs={'readonly': 'readonly'}),
             'assignment': forms.HiddenInput(),
             'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
+        }
+
+class TodoListForm(forms.ModelForm):
+
+    class Meta:
+        model = TodoList
+        fields = ('user', 'text', 'due_date', 'type_name', 'type_icon', 'mandatory')
+        widhets = {
+            # 'user': forms.HiddenInput(),
+            'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
         }
