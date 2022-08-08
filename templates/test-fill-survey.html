@@ -142,6 +142,7 @@
         }
       });
     carousel.renderPDF(pdfURL);
+
   });
 
   $(function () {
@@ -152,7 +153,8 @@
 
   var artifact_review_pk = '{{ artifact_review_pk }}';
   var survey_pk = '{{ survey_pk }}';
-  var pdfURL = "{% static 'test.pdf' %}";
+  var pdfURL = '{{ picture.url }}';
+  
 
   var survey = getSurvey(survey_pk, { editable: false, live: true });
   updateAnswers(survey, artifact_review_pk);

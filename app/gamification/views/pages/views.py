@@ -236,10 +236,13 @@ def test_preview_survey(request, course_id, assignment_id):
 def test_fill_survey(request, course_id, assignment_id, artifact_review_id):
     user = request.user
     assignment = get_object_or_404(Assignment, pk=assignment_id)
+    artifact = ArtifactReview.objects.get(
+        pk=artifact_review_id).artifact.file
+    print(artifact)
     feedback_survey = get_object_or_404(
         FeedbackSurvey, assignment=assignment)
     survey_template = feedback_survey.template.pk
-    return render(request, 'test-fill-survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id})
+    return render(request, 'test-fill-survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id, 'picture': artifact})
 
 
 def report(request, course_id, andrew_id):
