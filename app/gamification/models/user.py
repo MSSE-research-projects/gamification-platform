@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 
 
@@ -44,6 +45,7 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(andrew_id, email, password, **extra_fields)
 
 
+@deconstructible
 class FileSizeValidator:
     '''
     Validates the size of a file.

@@ -152,7 +152,6 @@ def add_survey(request, course_id, assignment_id):
             date_due=feedback_survey_date_due
         )
         feedback_survey.save()
-        messages.success(request, 'Survey added successfully')
         return redirect('edit_survey', course_id, assignment_id)
     else:
         assignment = get_object_or_404(Assignment, pk=assignment_id)
@@ -186,7 +185,6 @@ def edit_survey_template(request, course_id, assignment_id):
         feedback_survey.date_released = feedback_survey_date_released
         feedback_survey.date_due = feedback_survey_date_due
         feedback_survey.save()
-        messages.success(request, 'Survey edited successfully')
         return redirect('edit_survey', course_id, assignment_id)
     else:
         assignment = get_object_or_404(Assignment, pk=assignment_id)
