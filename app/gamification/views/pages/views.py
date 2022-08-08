@@ -14,10 +14,11 @@ from django.http import FileResponse
 from django.utils.timezone import now
 
 from app.gamification.decorators import admin_required, user_role_check
-from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm
+from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm, TodoListForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, FeedbackSurvey
 from app.gamification.models.artifact_review import ArtifactReview
 from app.gamification.models.survey_template import SurveyTemplate
+from app.gamification.models.todo_list import TodoList
 
 
 def signup(request):
