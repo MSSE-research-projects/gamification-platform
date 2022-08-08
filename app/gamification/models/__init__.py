@@ -13,3 +13,4 @@ from .registration import *
 from .survey_section import *
 from .survey_template import *
 from .user import *
+from .todo_list import *

@@ -33,6 +33,13 @@ urlpatterns = [
     path('email_user/<str:andrew_id>/', page_views.email_user, name='email_user'),
 
     path('dashboard/', page_views.dashboard, name='dashboard'),
+    path('todo_list/', include([
+        path('add/', page_views.add_todo_list, name='add_todo_list'),
+     #    path('<int:todo_list_id>/', page_views.todo_list_detail, name='todo_list_detail'),
+     #    path('<int:todo_list_id>/edit/', page_views.edit_todo_list, name='edit_todo_list'),
+        path('<int:todo_list_id>/delete/', page_views.delete_todo_list, name='delete_todo_list'),
+    ])),
+
     path('profile/', page_views.profile, name='profile'),
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
 
