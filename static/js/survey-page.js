@@ -9,12 +9,14 @@ var queTypeMap = {
   'fixed-text': 'FIXEDTEXT',
   'multi-text': 'MULTIPLETEXT',
   'textarea': 'TEXTAREA',
+  'number': 'NUMBER',
 };
 var queTypeMapRev = {
   'MULTIPLECHOICE': 'mcq',
   'FIXEDTEXT': 'fixed-text',
   'MULTIPLETEXT': 'multi-text',
   'TEXTAREA': 'textarea',
+  'NUMBER': 'number',
 };
 
 getSurvey = function (survey_pk, options) {
@@ -140,6 +142,9 @@ getSurvey = function (survey_pk, options) {
                   break;
                 case 'TEXTAREA':
                   questionClass = TextAreaQuestion;
+                  break;
+                case 'NUMBER':
+                  questionClass = NumericInputQuestion;
                   break;
                 default:
                   break;
