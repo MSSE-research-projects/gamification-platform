@@ -109,7 +109,7 @@ class SurveySectionTest(TestCase):
         survey_question = Question(
             section=survey_section,
             text='Test Question',
-            question_type=Question.Question_type.MULTIPLECHOICE,
+            question_type=Question.QuestionType.MULTIPLECHOICE,
             is_required=True,
             is_multiple=True,
         )
@@ -148,7 +148,7 @@ class SurveyQuestionTest(TestCase):
         survey_question = Question(
             section=self.survey_section,
             text='Test Question',
-            question_type=Question.Question_type.MULTIPLECHOICE,
+            question_type=Question.QuestionType.MULTIPLECHOICE,
             is_required=True,
             is_multiple=True,
         )
@@ -162,7 +162,7 @@ class SurveyQuestionTest(TestCase):
         survey_question = Question(
             section=self.survey_section,
             text='Test Question',
-            question_type=Question.Question_type.MULTIPLECHOICE,
+            question_type=Question.QuestionType.MULTIPLECHOICE,
             is_required=True,
             is_multiple=True,
         )
@@ -206,7 +206,7 @@ class QuestionOptionTest(TestCase):
         self.survey_question = Question(
             section=self.survey_section,
             text='Test Question',
-            question_type=Question.Question_type.MULTIPLECHOICE,
+            question_type=Question.QuestionType.MULTIPLECHOICE,
             is_required=True,
             is_multiple=True,
         )

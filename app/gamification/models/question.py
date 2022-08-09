@@ -8,7 +8,7 @@ class Question(models.Model):
     """
     Model for Question
     """
-    class Question_type(models.TextChoices):
+    class QuestionType(models.TextChoices):
         MULTIPLETEXT = 'MULTIPLETEXT'
         FIXEDTEXT = 'FIXEDTEXT'
         MULTIPLECHOICE = 'MULTIPLECHOICE'
@@ -28,7 +28,7 @@ class Question(models.Model):
         'self', on_delete=models.CASCADE, null=True, blank=True)
 
     question_type = models.TextField(
-        choices=Question_type.choices, default=Question_type.MULTIPLECHOICE)
+        choices=QuestionType.choices, default=QuestionType.MULTIPLECHOICE)
 
     option_choices = models.ManyToManyField(
         'OptionChoice', through='QuestionOption')

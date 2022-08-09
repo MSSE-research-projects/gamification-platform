@@ -25,6 +25,8 @@
           <label for="sectionTitle">Section Title</label>
           <input type="text" list="titleCandidates" class="form-control" id="sectionTitle" placeholder="Section Title"
             required>
+          <small class="form-text text-muted"><b>DO NOT</b> use <b>'Artifact'</b> because that's a reserved section for
+            artifact reviews.</small>
           <datalist id="titleCandidates">
           </datalist>
         </div>
@@ -55,6 +57,8 @@
         <div class="form-group">
           <label for="sectionTitle">Section Title</label>
           <input type="text" class="form-control" id="sectionTitle" placeholder="Section Title" required>
+          <small class="form-text text-muted"><b>DO NOT</b> use <b>'Artifact'</b> because that's a reserved section for
+            artifact reviews.</small>
         </div>
         <div class="form-group">
           <label for="sectionDescription">Section Description</label>
@@ -619,6 +623,6 @@
   });
 
   var survey_pk = '{{ survey_pk }}'
-  var survey = getSurvey(survey_pk, { editable: true });
+  var { survey, _ } = getSurvey(survey_pk, { editable: true });
 </script>
 {% endblock js %}

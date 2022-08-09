@@ -18,6 +18,7 @@ var queTypeMapRev = {
 
 getSurvey = function (survey_pk, options) {
   var survey = null;
+  var artifact_question_pk;
 
   if (options.preview) {
     options.editable = false;
@@ -45,7 +46,18 @@ getSurvey = function (survey_pk, options) {
     dataType: 'json',
     success: function (data) {
       for (var i = 0; i < data.length; i++) {
-        if (data[i].title == 'artifactReview') {
+        if (data[i].title == 'Artifact') {
+          $.ajax({
+            async: false,
+            url: `/api/sections/${data[i].pk}/questions/`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+              if (data.length > 0) {
+                artifact_question_pk = data[0].pk;
+              }
+            },
+          });
           continue;
         }
 
@@ -69,7 +81,7 @@ getSurvey = function (survey_pk, options) {
               var questionClass = null;
               switch (data[j].question_type) {
                 case 'MULTIPLECHOICE':
-                  // Retrive all choices
+                  // Retrieve all choices
                   var choices = [];
                   $.ajax({
                     async: false,
@@ -144,7 +156,7 @@ getSurvey = function (survey_pk, options) {
     }
   });
 
-  return survey;
+  return { survey, artifact_question_pk };
 }
 
 updateAnswers = function (survey, artifact_review_pk) {
@@ -165,4 +177,23 @@ updateAnswers = function (survey, artifact_review_pk) {
       question.setAnswers(answers);
     }
   }
+}
+
+getArtifactReviews = function (artifact_review_pk, artifact_question_pk) {
+  var reviews = {};
+  $.ajax({
+    async: false,
+    url: `/api/artifact_reviews/${artifact_review_pk}/questions/${artifact_question_pk}/answers/`,
+    type: 'GET',
+    dataType: 'json',
+    success: function (data) {
+      console.log(data);
+      data.forEach(({ page, answer_text }) => {
+        page = parseInt(page);
+        reviews[page] = answer_text;
+      });
+    }
+  });
+
+  return reviews;
 }

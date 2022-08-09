@@ -1,7 +1,7 @@
 {% extends 'boilerplates/base_navbar.html' %}
 {% load static widget_tweaks %}
 
-{% block title %}Test Fill in Survey{% endblock %}
+{% block title %}Test View Survey{% endblock %}
 
 {% block content %}
 <div class="content-wrapper">
@@ -13,10 +13,10 @@
 
 <div class="modal fade" id="artifactPreviewModal" tabindex="-1" aria-labelledby="artifactPreviewModalLabel"
   aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-fullscreen-sm-down">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="artifactPreviewModalLabel">Artifact Preview</h5>
+        <h5 class="modal-title" id="artifactPreviewModalLabel">PDF Preview</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -73,76 +73,22 @@
     var surveyDOM = document.getElementById('survey');
     survey.render(surveyDOM);
 
-    survey.on('click', '.save-section-btn', function (e) {
-      var button = $(e.currentTarget);
-      var sectionTitle = button.closest('.section').find('.section-title').text();
-      var section = this.getSectionByTitle(sectionTitle);
-      var hasError = false;
-
-      for (var i = 0; i < section.questions.length; i++) {
-        var question = section.questions[i];
-        var answers = question.getAnswers();
-
-        // Put the ajax call here
-        $.ajax({
-          url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
-          type: 'PUT',
-          data: {
-            answer_text: JSON.stringify(answers),
-          },
-          success: function (data) {
-            // console.log(data);
-          },
-          failure: function (err) {
-            hasError = true;
-          }
-        });
-      }
-
-      if (!hasError) {
-        alert('Saved!');
-      } else {
-        alert('Error saving!');
-      }
+    survey.on('click', '.back-btn', function (e) {
+      e.preventDefault();
+      currentUrl = window.location.href;
+      window.location.href = currentUrl.replace('/preview/', '/');
     });
 
-    survey.on('click', '.submit-survey-btn', function (e) {
-      var button = $(e.currentTarget);
-      var sections = this.getSections();
-
-      for (var i = 0; i < sections.length; i++) {
-        for (var j = 0; j < sections[i].questions.length; j++) {
-          var question = sections[i].questions[j];
-          var answers = question.getAnswers();
-
-          // Put the ajax call here
-          $.ajax({
-            url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
-            type: 'PUT',
-            data: {
-              answer_text: JSON.stringify(answers),
-            },
-            success: function (data) {
-              window.location.href = `/course/{{course_id}}/assignment/{{assignment_id}}/review_survey/`
-            },
-          });
-        }
-      }
+    var artifactPreviewDOM = document.getElementById('artifactPreviewCarousel')
+    var carousel = new PDFCarousel(artifactPreviewDOM);
+    carousel.renderPDF(pdfURL, () => {
+      // on error
+      $('#artifactPreviewCarousel').parent().html(
+        '<div class="alert alert-danger">' +
+        'Artifact has been uploaded.' +
+        '</div>'
+      );
     });
-
-    var artifactPreviewDOM = document.getElementById('artifactPreviewCarousel');
-    var carousel = new PDFCarousel(
-      artifactPreviewDOM,
-      options = {
-        onPrevPage: function () {
-          console.log('Clicking on prev page');
-        },
-        onNextPage: function () {
-          console.log('Clicking on next page');
-        }
-      });
-    carousel.renderPDF(pdfURL);
-
   });
 
   $(function () {
@@ -151,13 +97,9 @@
     });
   });
 
-  var artifact_review_pk = '{{ artifact_review_pk }}';
-  var survey_pk = '{{ survey_pk }}';
-  var pdfURL = '{{ picture.url }}';
-  
+  var { survey, _ } = getSurvey('{{ survey_pk }}', { preview: true });
 
-  var survey = getSurvey(survey_pk, { editable: false, live: true });
-  updateAnswers(survey, artifact_review_pk);
+  var pdfURL = "";
 
 </script>
 {% endblock js %}

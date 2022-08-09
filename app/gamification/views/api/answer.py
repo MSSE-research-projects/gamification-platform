@@ -110,7 +110,7 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
 
-        if question_type == Question.Question_type.MULTIPLECHOICE:
+        if question_type == Question.QuestionType.MULTIPLECHOICE:
             # delete original answer
             if len(answer_texts) == 0:
                 return Response()
@@ -146,7 +146,7 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
 
-        elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT or question_type == Question.Question_type.TEXTAREA or question_type == Question.Question_type.NUMBER:
+        elif question_type == Question.QuestionType.FIXEDTEXT or question_type == Question.QuestionType.MULTIPLETEXT or question_type == Question.QuestionType.TEXTAREA or question_type == Question.QuestionType.NUMBER:
             answer = None
             question_option = question.options[0]
             answers = Answer.objects.filter(
