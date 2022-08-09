@@ -8,12 +8,13 @@ var queTypeMap = {
   'mcq': 'MULTIPLECHOICE',
   'fixed-text': 'FIXEDTEXT',
   'multi-text': 'MULTIPLETEXT',
-  'textarea': 'FIXEDTEXT',
+  'textarea': 'TEXTAREA',
 };
 var queTypeMapRev = {
   'MULTIPLECHOICE': 'mcq',
   'FIXEDTEXT': 'fixed-text',
   'MULTIPLETEXT': 'multi-text',
+  'TEXTAREA': 'textarea',
 };
 
 getSurvey = function (survey_pk, options) {
@@ -136,6 +137,9 @@ getSurvey = function (survey_pk, options) {
                   data[j].numberOfText = numberOfText;
 
                   questionClass = MultiTextInputQuestion;
+                  break;
+                case 'TEXTAREA':
+                  questionClass = TextAreaQuestion;
                   break;
                 default:
                   break;

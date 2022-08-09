@@ -718,8 +718,10 @@ class MultiTextInputQuestion extends DefaultStyleQuestion {
   buildElement() {
     super.buildElement();
 
-    var footerElement = this._buildFooterElement();
-    this.element.appendChild(footerElement);
+    if (!this.options.editable) {
+      var footerElement = this._buildFooterElement();
+      this.element.appendChild(footerElement);
+    }
   }
 
   _buildOption() {

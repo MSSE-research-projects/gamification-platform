@@ -459,6 +459,21 @@
           });
           break;
         case 'textarea':
+          $.ajax({
+            async: false,
+            url: `/api/questions/${question.pk}/options/`,
+            type: 'POST',
+            data: {
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              text: '',
+            },
+            success: function (data) {
+              question.updateElement();
+            },
+            error: function (data) {
+              console.log(data);
+            }
+          });
         default:
           break;
       }
