@@ -1,0 +1,180 @@
+{% extends 'boilerplates/base_navbar.html' %}
+
+{% block title %}Test Report Question{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-md-12 grid-margin">
+      <div class="card">
+        <div class="card-body">
+          <div class="py-2">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="sectinTab" role="tablist">
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content" id="sectinTabContent">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style>
+  .vertical-scrollable.row {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+{% block js %}
+<script>
+  var mockData = [
+    {
+      'section': 'Title',
+      'questions': [
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+      ]
+    },
+    {
+      'section': 'Presentation',
+      'questions': [
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+      ]
+    }
+  ];
+
+  function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+  }
+
+  var $sectionTab = $('#sectinTab');
+  var $sectionTabContent = $('#sectinTabContent');
+  for (var i = 0; i < mockData.length; i++) {
+    var sectionData = mockData[i];
+
+    var sectionTitle = sectionData.section;
+    var sectionTabItem = htmlToElement(
+      '<li class="nav-item">' +
+      ` <button class="nav-link${i === 0 ? ' active' : ''}" id="${sectionTitle}-tab" data-bs-toggle="tab" data-bs-target="#${sectionTitle}"` +
+      `         type="button" role="tab" aria-controls="${sectionTitle}" aria-selected="${i === 0 ? 'true' : 'false'}">${sectionTitle}</button>` +
+      '</li>'
+    );
+    $sectionTab.append(sectionTabItem);
+
+    var sectionTabContentItem = htmlToElement(
+      `<div class="tab-pane${i === 0 ? ' active' : ''}" id="${sectionTitle}" role="tabpanel" aria-labelledby="${sectionTitle}-tab">` +
+      '</div>'
+    );
+
+    var sectionTabContentItemBody = htmlToElement(
+      '<div class="row">' +
+      '</div>'
+    );
+    for (var j = 0; j < sectionData.questions.length; j++) {
+      var questionData = sectionData['questions'][j];
+      var question = htmlToElement(
+        '<div class="col-md-12">' +
+        '</div>'
+      )
+
+      var questionText = htmlToElement(
+        '<h4 class="text-left">' + questionData.text + '</h4>'
+      )
+      question.appendChild(questionText);
+
+      var questionAnswers = htmlToElement(
+        '<div class="row vertical-scrollable">' +
+        '</div>'
+      )
+      for (var k = 0; k < questionData['answers'].length; k++) {
+        var answer_text = questionData['answers'][k];
+        var answer = htmlToElement(
+          '<div class="col-md-12">' +
+          '  <p class="text-left">' +
+          answer_text +
+          '  </p > ' +
+          '</div>'
+        )
+        questionAnswers.appendChild(answer);
+      }
+      question.appendChild(questionAnswers);
+      sectionTabContentItemBody.appendChild(question);
+    }
+    sectionTabContentItem.appendChild(sectionTabContentItemBody);
+    $sectionTabContent.append(sectionTabContentItem);
+  }
+</script>
+{% endblock %}

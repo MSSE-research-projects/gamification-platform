@@ -97,22 +97,26 @@ def dashboard(request):
 
     def get_todo_list(user):
         return TodoList.objects.filter(user=user)
-    
+
     if request.method == 'GET':
         andrew_id = request.user.andrew_id
         form = TodoListForm(label_suffix='')
         unsorted_registration = get_registrations(request.user)
         # TODO: sort registration by semester in a better way
-        registration = sorted(unsorted_registration, key=lambda x: x.courses.semester, reverse=True)
+        registration = sorted(unsorted_registration,
+                              key=lambda x: x.courses.semester, reverse=True)
         todo_list = get_todo_list(request.user)
         # sort todo list by due date, excluding NoneType
-        sorted_todo_list = sorted(todo_list, key=lambda x: x.due_date if x.due_date else now(), reverse=False)
+        sorted_todo_list = sorted(
+            todo_list, key=lambda x: x.due_date if x.due_date else now(), reverse=False)
         # TODO: change timezone
         time_now = now()
         print(time_now)
         user = request.user
-        context = {'registration': registration, 'request_user': user, 'form': form, 'andrew_id': andrew_id, 'todo_list': sorted_todo_list, 'time_now': time_now}
+        context = {'registration': registration, 'request_user': user, 'form': form,
+                   'andrew_id': andrew_id, 'todo_list': sorted_todo_list, 'time_now': time_now}
         return render(request, 'dashboard.html', context)
+
 
 @login_required
 def add_todo_list(request):
@@ -126,12 +130,13 @@ def add_todo_list(request):
         else:
             print("form is not valid")
         return redirect('dashboard')
-        
+
+
 @login_required
 def delete_todo_list(request, todo_list_id):
     if request.method == 'GET':
         todo_list = get_object_or_404(TodoList, pk=todo_list_id)
-        #check if the user is the owner of the todo list
+        # check if the user is the owner of the todo list
         user = request.user
         # if todo_list.user == user:
         #     todo_list.delete()
@@ -142,6 +147,7 @@ def delete_todo_list(request, todo_list_id):
     else:
         print("not deleted")
         return redirect('dashboard')
+
 
 @login_required
 def profile(request):
@@ -193,6 +199,10 @@ def test_fill_survey(request):
     return render(request, 'test-fill-survey.html', {'survey_pk': 1, 'artifact_review_pk': 1})
 
 
+def test_report(request):
+    return render(request, 'test-report.html')
+
+
 def report(request, course_id, andrew_id):
     # user = request.user
     user = get_object_or_404(CustomUser, andrew_id=andrew_id)
@@ -213,8 +223,9 @@ def report(request, course_id, andrew_id):
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
-    
+            entity = Individual.objects.get(
+                registration=registration, course=course)
+
     # 'name': chart_type + "-" + unique_name(use number here)
     card1 = {'title': "title0", 'name': "pieChart-0", 'areaData': []}
     card2 = {'title': "title1", 'name': "pieChart-1", 'areaData': []}
@@ -235,7 +246,7 @@ def report(request, course_id, andrew_id):
     section.append(section_name)
     section.append(row)
     section.append(row2)
-    
+
     card7 = {'title': "title6", 'name': "areaChart", 'areaData': []}
     card8 = {'title': "title7", 'name': "lineChart", 'areaData': []}
     card9 = {'title': "title8", 'name': "barChart", 'areaData': []}
@@ -249,23 +260,24 @@ def report(request, course_id, andrew_id):
     section_name2 = "Software Engineering Problem2"
     section2.append(section_name2)
     section2.append(row)
-    
+
     sections = []
     sections.append(section)
     sections.append(section2)
     #
     score_list = []
-    score1 = {'name': 'Content','value': 8.00, 'max_value': 10.00}
-    score2 = {'name': 'Design','value': 6.00, 'max_value': 10.00}
-    score3 = {'name': 'Delivery','value': 4.00, 'max_value': 10.00}
-    score4 = {'name': 'Overall','value': 6.00, 'max_value': 10.00}
+    score1 = {'name': 'Content', 'value': 8.00, 'max_value': 10.00}
+    score2 = {'name': 'Design', 'value': 6.00, 'max_value': 10.00}
+    score3 = {'name': 'Delivery', 'value': 4.00, 'max_value': 10.00}
+    score4 = {'name': 'Overall', 'value': 6.00, 'max_value': 10.00}
     score_list.append(score1)
     score_list.append(score2)
     score_list.append(score3)
     score_list.append(score4)
     final_score = 'A-'
     #
-    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole, 'sections': sections, 'score_list': score_list, 'final_score': final_score}
+    context = {'user': user, 'course': course, 'entity': entity, 'userRole': userRole,
+               'sections': sections, 'score_list': score_list, 'final_score': final_score}
     return render(request, 'report.html', context)
 
 
@@ -609,19 +621,18 @@ def artifact(request, course_id, assignment_id):
             individual.save()
             membership = Membership(student=registration, entity=individual)
             membership.save()
-            entity = Individual.objects.get(registration=registration, course=course)
+            entity = Individual.objects.get(
+                registration=registration, course=course)
     elif assignment_type == "Team":
         try:
             entity = Team.objects.get(registration=registration, course=course)
         except Team.DoesNotExist:
             # TODO: Alert: you need to be a member of the team to upload the artifact
             print("you need to be a member of the team to upload the artifact")
-            return redirect('assignment', course_id) 
+            return redirect('assignment', course_id)
     else:
         return redirect('assignment', course_id)
-    
-    
-    
+
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
         if form.is_valid():

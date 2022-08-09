@@ -35,9 +35,10 @@ urlpatterns = [
     path('dashboard/', page_views.dashboard, name='dashboard'),
     path('todo_list/', include([
         path('add/', page_views.add_todo_list, name='add_todo_list'),
-     #    path('<int:todo_list_id>/', page_views.todo_list_detail, name='todo_list_detail'),
-     #    path('<int:todo_list_id>/edit/', page_views.edit_todo_list, name='edit_todo_list'),
-        path('<int:todo_list_id>/delete/', page_views.delete_todo_list, name='delete_todo_list'),
+        #    path('<int:todo_list_id>/', page_views.todo_list_detail, name='todo_list_detail'),
+        #    path('<int:todo_list_id>/edit/', page_views.edit_todo_list, name='edit_todo_list'),
+        path('<int:todo_list_id>/delete/',
+             page_views.delete_todo_list, name='delete_todo_list'),
     ])),
 
     path('profile/', page_views.profile, name='profile'),
@@ -50,6 +51,7 @@ urlpatterns = [
     path('test_preview_survey/', page_views.test_preview_survey,
          name='test_preview_survey'),
     path('test_fill_survey/', page_views.test_fill_survey, name='test_fill_survey'),
+    path('test_report/', page_views.test_report, name='test_report'),
 
     path('course/', include([
         path('', page_views.course_list, name='course'),
