@@ -1,5 +1,4 @@
 import json
-from tkinter import Widget
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth import forms as auth_forms
@@ -251,11 +250,13 @@ class ArtifactForm(forms.ModelForm):
             'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
 
+
 class TodoListForm(forms.ModelForm):
 
     class Meta:
         model = TodoList
-        fields = ('user', 'text', 'due_date', 'type_name', 'type_icon', 'mandatory')
+        fields = ('user', 'text', 'due_date',
+                  'type_name', 'type_icon', 'mandatory')
         widhets = {
             # 'user': forms.HiddenInput(),
             'due_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
