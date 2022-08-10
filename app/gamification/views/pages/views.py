@@ -341,8 +341,10 @@ def fill_survey(request, course_id, assignment_id, artifact_review_id):
     return render(request, 'fill_survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id, 'picture': artifact})
 
 
-@login_required
-@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def test_report(request):
+    return render(request, 'test-report.html')
+
+
 def report(request, course_id, andrew_id):
     # user = request.user
     user = get_object_or_404(CustomUser, andrew_id=andrew_id)

@@ -1,0 +1,668 @@
+{% extends 'boilerplates/base_navbar.html' %}
+
+{% block title %}Test Report Question{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-md-12 grid-margin">
+      <div class="card">
+        <div class="card-body">
+          <div class="py-2">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="sectinTab" role="tablist">
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content" id="sectinTabContent">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style>
+  .vertical-scrollable.row {
+    max-height: 150px;
+    overflow-y: auto;
+  }
+</style>
+{% endblock %}
+
+
+
+{% block js %}
+<script>
+  // var data = {
+  //   'Section Name 1': {
+  //     'Question Text 1': {
+  //       'question_type': 'FIXEDTEXT or MULTIPLETEXT or TEXTAREA or NUMBER or ...',
+  //       'answers': [
+  //         'answer string 1',
+  //         'answer string 2',
+  //         'answer string 3',
+  //       ]
+  //     },
+  //   },
+  //   'Section Name 2': {
+  //     'Question Text 1': {
+  //       'question_type': 'MULTIPLECHOICE or ...',
+  //       'answers': [
+  //         { 'Agree': 1 },
+  //         { 'Disagree': 0 },
+  //         { 'Neutral': 0 },
+  //         ...
+  //       ]
+  //     }
+  //   }
+  // }
+
+  // Use this api to get survey data
+  var fromAPI = null;
+  $.ajax({
+    async: false,
+    url: `/api/artifacts/1/`,
+    type: 'GET',
+    success: function (data) {
+      fromAPI = JSON.parse(data);
+    },
+    error: function (err) {
+    }
+  });
+
+
+  var data = {
+    labels: ["2013", "2014", "2014", "2015", "2016", "2017"],
+    datasets: [{
+      label: '# of Votes',
+      data: [10, 19, 3, 5, 2, 3],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ],
+      borderWidth: 1,
+      fill: false
+    }]
+  };
+
+  var options = {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    },
+    legend: {
+      display: false
+    },
+    elements: {
+      point: {
+        radius: 0
+      }
+    }
+
+  };
+
+  var areaData = {
+    labels: ["2013", "2014", "2015", "2016", "2017"],
+    datasets: [{
+      label: '# of Votes',
+      data: [12, 19, 3, 5, 2, 3],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ],
+      borderWidth: 1,
+      fill: true, // 3: no fill
+    }]
+  };
+
+  var areaOptions = {
+    plugins: {
+      filler: {
+        propagate: true
+      }
+    }
+  }
+
+  var scatterChartData = {
+    datasets: [{
+      label: 'First Dataset',
+      data: [{
+        x: -10,
+        y: 0
+      },
+      {
+        x: 0,
+        y: 3
+      },
+      {
+        x: -25,
+        y: 5
+      },
+      {
+        x: 40,
+        y: 5
+      }
+      ],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)'
+      ],
+      borderWidth: 1
+    },
+    {
+      label: 'Second Dataset',
+      data: [{
+        x: 10,
+        y: 5
+      },
+      {
+        x: 20,
+        y: -30
+      },
+      {
+        x: -25,
+        y: 15
+      },
+      {
+        x: -10,
+        y: 5
+      }
+      ],
+      backgroundColor: [
+        'rgba(54, 162, 235, 0.2)',
+      ],
+      borderColor: [
+        'rgba(54, 162, 235, 1)',
+      ],
+      borderWidth: 1
+    }
+    ]
+  }
+
+  var scatterChartOptions = {
+    scales: {
+      xAxes: [{
+        type: 'linear',
+        position: 'bottom'
+      }]
+    }
+  }
+
+  var doughnutPieOptionsNew = {
+    responsive: true,
+    animation: {
+      animateScale: true,
+      animateRotate: true
+    },
+    tooltips: {
+      callbacks: {
+        label: function (tooltipItem, data) {
+          return data['datasets'][0]['data'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + + data['datasets'][0]['percentage'][tooltipItem['index']] + ')';
+        }
+      }
+    }
+  }
+  var doughnutPieData = {
+    datasets: [{
+      label: 'Dataset 1',
+      data: [100, 70, 30],
+      percentage: [50, 35, 15],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 206, 86, 0.5)',
+        'rgba(75, 192, 192, 0.5)',
+        'rgba(153, 102, 255, 0.5)',
+        'rgba(255, 159, 64, 0.5)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ],
+    }],
+
+    // These labels appear in the legend and in the tooltips when hovering different arcs
+    labels: [
+      'Agree',
+      'Undecided',
+      'Disagree',
+    ]
+  };
+
+  var mockData = [
+    {% comment %} {
+    'section': 'evaluation',
+      'summary': {
+      'team_name' : 'team1',
+        'evaluation': [
+          {
+            'evaluation_name': 'Content',
+            'evaluation_content': '8.0/10.0',
+          },
+          {
+            'evaluation_name': 'Design',
+            'evaluation_content': '8.0/10.0',
+          },
+          {
+            'evaluation_name': 'Delivery',
+            'evaluation_content': '8.0/10.0',
+          },
+          {
+            'evaluation_name': 'Overall',
+            'evaluation_content': '8.0/10.0',
+          },
+        ],
+          'final_grade': 'B+',
+      },
+  }, {% endcomment %}
+  {
+    'section': 'pageOne',
+      'summary': {
+      'team_name' : 'team1',
+        'evaluation': [
+          {
+            'evaluation_name': 'Content',
+            'evaluation_content': '8.0/10.0',
+          },
+          {
+            'evaluation_name': 'Design',
+            'evaluation_content': '8.0/10.0',
+          },
+          {
+            'evaluation_name': 'Delivery',
+            'evaluation_content': '8.0/10.0',
+          },
+          {
+            'evaluation_name': 'Overall',
+            'evaluation_content': '8.0/10.0',
+          },
+        ],
+          'final_grade': 'B+',
+      },
+    'sections': [
+      {
+        'section_title': 'Software Engineering Problem',
+        'section_data': [
+          {
+            'title': 'title0',
+            'name': 'pieChart-0',
+            'type': 'pie',
+            'data': doughnutPieData,
+            'options': doughnutPieOptionsNew
+          },
+          {
+            'title': 'title1',
+            'name': 'pieChart-1',
+            'type': 'pie',
+            'data': doughnutPieData,
+            'options': doughnutPieOptionsNew
+          },
+          {
+            'title': 'title2',
+            'name': 'pieChart-2',
+            'type': 'pie',
+            'data': doughnutPieData,
+            'options': doughnutPieOptionsNew
+          },
+          {
+            'title': 'title3',
+            'name': 'pieChart-3',
+            'type': 'pie',
+            'data': doughnutPieData,
+            'options': doughnutPieOptionsNew
+          },
+          {
+            'title': 'title4',
+            'name': 'pieChart-4',
+            'type': 'pie',
+            'data': doughnutPieData,
+            'options': doughnutPieOptionsNew
+          },
+          {
+            'title': 'title5',
+            'name': 'pieChart-5',
+            'type': 'pie',
+            'data': doughnutPieData,
+            'options': doughnutPieOptionsNew
+          }
+        ]
+      },
+      {
+        'section_title': 'Software Engineering Problem2',
+        'section_data': [
+          {
+            'title': 'title6',
+            'name': 'areaChart',
+            'type': 'line',
+            'data': areaData,
+            'options': areaOptions
+          },
+          {
+            'title': 'title7',
+            'name': 'lineChart',
+            'type': 'line',
+            'data': data,
+            'options': options
+          },
+          {
+            'title': 'title8',
+            'name': 'barChart',
+            'type': 'bar',
+            'data': data,
+            'options': options
+          },
+          {
+            'title': 'title10',
+            'name': 'scatterChart',
+            'type': 'scatter',
+            'data': scatterChartData,
+            'options': scatterChartOptions
+          }
+        ]
+      }
+    ]
+  },
+  {
+    'section': 'Title',
+      'questions': [
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the title of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+      ]
+  },
+  {
+    'section': 'Presentation',
+      'questions': [
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Test Title',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+        {
+          'text': 'What is the presentation of this test?',
+          'answers': [
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+            'Test Title 2',
+            'Test Title 3'
+          ]
+        },
+      ]
+  }
+  ];
+
+  function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
+  }
+
+  var $sectionTab = $('#sectinTab');
+  var $sectionTabContent = $('#sectinTabContent');
+  for (var i = 0; i < mockData.length; i++) {
+    var sectionData = mockData[i];
+    var sectionTitle = sectionData.section;
+    // evaluation
+    if (sectionTitle == "evaluation") {
+      //
+    }
+    else {
+      //
+    }
+    var sectionTabItem = htmlToElement(
+      '<li class="nav-item">' +
+      ` <button class="nav-link${i === 0 ? ' active' : ''}" id="${sectionTitle}-tab" data-bs-toggle="tab" data-bs-target="#${sectionTitle}"` +
+      `         type="button" role="tab" aria-controls="${sectionTitle}" aria-selected="${i === 0 ? 'true' : 'false'}">${sectionTitle}</button>` +
+      '</li>'
+    );
+    $sectionTab.append(sectionTabItem);
+
+    var sectionTabContentItem = htmlToElement(
+      `<div class="tab-pane${i === 0 ? ' active' : ''}" id="${sectionTitle}" role="tabpanel" aria-labelledby="${sectionTitle}-tab">` +
+      '</div>'
+    );
+    if (sectionTitle == "pageOne") {
+      // first part
+      var MultipleChoiceContentItemBody = htmlToElement(
+        '<div class="row">' +
+        '</div>'
+      );
+      var summaryData = sectionData['summary'];
+      var summary = htmlToElement(
+        '<div class="col-md-12">' +
+        '</div>'
+      )
+      var summary2 = htmlToElement(
+        '<div class="statistics-details d-flex align-items-center justify-content-between">' +
+        '</div>'
+      )
+      var team_name = summaryData['team_name'];
+      var team_name = htmlToElement(
+        '<h1 class="rate-percentage">&nbsp&nbsp&nbsp' + team_name + '</h1>'
+      );
+      summary2.appendChild(team_name);
+
+      var evaluation = summaryData['evaluation'];
+      for (var j = 0; j < evaluation.length; j++) {
+        var evaluation_name = evaluation[j]['evaluation_name'];
+        var evaluation_content = evaluation[j]['evaluation_content'];
+        var evaluation_content_element = htmlToElement(
+          '<div>' +
+          '<b><p2 class="statistics-title">' + evaluation_name + '</p></b>' +
+          '<center><h3 class="rate-percentage">' + evaluation_content + '</h3></center>' +
+          '</div>'
+        );
+        summary2.appendChild(evaluation_content_element);
+      }
+      var final_grade = summaryData['final_grade'];
+      var final_grade_element = htmlToElement(
+        '<div>' +
+        '<h1 class="rate-percentage">' + final_grade + '&nbsp&nbsp&nbsp&nbsp&nbsp</h1>' +
+        '</div>'
+      );
+      summary2.appendChild(final_grade_element);
+      summary.appendChild(summary2);
+      MultipleChoiceContentItemBody.appendChild(summary);
+      // second part
+      var MultipleChoiceContentItemBody2 = htmlToElement(
+        '<div class="row">' +
+        '</div>'
+      );
+      for (var j = 0; j < sectionData.sections.length; j++) {
+        // for each section
+        var ChartSectionBody = htmlToElement(
+          '<div class="border-bottom py-4">' +
+          '</div>'
+        );
+        var sectionData_inner = sectionData.sections[j];
+        var section_title = sectionData_inner['section_title'];
+        var section_title_element = htmlToElement(
+          '<h2>' + section_title + '</h2>'
+        );
+        ChartSectionBody.appendChild(section_title_element);
+
+        var section_data = sectionData_inner['section_data'];
+        for (var k = 0; k < section_data.length; k++) {
+          // for each card
+          if (k % 3 == 0) {
+            var ChartSectionBodyRow = htmlToElement(
+              '<div class="row">' +
+              '</div>'
+            );
+            ChartSectionBody.appendChild(ChartSectionBodyRow);
+          }
+          var section_data_inner = section_data[k];
+          var section_data_title = section_data_inner['title'];
+          var section_data_name = section_data_inner['name'];
+          var section_data_type = section_data_inner['type'];
+          var data = section_data_inner['data'];
+          var options = section_data_inner['options'];
+          var section_data_content_element = htmlToElement(
+            '<div class="col-lg-4 grid-margin stretch-card">' +
+            '<div class="card">' +
+            '<div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>' +
+            '<h4 class="card-title">' + section_data_title + '</h4>' +
+            '<canvas id="' + section_data_name + '" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>' +
+            '</div>' +
+            '</div>' +
+            '</div>'
+          );
+          ChartSectionBodyRow.appendChild(section_data_content_element);
+        }
+        MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
+      }
+      sectionTabContentItem.appendChild(MultipleChoiceContentItemBody);
+      sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
+      $sectionTabContent.append(sectionTabContentItem);
+
+      // draw Chart(only works when placed here or after)
+      for (var j = 0; j < sectionData.sections.length; j++) {
+        var sectionData_inner = sectionData.sections[j];
+        var section_data = sectionData_inner['section_data'];
+        for (var k = 0; k < section_data.length; k++) {
+          var section_data_inner = section_data[k];
+          var section_data_name = section_data_inner['name'];
+          var section_data_data = section_data_inner['data'];
+          var section_data_options = section_data_inner['options'];
+          var section_data_type = section_data_inner['type'];
+          // TODO: add more types
+          if ($("#" + section_data_name).length) {
+            var ChartCanvas = $("#" + section_data_name).get(0).getContext("2d");
+            var newChart = new Chart(ChartCanvas, {
+              type: section_data_type,
+              data: section_data_data,
+              options: section_data_options
+            });
+          }
+        }
+      }
+    }
+    else {
+      var sectionTabContentItemBody = htmlToElement(
+        '<div class="row">' +
+        '</div>'
+      );
+
+      for (var j = 0; j < sectionData.questions.length; j++) {
+        var questionData = sectionData['questions'][j];
+        var question = htmlToElement(
+          '<div class="col-md-12">' +
+          '</div>'
+        )
+
+        var questionText = htmlToElement(
+          '<h4 class="text-left">' + questionData.text + '</h4>'
+        )
+        question.appendChild(questionText);
+
+        var questionAnswers = htmlToElement(
+          '<div class="row vertical-scrollable">' +
+          '</div>'
+        )
+        for (var k = 0; k < questionData['answers'].length; k++) {
+          var answer_text = questionData['answers'][k];
+          var answer = htmlToElement(
+            '<div class="col-md-12">' +
+            '  <p class="text-left">' +
+            answer_text +
+            '  </p > ' +
+            '</div>'
+          )
+          questionAnswers.appendChild(answer);
+        }
+        question.appendChild(questionAnswers);
+        sectionTabContentItemBody.appendChild(question);
+      }
+
+      sectionTabContentItem.appendChild(sectionTabContentItemBody);
+      $sectionTabContent.append(sectionTabContentItem);
+    }
+  }
+</script>
+{% endblock %}
