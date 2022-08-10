@@ -11,9 +11,7 @@
       <div class="col-sm-12">
         <div class="statistics-details d-flex align-items-center justify-content-between">
           <div>
-            {% comment %} <p class="statistics-title">Bounce Rate</p> {% endcomment %}
             <h1 class="rate-percentage">&nbsp&nbsp&nbsp{{entity.name}}</h1>
-            {% comment %} <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>-0.5%</span></p> {% endcomment %}
           </div>
           {% for score in score_list %}
           <div>
@@ -22,14 +20,11 @@
           </div>
           {% endfor %}
           <div class="d-none d-md-block">
-            {% comment %} <p class="statistics-title">Avg. Time on Site</p> {% endcomment %}
             <h1 class="rate-percentage">{{final_score}}&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
-            {% comment %} <p class="text-success d-flex"><i class="mdi mdi-menu-down"></i><span>+0.8%</span></p> {% endcomment %}
           </div>
         </div>
       </div>
     </div>
-    {% comment %} survey {% endcomment %}
     {% for section in sections %}
     <div class="border-bottom py-4">
         {% for row in section %}
@@ -52,32 +47,7 @@
         {% endfor %}
     </div>
     {% endfor %}
-  <!-- content-wrapper ends -->
-  <!-- partial:../../partials/_footer.html -->
-  <footer class="footer">
-    <div class="d-sm-flex justify-content-center justify-content-sm-between">
-      <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Premium <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap admin template</a> from BootstrapDash.</span>
-      <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2021. All rights reserved.</span>
-    </div>
-  </footer>
-  <!-- partial -->
 </div>
 {% endblock content %}
 
-{% comment %} {% block js %}
-
-  <script language = "javascript" type = "text/javascript">
-    const MAXPIECHART = 10;
-    for(var i = 0; i < MAXPIECHART; i++){
-      if ($("#pieChart-" + i).length) {
-        var pieChartCanvas = $("#pieChart-" + i).get(0).getContext("2d");
-        var pieChart = new Chart(pieChartCanvas, {
-          type: 'pie',
-          data: doughnutPieData,
-          options: doughnutPieOptions
-        });
-      }
-    }
-  </script>
-{% endblock js %} {% endcomment %}
 
