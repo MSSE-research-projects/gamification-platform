@@ -120,6 +120,7 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
         answer_texts = json.loads(request.data.get('answer_text'))
         if '' in answer_texts:
             answer_texts = [i for i in answer_texts if i != '']
+        print(answer_texts)
         # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
@@ -183,6 +184,8 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
             return Response(serializer.data)
         else:
             page = request.data.get('page')
+            if len(answer_texts) == 0:
+                return Response()
             answer_text = answer_texts[0]
             self.serializer_class = ArtifactFeedbackSerializer
             question_option = get_object_or_404(

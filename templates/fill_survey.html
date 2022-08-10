@@ -176,6 +176,38 @@
         '</div>'
       );
     });
+
+    $('#artifactPreviewModal').on('hidden.bs.modal', function (e) {
+      // Save review on current page
+      carousel.feedbacks[carousel.pageNum] = carousel.feedbackTextArea.value;
+      // Save all artifact feedbacks
+      var feedbacks = carousel.getFeedbacks();
+      var hasError = false;
+      for (const [key, value] of Object.entries(feedbacks)) {
+        var pageNum = key;
+        var text = value;
+        $.ajax({
+          url: `/api/artifact_reviews/${artifact_review_pk}/questions/${artifact_question_pk}/answers/`,
+          type: 'PUT',
+          data: {
+            page: pageNum,
+            answer_text: JSON.stringify([text]),
+          },
+          success: function (data) {
+            console.log(`Saved ${key}: ${value}`);
+          },
+          failure: function (err) {
+            hasError = true;
+          }
+        });
+      }
+
+      if (!hasError) {
+        alert('Artifact reviews saved!');
+      } else {
+        alert('Error saving artifact reviews!');
+      }
+    });
   });
 
   $(function () {

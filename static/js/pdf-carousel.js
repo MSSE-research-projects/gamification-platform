@@ -34,6 +34,10 @@ PDFCarousel.prototype.init = function () {
   this.renderPDF = this.renderPDF.bind(this);
 };
 
+PDFCarousel.prototype.getFeedbacks = function () {
+  return this.feedbacks;
+}
+
 /**
  * Get page info from document, resize canvas accordingly, and render page.
  * @param num Page number.
