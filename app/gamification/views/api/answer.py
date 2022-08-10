@@ -294,3 +294,23 @@ class ArtifactResult(generics.ListAPIView):
                                     answer.answer_text)
         data = json.dumps(answers)
         return Response(data)
+
+
+class CheckAllDone(generics.CreateAPIView):
+    queryset = ArtifactReview.objects.all()
+    serializer_class = ArtifactReviewSerializer
+
+    def post(self, request, question_pk, *args, **kwargs):
+        artifac_review_pk = get_object_or_404(
+            ArtifactReview, id=artifac_review_pk)
+        question = get_object_or_404(Question, id=question_pk)
+        is_required = question.is_required
+        answer_texts = request.data.get('answer_text')
+        flag = False
+        for answer_text in answer_texts:
+            if answer_text != '':
+                flag = True
+        if is_required and flag == False:
+            return Response(status=400)
+
+        return Response(status=200)

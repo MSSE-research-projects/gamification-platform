@@ -6,7 +6,7 @@ from rest_framework.reverse import reverse
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult
 
 
 @api_view(['GET'])
@@ -69,6 +69,9 @@ urlpatterns = [
     path('questions/<int:question_pk>/',
          QuestionDetail.as_view(), name='question-detail'),
 
+    path('questions/<int:question_pk>/check_all_done/',
+         CheckAllDone.as_view(), name="check-all-done"),
+
     # Get list of options of a question, Post a new option of the question
     path('questions/<int:question_pk>/options/',
          QuestionOptionList.as_view(), name='question-option-list'),
@@ -111,5 +114,6 @@ urlpatterns = [
 
     path('artifacts/<int:artifact_pk>/',
          ArtifactResult.as_view(), name="artifact-result"),
+
 
 ]
