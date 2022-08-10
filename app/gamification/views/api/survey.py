@@ -9,7 +9,7 @@ from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
-from app.gamification.serializers.survey import OptionChoiceSerializer, OptionChoiceWithoutNumberOfTextSerializer, QuestionSerializer, SectionSerializer, SurveySerializer
+from app.gamification.serializers.survey import OptionChoiceSerializer, OptionChoiceWithoutNumberOfTextSerializer, QuestionSerializer, SectionSerializer, SurveySerializer, TemplateSectionSerializer
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -328,3 +328,8 @@ class OptionDetail(generics.RetrieveUpdateDestroyAPIView):
         option_choice = get_object_or_404(OptionChoice, id=option_pk)
         option_choice.delete()
         return Response(status=204)
+
+
+class TemplateSectionList(generics.ListAPIView):
+    queryset = SurveySection.objects.filter(is_template=True)
+    serializer_class = TemplateSectionSerializer

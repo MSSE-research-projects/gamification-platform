@@ -24,6 +24,8 @@ class Question(models.Model):
 
     is_multiple = models.BooleanField(default=False)
 
+    is_template = models.BooleanField(default=False)
+
     dependent_question = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True)
 

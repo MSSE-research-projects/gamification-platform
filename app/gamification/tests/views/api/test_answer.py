@@ -39,8 +39,6 @@ class CreateArtifactAnswerTest(TestCase):
         self.artifact_review = ArtifactReview.objects.get(id = 1)
         option_choice = OptionChoice(text = "")
         option_choice.save()
-        question_option = QuestionOption(question = self.slide_question, option_choice = option_choice)
-        question_option.save()
 
     def test_post_a_slide_review(self):
         self.client.login(
@@ -82,5 +80,36 @@ class CreateArtifactAnswerTest(TestCase):
         self.assertIsInstance(response.json(), dict)
         self.assertEqual(response.json()['page'], '1')
         self.assertEqual(response.json()['answer_text'], 'new text')
+    
+    def test_get_a_slide_review(self):
+        self.client.login(
+            andrew_id=self.student_andrew_id,
+            password=self.student_password,
+        )
+        data = {
+            'page':1,
+            'answer_text': json.dumps(['test slide answer text'])
+        }
+        url = reverse(
+            'create-artifact-answer', kwargs={'artifact_review_pk': self.artifact_review.id, 'question_pk': self.slide_question.id})
+        self.client.put(url, data, content_type='application/json')
+        data = {
+            'page':1,
+            'answer_text': json.dumps(['new text'])
+        }
+        url = reverse(
+            'create-artifact-answer', kwargs={'artifact_review_pk': self.artifact_review.id, 'question_pk': self.slide_question.id})
+        self.client.put(url, data, content_type='application/json')
+        data = {
+            'page':2,
+            'answer_text': json.dumps(['page 2 text'])
+        }
+        self.client.put(url, data, content_type='application/json')
+        response = self.client.get(url, dict(), content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()[0]['page'], '1')
+        self.assertEqual(response.json()[0]['answer_text'], 'new text')
+        self.assertEqual(response.json()[1]['page'], '2')
+        self.assertEqual(response.json()[1]['answer_text'], 'page 2 text')
 
         

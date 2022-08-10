@@ -1,4 +1,6 @@
+from operator import is_
 import os
+from re import template
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -137,8 +139,7 @@ def add_survey(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
 
     if request.method == 'POST':
-
-        survey_template_name = request.POST.get('template_name')
+        survey_template_name = request.POST.get('template_name').strip()
         survey_template_instruction = request.POST.get('instructions')
         survey_template_other_info = request.POST.get('other_info')
         feedback_survey_date_released = request.POST.get('date_released')
@@ -154,21 +155,51 @@ def add_survey(request, course_id, assignment_id):
         )
         feedback_survey.save()
 
-        # Automatically create a section and question for artifact
-        artifact_section = SurveySection.objects.create(
-            template=survey_template,
-            title='Artifact',
-            description='Please review the artifact.',
-            is_required=False,
-        )
-        artifact_question = Question.objects.create(
-            section=artifact_section,
-            text='',
-            question_type=Question.QuestionType.SLIDEREVIEW,
-        )
-        empty_option = OptionChoice.objects.get(text='')
-        QuestionOption.objects.create(
-            question=artifact_question, option_choice=empty_option)
+        if survey_template_name == "Default Template":
+            default_survey_template = get_object_or_404(
+                SurveyTemplate, is_template=True, name="Survey Template")
+            for default_section in default_survey_template.sections:
+                section = SurveySection(template=survey_template,
+                                        title=default_section.title,
+                                        description=default_section.description,
+                                        is_required=default_section.is_required,
+                                        )
+                section.save()
+                for default_question in default_section.questions:
+                    question = Question(section=section,
+                                        text=default_question.text,
+                                        question_type=default_question.question_type,
+                                        dependent_question=default_question.dependent_question,
+                                        is_required=default_question.is_required,
+                                        is_multiple=default_question.is_multiple,
+                                        )
+                    question.save()
+                    print(question.pk)
+                    for default_option in default_question.options:
+                        question_option = QuestionOption(
+                            question=question,
+                            option_choice=default_option.option_choice,
+                            number_of_text=default_option.number_of_text,
+                        )
+                        question_option.save()
+
+        else:
+
+            # Automatically create a section and question for artifact
+            artifact_section = SurveySection.objects.create(
+                template=survey_template,
+                title='Artifact',
+                description='Please review the artifact.',
+                is_required=False,
+            )
+            artifact_question = Question.objects.create(
+                section=artifact_section,
+                text='',
+                question_type=Question.QuestionType.SLIDEREVIEW,
+            )
+            empty_option = OptionChoice.objects.get(text='')
+            QuestionOption.objects.create(
+                question=artifact_question, option_choice=empty_option)
 
         return redirect('edit_survey', course_id, assignment_id)
     else:

@@ -86,17 +86,31 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
 
     def get(self, request, artifact_review_pk, question_pk, * args, **kwargs):
         question = get_object_or_404(Question, id=question_pk)
-        artifact_review = get_object_or_404(
-            ArtifactReview, id=artifact_review_pk)
-        question_options = question.options
-        answers = []
-        for question_option in question_options:
-            if Answer.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
-                answer = Answer.objects.filter(
-                    question_option=question_option, artifact_review=artifact_review)
-                answers.extend(answer)
-        serializer = self.get_serializer(answers, many=True)
-        return Response(serializer.data)
+        if question.question_type == Question.QuestionType.SLIDEREVIEW:
+            self.serializer_class = ArtifactFeedbackSerializer
+            artifact_review = get_object_or_404(
+                ArtifactReview, id=artifact_review_pk)
+            question_options = question.options
+            answers = []
+            for question_option in question_options:
+                if ArtifactFeedback.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
+                    answer = ArtifactFeedback.objects.filter(
+                        question_option=question_option, artifact_review=artifact_review)
+                    answers.extend(answer)
+            serializer = self.get_serializer(answers, many=True)
+            return Response(serializer.data)
+        else:
+            artifact_review = get_object_or_404(
+                ArtifactReview, id=artifact_review_pk)
+            question_options = question.options
+            answers = []
+            for question_option in question_options:
+                if Answer.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
+                    answer = Answer.objects.filter(
+                        question_option=question_option, artifact_review=artifact_review)
+                    answers.extend(answer)
+            serializer = self.get_serializer(answers, many=True)
+            return Response(serializer.data)
 
     def put(self, request, artifact_review_pk, question_pk, *args, **kwargs):
         # Multiple Choice text -> option_text

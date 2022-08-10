@@ -20,6 +20,13 @@ class SectionSerializer(serializers.ModelSerializer):
                   'title', 'description', 'is_required']
 
 
+class TemplateSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SurveySection
+        fields = ['pk', 'template',
+                  'title', 'description', 'is_required', 'is_template']
+
+
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
