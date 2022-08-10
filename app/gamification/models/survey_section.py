@@ -16,6 +16,8 @@ class SurveySection(models.Model):
 
     is_required = models.BooleanField(default=False)
 
+    is_template = models.BooleanField(default=False)
+
     class Meta:
         db_table = 'survey_section'
         verbose_name = _('survey section')

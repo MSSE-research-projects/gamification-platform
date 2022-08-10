@@ -61,7 +61,7 @@ urlpatterns = [
                     path('review_survey/', include([
                          path('', page_views.review_survey,
                               name='review_survey'),
-                         path('<int:artifact_review_id>/fill_survey', page_views.test_fill_survey,
+                         path('<int:artifact_review_id>/fill_survey/', page_views.fill_survey,
                               name='fill_survey'),
                          ])),
 
@@ -74,9 +74,9 @@ urlpatterns = [
                     path('template/', include([
                          path('add/', page_views.add_survey, name='add_survey'),
                          path('edit/', include([
-                              path('', page_views.test_add_survey,
+                              path('', page_views.edit_survey,
                                    name='edit_survey'),
-                              path('preview/', page_views.test_preview_survey,
+                              path('preview/', page_views.edit_preview_survey,
                                    name='preview_survey'),
                               ])),
                          path('edit_survey_template/', page_views.edit_survey_template,

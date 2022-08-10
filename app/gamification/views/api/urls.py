@@ -5,7 +5,7 @@ from rest_framework.reverse import reverse
 
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
-from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList
+from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
 from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail
 
 
@@ -19,6 +19,7 @@ def api_root(request, format=None):
         'questions': reverse('question-list', request=request, format=format),
         'options': reverse('option-list', request=request, format=format),
         'answers': reverse('answer-list', request=request, format=format),
+        'template_section': reverse('template-section-list', request=request, format=format),
         'artifact_reviews': reverse('artifact-review-list', request=request, format=format),
     })
 
@@ -48,6 +49,10 @@ urlpatterns = [
     # Get list of sections
     # ListAPIView
     path('sections/', SectionList.as_view(), name='section-list'),
+
+    # List template sections
+    path('template_sections/', TemplateSectionList.as_view(),
+         name='template-section-list'),
 
     # Get detail of a section, Update a section, Delete a section
     path('sections/<int:section_pk>/',

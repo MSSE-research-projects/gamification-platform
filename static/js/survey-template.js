@@ -127,7 +127,7 @@ class Survey {
     html += '  </div>';
     html += '  <div class="col-md-2 col-sm-12 text-end">';
     html += '    <button class="btn btn-secondary edit-template-btn">';
-    html += '      <i class="fa fa-glasses"></i> Edit Template';
+    html += '      <i class="fa fa-edit"></i> Edit Template';
     html += '    </button>';
     html += '  </div>';
     html += '  <div class="col-md-2 col-sm-12 text-end">';
@@ -302,12 +302,43 @@ class Section {
   }
 
   _buildQuestionElement() {
+    var numGridQuestions = 0;
+    for (var i = 0; i < this.questions.length; i++) {
+      if (this.questions[i] instanceof GridStyleQuestion) {
+        numGridQuestions++;
+      }
+    }
+
     var div = document.createElement('div');
     div.classList.add('section-questions');
+
+    if (numGridQuestions > 0) {
+      div.appendChild(htmlToElement('<hr>'));
+      div.appendChild(this._buildGridQuestionElement());
+    }
+
     for (var i = 0; i < this.questions.length; i++) {
       var question = this.questions[i];
-      div.appendChild(htmlToElement('<hr>'));
-      div.appendChild(question.element);
+      if (!(question instanceof GridStyleQuestion)) {
+        div.appendChild(htmlToElement('<hr>'));
+        div.appendChild(question.element);
+      }
+    }
+
+    return div;
+  }
+
+  _buildGridQuestionElement() {
+    var html = '';
+    html += '<div class="row mb-3 align-items-center justify-content-start">';
+    html += '</div>';
+
+    var div = htmlToElement(html);
+    for (var i = 0; i < this.questions.length; i++) {
+      var question = this.questions[i];
+      if (question instanceof GridStyleQuestion) {
+        div.appendChild(question.element);
+      }
     }
     return div;
   }
@@ -330,6 +361,7 @@ class Section {
   updateElement() {
     $(this.element).find('.section-title').text(this.title);
     $(this.headerElement).find('.section-description').text(this.description);
+    $(this.element).find('.section-questions').replaceWith(this._buildQuestionElement());
   }
 
   getQuestionByText(text) {
@@ -340,14 +372,12 @@ class Section {
 
   addQuestion(question) {
     this.questions.push(question);
-    this.questionElement.appendChild(htmlToElement('<hr>'));
-    this.questionElement.appendChild(question.element);
+    this.updateElement();
   }
 
   removeQuestion(question) {
     this.questions.splice(this.questions.indexOf(question), 1);
-    this.questionElement.removeChild(question.element.previousElementSibling);
-    this.questionElement.removeChild(question.element);
+    this.updateElement();
   }
 
   removeQuestionByText(text) {
@@ -550,41 +580,70 @@ class DefaultStyleQuestion extends Question {
   }
 }
 
-// class GridStyleQuestion extends Question {
-//   constructor(data = {}, options = {}) {
-//     super(data, options);
+class GridStyleQuestion extends Question {
+  constructor(data = {}, options = {}) {
+    super(data, options);
 
-//     if (new.target === GridStyleQuestion) {
-//       throw new TypeError('Cannot construct GridStyleQuestion instances directly');
-//     }
+    if (new.target === GridStyleQuestion) {
+      throw new TypeError('Cannot construct GridStyleQuestion instances directly');
+    }
 
-//     if (this._buildOption == undefined) {
-//       throw new TypeError('GridStyleQuestion subclass must implement _buildOption');
-//     }
-//   }
+    if (this._buildOption == undefined) {
+      throw new TypeError('GridStyleQuestion subclass must implement _buildOption');
+    }
+  }
 
-//   _buildWrapperElement() {
-//     var html = '';
-//     html += '<div class="row mb-3 align-items-center justify-content-center">';
-//     html += '</div>';
+  buildElement() {
+    this.element = this._buildWrapperElement();
+    this.textElement = this._buildTextElement();
+    this.optionElement = this._buildOptionElement();
 
-//     return htmlToElement(html);
-//   }
+    $(this.element).find('.row').append(this.textElement);
+    $(this.element).find('.row').append(this.optionElement);
 
-//   _buildTextElement() {
-//     var html = '';
-//     html += '<label class="question-text col-auto form-label">' + this.text + '</label>';
+    if (this.options.editable) {
+      this.editElement = this._buildEditElement();
+      $(this.element).find('.row').append(this.editElement);
+    }
+  }
 
-//     return htmlToElement(html);
-//   }
+  _buildWrapperElement() {
+    var html = '';
 
-//   _buildOptionElement() {
-//     var html = '';
-//     html += '<input type="number" min="1" max="10" step="1" class="question-option col form-control">';
+    if (this.options.editable) {
+      html += '<div class="col-6">';
+      html += '  <div class="row mb-3 align-items-center justify-content-center">';
+      html += '  </div>';
+      html += '</div>';
+    } else {
+      html += '<div class="col col-sm-12 col-lg-3">';
+      html += '  <div class="row mb-3 align-items-center justify-content-center">';
+      html += '  </div>';
+      html += '</div>';
+    }
 
-//     return htmlToElement(html);
-//   }
-// }
+    return htmlToElement(html);
+  }
+
+  _buildTextElement() {
+    var html = '';
+    html += '<label class="question-text col-auto form-label">' + this.text + '</label>';
+
+    return htmlToElement(html);
+  }
+
+  _buildOptionElement() {
+    var html = '';
+    html += '<div class="col">';
+    html += '</div>';
+
+    var optionWrapper = htmlToElement(html);
+
+    optionWrapper.appendChild(this._buildOption());
+
+    return optionWrapper;
+  }
+}
 
 
 
@@ -740,7 +799,11 @@ class MultiTextInputQuestion extends DefaultStyleQuestion {
   _buildFooterElement() {
     var html = '';
     html += '<div class="col text-end">';
-    html += '  <button type="button" class="btn btn-sm btn-primary add-text-input-btn"><i class="fa fa-plus"></i> Add New Line</button>';
+    if (this.options.editable) {
+      html += '  <button type="button" class="btn btn-sm btn-primary add-text-input-btn" disabled><i class="fa fa-plus"></i> Add New Line</button>';
+    } else {
+      html += '  <button type="button" class="btn btn-sm btn-primary add-text-input-btn"><i class="fa fa-plus"></i> Add New Line</button>';
+    }
     html += '</div>';
 
     return htmlToElement(html);
@@ -798,17 +861,17 @@ class TextAreaQuestion extends DefaultStyleQuestion {
     return htmlToElement(html);
   }
 
-  setAnswer(value) {
-    $(this.element).find('textarea').val(value);
+  setAnswers(values) {
+    $(this.element).find('textarea').val(values[0]);
   }
 
   getAnswers() {
     var answer = $(this.element).find('textarea').val();
-    return answer;
+    return [answer];
   }
 }
 
-class NumericInputQuestion extends InlineStyleQuestion {
+class NumericInputQuestion extends GridStyleQuestion {
   constructor(data = {}, options = {}) {
     super(data, options);
     this.minValue = data.minValue ? data.minValue : 1;
@@ -821,11 +884,13 @@ class NumericInputQuestion extends InlineStyleQuestion {
 
   _buildOption() {
     var html = '';
-    // html += '<div>';
-    html += `<input type="number" min="${this.minValue}" max="${this.maxValue}" step="${this.step}" class="col form-control">`;
-    // html += '</div>';
+    html += `<input type="number" min="${this.minValue}" max="${this.maxValue}" step="${this.step}" class="question-option col form-control">`;
 
     return htmlToElement(html);
+  }
+
+  setAnswers(values) {
+    $(this.element).find('input').val(values[0]);
   }
 
   getAnswers() {
@@ -895,15 +960,23 @@ class QuestionModal {
       case 'mcq':
         this.modal.find('#mcqFields').show();
         this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').hide();
         break;
       case 'fixed-text':
       case 'multi-text':
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').show();
+        this.modal.find('#numericFields').hide();
+        break;
+      case 'number':
+        this.modal.find('#mcqFields').hide();
+        this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').show();
         break;
       default:
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').hide();
         break;
     }
   }

@@ -10,7 +10,9 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">
-          <button type="button" class="btn btn-outline-primary">Back</button>
+          <a href="{% url 'view_assignment' course_id assignment_id %}">
+            <button type="button" class="btn btn-outline-primary">Back</button>
+          </a>
         </h4>
         <div class="table-responsive">
           <table class="table table-striped">

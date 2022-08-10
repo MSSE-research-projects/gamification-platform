@@ -1,7 +1,6 @@
+from operator import is_
 import os
-from ctypes import sizeof
-from hashlib import new
-from webbrowser import get
+from re import template
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -15,8 +14,9 @@ from django.utils.timezone import now
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm, TodoListForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, FeedbackSurvey
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Individual, FeedbackSurvey, Question, OptionChoice, QuestionOption
 from app.gamification.models.artifact_review import ArtifactReview
+from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
 from app.gamification.models.todo_list import TodoList
 
@@ -44,6 +44,7 @@ def signin(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                # Redirect to where they were asked to login
                 return redirect('profile')
     else:
         form = AuthenticationForm()
@@ -179,9 +180,10 @@ def instructor_admin(request):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
 def add_survey(request, course_id, assignment_id):
-    if request.method == 'POST':
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
 
-        survey_template_name = request.POST.get('template_name')
+    if request.method == 'POST':
+        survey_template_name = request.POST.get('template_name').strip()
         survey_template_instruction = request.POST.get('instructions')
         survey_template_other_info = request.POST.get('other_info')
         feedback_survey_date_released = request.POST.get('date_released')
@@ -190,15 +192,61 @@ def add_survey(request, course_id, assignment_id):
             name=survey_template_name, instructions=survey_template_instruction, other_info=survey_template_other_info)
         survey_template.save()
         feedback_survey = FeedbackSurvey(
-            assignment_id=assignment_id,
+            assignment=assignment,
             template=survey_template,
             date_released=feedback_survey_date_released,
             date_due=feedback_survey_date_due
         )
         feedback_survey.save()
+
+        if survey_template_name == "Default Template":
+            default_survey_template = get_object_or_404(
+                SurveyTemplate, is_template=True, name="Survey Template")
+            for default_section in default_survey_template.sections:
+                section = SurveySection(template=survey_template,
+                                        title=default_section.title,
+                                        description=default_section.description,
+                                        is_required=default_section.is_required,
+                                        )
+                section.save()
+                for default_question in default_section.questions:
+                    question = Question(section=section,
+                                        text=default_question.text,
+                                        question_type=default_question.question_type,
+                                        dependent_question=default_question.dependent_question,
+                                        is_required=default_question.is_required,
+                                        is_multiple=default_question.is_multiple,
+                                        )
+                    question.save()
+                    print(question.pk)
+                    for default_option in default_question.options:
+                        question_option = QuestionOption(
+                            question=question,
+                            option_choice=default_option.option_choice,
+                            number_of_text=default_option.number_of_text,
+                        )
+                        question_option.save()
+
+        else:
+
+            # Automatically create a section and question for artifact
+            artifact_section = SurveySection.objects.create(
+                template=survey_template,
+                title='Artifact',
+                description='Please review the artifact.',
+                is_required=False,
+            )
+            artifact_question = Question.objects.create(
+                section=artifact_section,
+                text='',
+                question_type=Question.QuestionType.SLIDEREVIEW,
+            )
+            empty_option = OptionChoice.objects.get(text='')
+            QuestionOption.objects.create(
+                question=artifact_question, option_choice=empty_option)
+
         return redirect('edit_survey', course_id, assignment_id)
     else:
-        assignment = get_object_or_404(Assignment, pk=assignment_id)
         feedback_survey = FeedbackSurvey.objects.filter(assignment=assignment)
         if feedback_survey.count() > 0:
             return redirect('edit_survey', course_id, assignment_id)
@@ -256,37 +304,44 @@ def test_survey_template(request):
     return render(request, 'test-survey-template.html')
 
 
-def test_add_survey(request, course_id, assignment_id):
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_survey(request, course_id, assignment_id):
     if request.method == 'GET':
         assignment = get_object_or_404(Assignment, pk=assignment_id)
         feedback_survey = get_object_or_404(
             FeedbackSurvey, assignment=assignment)
         survey_template = feedback_survey.template.pk
-        return render(request, 'test-add-survey.html', {'survey_pk': survey_template, 'course_id': course_id, 'assignment_id': assignment_id})
+        return render(request, 'edit_survey.html', {'survey_pk': survey_template, 'course_id': course_id, 'assignment_id': assignment_id})
     else:
-        return render(request, 'test-add-survey.html')
+        return render(request, 'edit_survey.html')
 
 
-def test_preview_survey(request, course_id, assignment_id):
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_preview_survey(request, course_id, assignment_id):
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     feedback_survey = get_object_or_404(
         FeedbackSurvey, assignment=assignment)
     survey_template = feedback_survey.template.pk
-    return render(request, 'test-preview-survey.html', {'survey_pk': survey_template})
+    return render(request, 'edit_preview_survey.html', {'survey_pk': survey_template})
 
 
-def test_fill_survey(request, course_id, assignment_id, artifact_review_id):
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def fill_survey(request, course_id, assignment_id, artifact_review_id):
     user = request.user
     assignment = get_object_or_404(Assignment, pk=assignment_id)
     artifact = ArtifactReview.objects.get(
         pk=artifact_review_id).artifact.file
-    print(artifact)
     feedback_survey = get_object_or_404(
         FeedbackSurvey, assignment=assignment)
     survey_template = feedback_survey.template.pk
-    return render(request, 'test-fill-survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id, 'picture': artifact})
+    return render(request, 'fill_survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id, 'picture': artifact})
 
 
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def report(request, course_id, andrew_id):
     # user = request.user
     user = get_object_or_404(CustomUser, andrew_id=andrew_id)
