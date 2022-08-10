@@ -15,6 +15,7 @@ from django.utils.timezone import now
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm, TodoListForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Individual, FeedbackSurvey, Question, OptionChoice, QuestionOption
+from app.gamification.models.answer import Answer
 from app.gamification.models.artifact_review import ArtifactReview
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
