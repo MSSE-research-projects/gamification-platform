@@ -243,3 +243,54 @@ class CreateArtifactReview(generics.ListCreateAPIView):
         )
         serializer = self.get_serializer(artifact_review)
         return Response(serializer.data)
+
+
+class ArtifactResult(generics.ListAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+
+    def get(self, request, artifact_pk, *args, **kwargs):
+        artifact = get_object_or_404(Artifact, pk=artifact_pk)
+        assignment = artifact.assignment
+        survey_template = assignment.survey_template
+        sections = survey_template.sections
+        answers = {}
+        for section in sections:
+            answers[section.title] = dict()
+            for question in section.questions:
+                answers[section.title][question.text] = dict()
+                answers[section.title][question.text]['question_type'] = question.question_type
+                answers[section.title][question.text]['answers'] = []
+
+                artifact_reviews = ArtifactReview.objects.filter(
+                    artifact=artifact)
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                    question_options = question.options
+                    for artifact_review in artifact_reviews:
+                        for question_option in question_options:
+                            answer = Answer.objects.filter(
+                                artifact_review=artifact_review, question_option=question_option)
+                            if len(answer) > 0:
+                                option_choice = question_option.option_choice
+                                if answers[section.title][question.text]['answers'] == []:
+                                    temp = dict()
+                                    temp[option_choice.text] = 1
+                                    answers[section.title][question.text]['answers'].append(
+                                        temp)
+                                else:
+                                    for answer_dict in answers[section.title][question.text]['answers']:
+                                        if option_choice.text in answer_dict.keys():
+                                            answer_dict[option_choice.text] += 1
+
+                else:
+                    question_option = QuestionOption.objects.get(
+                        question=question)
+                    for artifact_review in artifact_reviews:
+                        text_answers = Answer.objects.filter(
+                            artifact_review=artifact_review, question_option=question_option)
+                        if len(text_answers) > 0:
+                            for answer in text_answers:
+                                answers[section.title][question.text]['answers'].append(
+                                    answer.answer_text)
+        data = json.dumps(answers)
+        return Response(data)
