@@ -120,7 +120,6 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
         answer_texts = json.loads(request.data.get('answer_text'))
         if '' in answer_texts:
             answer_texts = [i for i in answer_texts if i != '']
-        print(answer_texts)
         # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
@@ -299,21 +298,14 @@ class ArtifactResult(generics.ListAPIView):
         return Response(data)
 
 
-class CheckAllDone(generics.CreateAPIView):
-    queryset = ArtifactReview.objects.all()
-    serializer_class = ArtifactReviewSerializer
+class CheckAllDone(generics.GenericAPIView):
 
     def post(self, request, question_pk, *args, **kwargs):
-        artifac_review_pk = get_object_or_404(
-            ArtifactReview, id=artifac_review_pk)
-        question = get_object_or_404(Question, id=question_pk)
+        question = get_object_or_404(Question, pk=question_pk)
         is_required = question.is_required
-        answer_texts = request.data.get('answer_text')
-        flag = False
-        for answer_text in answer_texts:
-            if answer_text != '':
-                flag = True
-        if is_required and flag == False:
+        answer_texts = json.loads(request.data.get('answer_text'))
+        answer_texts = [text for text in answer_texts if text != '']
+        if is_required and not answer_texts:
             return Response(status=400)
 
         return Response(status=200)
