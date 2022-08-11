@@ -127,7 +127,7 @@ class Survey {
     html += '  </div>';
     html += '  <div class="col-md-2 col-sm-12 text-end">';
     html += '    <button class="btn btn-secondary edit-template-btn">';
-    html += '      <i class="fa fa-edit"></i> Edit Template';
+    html += '      <i class="fa fa-edit"></i> Edit Survey';
     html += '    </button>';
     html += '  </div>';
     html += '  <div class="col-md-2 col-sm-12 text-end">';
