@@ -83,6 +83,12 @@
         var question = section.questions[i];
         var answers = question.getAnswers();
 
+        if (question.checkAnswers(answers) === false) {
+          question.showError();
+          hasError = true;
+          continue;
+        }
+
         // Put the ajax call here
         $.ajax({
           url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,

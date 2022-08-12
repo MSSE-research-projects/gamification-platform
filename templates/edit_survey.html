@@ -8,7 +8,6 @@
   <div class="row">
     <div class="col-md-12 grid-margin" id="survey">
     </div> <!-- end #survey -->
-      
   </div> <!-- end .row -->
   <div class="d-grid d-block">
     <a role="button" class="btn btn-primary submit-survey-btn" href="{% url 'assignment' course_id %}">
@@ -31,8 +30,6 @@
           <label for="sectionTitle">Section Title</label>
           <input type="text" list="titleCandidates" class="form-control" id="sectionTitle" placeholder="Section Title"
             required>
-          <small class="form-text text-muted"><b>DO NOT</b> use <b>'Artifact'</b> because that's a reserved section for
-            artifact reviews.</small>
           <datalist id="titleCandidates">
           </datalist>
         </div>
@@ -310,8 +307,21 @@
 
     var addSectionModal = new SectionModal($('#addSectionModal'));
     addSectionModal.on('click', '.save-btn', function () {
-      var sectionTitle = this.modal.find('#sectionTitle').val();
+      var sectionTitle = this.modal.find('#sectionTitle').val().trim();
       var sectionDescription = this.modal.find('#sectionDescription').val();
+
+      if (sectionTitle === 'Artifact') {
+        alert('Artifact is a reserved section title. Please choose another title.');
+        return;
+      }
+      if (sectionTitle === '') {
+        alert('Section title cannot be empty.');
+        return;
+      }
+      if (survey.getSectionTitles().includes(sectionTitle)) {
+        alert('Section title already exists.');
+        return;
+      }
 
       $.ajax({
         async: false,
@@ -334,9 +344,31 @@
           survey.addSection(section);
         },
         error: function (data) {
-          console.log(data);
+          var message = data.responseJSON.message;
+          alert(message);
         }
       });
+
+      // Add questions automatically if it is a template section
+      if (sectionTitle in template_data) {
+        var section = survey.getSectionByTitle(sectionTitle);
+        template_data[sectionTitle].questions.forEach(questionData => {
+          var questionText = questionData.text;
+          var questionType = queTypeMapRev[questionData.question_type];
+          var choices = null;
+          var numberOfText = null;
+          var minValue = '1';
+          var maxValue = '10';
+          var step = '1';
+
+          if (questionData.option_choices)
+            choices = questionData.option_choices.map(choice => choice.text);
+          if (questionData.number_of_text)
+            numberOfText = questionData.number_of_text;
+
+          addQuestionAjax(section, questionText, questionType, choices, numberOfText, minValue, maxValue, step);
+        });
+      }
 
       // Hide modal
       this.hide();
@@ -393,6 +425,13 @@
       var button = $(event.relatedTarget);
       var sectionTitle = button.closest('fieldset').find('.section-title').text();
       this.modal.find('#sectionTitleInQuestionModal').val(sectionTitle);
+
+      // Render question text candidates if it is in a template section
+      // if (sectionTitle in template_data) {
+      //   template_data[sectionTitle].questions.forEach(questionData => {
+      //     $('#textCandidates').append(`<option value="${questionData.text}">${questionData.text}</option>`);
+      //   })
+      // }
     });
     addQuestionModal.on('click', '.save-btn', function (event) {
       var sectionTitle = this.modal.find('#sectionTitleInQuestionModal').val();
@@ -401,159 +440,26 @@
       var questionText = this.modal.find('#questionText').val();
       var questionType = this.modal.find('#questionType').val();
 
-      // Add question to server
-      var question = null;
-      $.ajax({
-        async: false,
-        url: `/api/sections/${section.pk}/questions/`,
-        type: 'POST',
-        data: {
-          csrfmiddlewaretoken: '{{ csrf_token }}',
-          text: questionText,
-          question_type: queTypeMap[questionType],
-        },
-        success: function (data) {
-          data.section = section;
-
-          var questionClass;
-          switch (questionType) {
-            case 'mcq':
-              questionClass = MultipleChoiceQuestion;
-              break;
-            case 'fixed-text':
-              questionClass = FixedTextInputQuestion;
-              break;
-            case 'multi-text':
-              questionClass = MultiTextInputQuestion;
-              break;
-            case 'textarea':
-              questionClass = TextAreaQuestion;
-              break;
-            case 'number':
-              questionClass = NumericInputQuestion;
-              break;
-            default:
-              break;
-          }
-
-          question = new questionClass(
-            data,
-            options = {
-              editable: true,
-            }
-          );
-
-          section.addQuestion(question);
-        },
-        error: function (data) {
-          console.log(data);
+      var choices = [];
+      this.modal.find('#choices').find('input').each(function () {
+        var choice_text = $(this).val();
+        if (choice_text !== '') {
+          choices.push(choice_text);
         }
       });
 
-      // Add choices of question to server
-      switch (questionType) {
-        case 'mcq':
-          this.modal.find('#choices').find('input').each(function () {
-            var choice_text = $(this).val();
-            if (choice_text != '') {
-              $.ajax({
-                async: false,
-                url: `/api/questions/${question.pk}/options/`,
-                type: 'POST',
-                data: {
-                  csrfmiddlewaretoken: '{{ csrf_token }}',
-                  text: choice_text,
-                },
-                success: function (data) {
-                  data.question = question;
-                  var choice = new OptionChoice(
-                    data,
-                    options = {
-                      editable: true,
-                    }
-                  );
-                  question.addChoice(choice);
-                },
-                error: function (data) {
-                  console.log(data);
-                }
-              });
-            }
-          });
-          break;
-        case 'fixed-text':
-        case 'multi-text':
-          var numberOfText;
-          if (this.modal.find('#numberOfText').val() != '') {
-            numberOfText = parseInt(this.modal.find('#numberOfText').val());
-          } else {
-            numberOfText = 1;
-          }
-
-          $.ajax({
-            async: false,
-            url: `/api/questions/${question.pk}/options/`,
-            type: 'POST',
-            data: {
-              csrfmiddlewaretoken: '{{ csrf_token }}',
-              text: '',
-              number_of_text: numberOfText,
-            },
-            success: function (data) {
-              question.numberOfText = numberOfText;
-              question.updateElement();
-            },
-            error: function (data) {
-              console.log(data);
-            }
-          });
-          break;
-        case 'textarea':
-          $.ajax({
-            async: false,
-            url: `/api/questions/${question.pk}/options/`,
-            type: 'POST',
-            data: {
-              csrfmiddlewaretoken: '{{ csrf_token }}',
-              text: '',
-            },
-            success: function (data) {
-              question.updateElement();
-            },
-            error: function (data) {
-              console.log(data);
-            }
-          });
-        case 'number':
-          if (this.modal.find('#minValue').val() != '') {
-            question.minValue = parseInt(this.modal.find('#minValue').val());
-          }
-          if (this.modal.find('#maxValue').val() != '') {
-            question.maxValue = parseInt(this.modal.find('#maxValue').val());
-          }
-          if (this.modal.find('#step').val() != '') {
-            question.step = parseInt(this.modal.find('#step').val());
-          }
-
-          $.ajax({
-            async: false,
-            url: `/api/questions/${question.pk}/options/`,
-            type: 'POST',
-            data: {
-              csrfmiddlewaretoken: '{{ csrf_token }}',
-              text: '',
-            },
-            success: function (data) {
-              question.updateElement();
-            },
-            error: function (data) {
-              console.log(data);
-            }
-          });
-          break;
-        default:
-          break;
+      var numberOfText;
+      if (this.modal.find('#numberOfText').val() != '') {
+        numberOfText = parseInt(this.modal.find('#numberOfText').val());
+      } else {
+        numberOfText = 1;
       }
+
+      var minValue = this.modal.find('#minValue').val();
+      var maxValue = this.modal.find('#maxValue').val();
+      var step = this.modal.find('#step').val();
+
+      addQuestionAjax(section, questionText, questionType, choices, numberOfText, minValue, maxValue, step);
 
       // Hide modal
       this.hide();
@@ -717,5 +623,172 @@
 
   var survey_pk = '{{ survey_pk }}'
   var { survey, _ } = getSurvey(survey_pk, { editable: true });
+
+  var template_data = {};
+  $.ajax({
+    async: false,
+    url: `/api/template_sections/`,
+    type: 'GET',
+    success: function (data) {
+      data = JSON.parse(data).sections;
+      data.forEach(element => {
+        var title = element.title;
+        template_data[title] = element;
+        $('#titleCandidates').append(`<option value="${title}">${title}</option>`);
+      });
+    },
+    error: function (data) {
+      var message = data.responseJSON.message;
+      alert(message);
+    }
+  });
+
+  function addQuestionAjax(section, questionText, questionType, choices, numberOfText, minValue, maxValue, step) {
+    // Add question to server
+    var question = null;
+    $.ajax({
+      async: false,
+      url: `/api/sections/${section.pk}/questions/`,
+      type: 'POST',
+      data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        text: questionText,
+        question_type: queTypeMap[questionType],
+      },
+      success: function (data) {
+        data.section = section;
+
+        var questionClass;
+        switch (questionType) {
+          case 'mcq':
+            questionClass = MultipleChoiceQuestion;
+            break;
+          case 'fixed-text':
+            questionClass = FixedTextInputQuestion;
+            break;
+          case 'multi-text':
+            questionClass = MultiTextInputQuestion;
+            break;
+          case 'textarea':
+            questionClass = TextAreaQuestion;
+            break;
+          case 'number':
+            questionClass = NumericInputQuestion;
+            break;
+          default:
+            break;
+        }
+
+        question = new questionClass(
+          data,
+          options = {
+            editable: true,
+          }
+        );
+
+        section.addQuestion(question);
+      },
+      error: function (data) {
+        console.log(data);
+      }
+    });
+
+    // Add choices of question to server
+    switch (questionType) {
+      case 'mcq':
+        choices.forEach(choice_text => {
+          $.ajax({
+            async: false,
+            url: `/api/questions/${question.pk}/options/`,
+            type: 'POST',
+            data: {
+              csrfmiddlewaretoken: '{{ csrf_token }}',
+              text: choice_text,
+            },
+            success: function (data) {
+              data.question = question;
+              var choice = new OptionChoice(
+                data,
+                options = {
+                  editable: true,
+                }
+              );
+              question.addChoice(choice);
+            },
+            error: function (data) {
+              console.log(data);
+            }
+          });
+        });
+        break;
+      case 'fixed-text':
+      case 'multi-text':
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/`,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            text: '',
+            number_of_text: numberOfText,
+          },
+          success: function (data) {
+            question.numberOfText = numberOfText;
+            question.updateElement();
+          },
+          error: function (data) {
+            console.log(data);
+          }
+        });
+        break;
+      case 'textarea':
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/`,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            text: '',
+          },
+          success: function (data) {
+            question.updateElement();
+          },
+          error: function (data) {
+            console.log(data);
+          }
+        });
+        break;
+      case 'number':
+        if (minValue != '') {
+          question.minValue = parseInt(minValue);
+        }
+        if (maxValue != '') {
+          question.maxValue = parseInt(maxValue);
+        }
+        if (step != '') {
+          question.step = parseInt(step);
+        }
+
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/`,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            text: '',
+          },
+          success: function (data) {
+            question.updateElement();
+          },
+          error: function (data) {
+            console.log(data);
+          }
+        });
+        break;
+      default:
+        break;
+    }
+
+  }
 </script>
 {% endblock js %}

@@ -85,6 +85,10 @@ class SurveySectionList(generics.ListCreateAPIView):
         if title == '':
             content = {'message': 'Section title cannot be empty'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        if title == 'Artifact':
+            content = {
+                'message': 'Artifact is a reserved section title. Please choose another title.'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         description = request.data.get('description')
         is_required = True if request.data.get(
             'is_required') == 'true' else False
@@ -361,7 +365,6 @@ class TemplateSectionList(generics.ListAPIView):
                         curr_option_choice['text'] = option_choice.option_choice.text
                         curr_question['option_choices'].append(
                             curr_option_choice)
-                    curr_section['questions'].append(curr_question)
                 else:
                     question_option = get_object_or_404(
                         QuestionOption, question=question)

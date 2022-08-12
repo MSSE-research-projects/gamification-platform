@@ -181,9 +181,9 @@ updateAnswers = function (survey, artifact_review_pk) {
         dataType: 'json',
         success: function (data) {
           data.map(({ answer_text }) => answers.push(answer_text));
+          question.setAnswers(answers);
         }
       });
-      question.setAnswers(answers);
     }
   }
 }

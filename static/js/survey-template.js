@@ -218,6 +218,13 @@ class Survey {
     return this.sections;
   }
 
+  getSectionTitles() {
+    // Returns an array of section titles
+    return this.sections.map(function (section) {
+      return section.title;
+    });
+  }
+
   render(e) {
     e.appendChild(this.element);
   }
@@ -645,6 +652,7 @@ class GridStyleQuestion extends Question {
     var optionWrapper = htmlToElement(html);
 
     optionWrapper.appendChild(this._buildOption());
+    optionWrapper.appendChild(this._buildErrorMessageElement());
 
     return optionWrapper;
   }
@@ -887,6 +895,15 @@ class NumericInputQuestion extends GridStyleQuestion {
     this.buildElement();
   }
 
+  _buildErrorMessageElement() {
+    var html = '';
+    html += '<div class="invalid-feedback">';
+    html += '  Input number 1-10';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
   _buildOption() {
     var html = '';
     html += `<input type="number" min="${this.minValue}" max="${this.maxValue}" step="${this.step}" class="question-option col form-control">`;
@@ -898,6 +915,14 @@ class NumericInputQuestion extends GridStyleQuestion {
     $(this.element).find('input').val(values[0]);
   }
 
+  checkAnswers(answers) {
+    var answer = answers[0];
+    if (answer < this.minValue || answer > this.maxValue) {
+      return false;
+    }
+    return true;
+  }
+
   getAnswers() {
     var inputs = $(this.element).find('input');
     var answers = [];
@@ -905,6 +930,10 @@ class NumericInputQuestion extends GridStyleQuestion {
       answers.push(inputs[i].value);
     }
     return answers;
+  }
+
+  showError() {
+    $(this.element).find('input').addClass('is-invalid');
   }
 }
 
