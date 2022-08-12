@@ -5,8 +5,8 @@ from rest_framework.reverse import reverse
 
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
-from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult
+from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyGetInfo, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete
 
 
 @api_view(['GET'])
@@ -41,6 +41,10 @@ urlpatterns = [
 
     # Get detail of a survey, Delete a survey, Update a survey
     path('surveys/<int:survey_pk>/', SurveyDetail.as_view(), name='survey-detail'),
+
+    # get all sections, questions, options of a survey
+    path('surveys/<int:survey_pk>/get_info/',
+         SurveyGetInfo.as_view(), name='survey-get-info'),
 
     # Get the sections of a survey, Post a new section of the survey
     path('surveys/<int:survey_pk>/sections/',
@@ -90,7 +94,7 @@ urlpatterns = [
     path('answers/', AnswerList.as_view(), name='answer-list'),
 
     # Get detail of answer, update an answer, delete an answer
-    path('answers/<int:answer_pk>', AnswerDetail.as_view(), name='answer-detail'),
+    path('answers/<int:answer_pk>/', AnswerDetail.as_view(), name='answer-detail'),
 
     # Get answers of artifact review
     path('artifact_reviews/<int:artifact_review_pk>/answers/',
@@ -107,6 +111,9 @@ urlpatterns = [
     # Get detail of an artifact review. delete an artifact review
     path('artifact_reviews/<int:artifact_review_id>/',
          ArtifactReviewDetail.as_view(), name="artifact-review-detail"),
+
+    path('artifact_reviews/<int:artifact_review_pk>/is_complete/',
+         SurveyComplete.as_view(), name="survey-complete"),
 
     # Get artifact review of an artifact, post a new artifact review
     path('artifact_reviews/<int:artifact_pk>/<int:registration_pk>',

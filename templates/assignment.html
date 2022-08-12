@@ -57,6 +57,13 @@
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
                 </td>
+                {% if userRole == 'Student' %}
+                <td>
+                  <a href="{% url 'review_survey' course_id assignment.id%}">
+                    <button type="button" class="btn-sm btn-primary">Survey</button>
+                  </a>
+                </td>
+                {% endif %}
 
                 {% if userRole == 'Instructor' or userRole == 'TA' %}
                 <td>

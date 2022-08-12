@@ -331,5 +331,81 @@ class OptionDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class TemplateSectionList(generics.ListAPIView):
-    queryset = SurveySection.objects.filter(is_template=True)
-    serializer_class = TemplateSectionSerializer
+    def get(self, request, *args, **kwargs):
+        survey_template = get_object_or_404(
+            SurveyTemplate, is_template=True)
+        data = dict()
+        data['pk'] = survey_template.pk
+        data['is_template'] = survey_template.is_template
+        data['name'] = survey_template.name
+        data['instructions'] = survey_template.instructions
+        data['other_info'] = survey_template.other_info
+        data['sections'] = []
+        for section in survey_template.sections:
+            curr_section = dict()
+            curr_section['pk'] = section.pk
+            curr_section['title'] = section.title
+            curr_section['is_required'] = section.is_required
+            curr_section['questions'] = []
+            for question in section.questions:
+                curr_question = dict()
+                curr_question['pk'] = question.pk
+                curr_question['text'] = question.text
+                curr_question['is_required'] = question.is_required
+                curr_question['question_type'] = question.question_type
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                    curr_question['option_choices'] = []
+                    for option_choice in question.options:
+                        curr_option_choice = dict()
+                        curr_option_choice['pk'] = option_choice.option_choice.pk
+                        curr_option_choice['text'] = option_choice.option_choice.text
+                        curr_question['option_choices'].append(
+                            curr_option_choice)
+                    curr_section['questions'].append(curr_question)
+                else:
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    curr_question['number_of_text'] = question_option.number_of_text
+                curr_section['questions'].append(curr_question)
+            data['sections'].append(curr_section)
+        return Response(json.dumps(data))
+
+
+class SurveyGetInfo(generics.ListAPIView):
+    def get(self, request, survey_pk, *args, **kwargs):
+        survey_template = get_object_or_404(
+            SurveyTemplate, pk=survey_pk)
+        data = dict()
+        data['pk'] = survey_pk
+        data['name'] = survey_template.name
+        data['instructions'] = survey_template.instructions
+        data['other_info'] = survey_template.other_info
+        data['sections'] = []
+        for section in survey_template.sections:
+            curr_section = dict()
+            curr_section['pk'] = section.pk
+            curr_section['title'] = section.title
+            curr_section['is_required'] = section.is_required
+            curr_section['questions'] = []
+            for question in section.questions:
+                curr_question = dict()
+                curr_question['pk'] = question.pk
+                curr_question['text'] = question.text
+                curr_question['is_required'] = question.is_required
+                curr_question['question_type'] = question.question_type
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                    curr_question['option_choices'] = []
+                    for option_choice in question.options:
+                        curr_option_choice = dict()
+                        curr_option_choice['pk'] = option_choice.option_choice.pk
+                        curr_option_choice['text'] = option_choice.option_choice.text
+                        curr_question['option_choices'].append(
+                            curr_option_choice)
+                    curr_section['questions'].append(curr_question)
+                else:
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    curr_question['number_of_text'] = question_option.number_of_text
+                curr_section['questions'].append(curr_question)
+            data['sections'].append(curr_section)
+        return Response(json.dumps(data))

@@ -156,6 +156,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         full_name = '%s %s' % (self.first_name, self.last_name)
         return full_name.strip()
 
+    def name_or_andrew_id(self):
+        if self.first_name == '':
+            return self.andrew_id
+        else:
+            full_name = '%s %s' % (self.first_name, self.last_name)
+            return full_name.strip()
+
     def __str__(self):
         return f'{self.andrew_id}'
 

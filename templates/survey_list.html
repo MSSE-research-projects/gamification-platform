@@ -10,7 +10,7 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title">
-          <a href="{% url 'view_assignment' course_id assignment_id %}">
+          <a href="{% url 'assignment' course_id %}">
             <button type="button" class="btn btn-outline-primary">Back</button>
           </a>
         </h4>
@@ -21,6 +21,9 @@
                 <th>
                   {{ assignment_type }}
                 </th>
+                <th>
+                  Status
+                </th>
 
               </tr>
             </thead>
@@ -29,6 +32,9 @@
               <tr>
                 <td>
                   {{ info.name }}
+                </td>
+                <td>
+                  {{ info.status }}
                 </td>
 
                 <td>

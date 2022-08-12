@@ -1,14 +1,20 @@
 {% extends 'boilerplates/base_navbar.html' %}
 {% load static widget_tweaks %}
 
-{% block title %}Test Edit Survey{% endblock %}
+{% block title %}Edit Survey{% endblock %}
 
 {% block content %}
 <div class="content-wrapper">
   <div class="row">
     <div class="col-md-12 grid-margin" id="survey">
     </div> <!-- end #survey -->
+      
   </div> <!-- end .row -->
+  <div class="d-grid d-block">
+    <a role="button" class="btn btn-primary submit-survey-btn" href="{% url 'assignment' course_id %}">
+      <i class="fa fa-arrow-circle-right"></i> SAVE
+    </a>
+  </div>
 </div> <!-- end .content-wrapper -->
 
 <!-- Add Section Modal -->
@@ -246,6 +252,11 @@
   $(document).ready(function () {
     var surveyDOM = document.getElementById('survey');
     survey.render(surveyDOM);
+
+    survey.on('click', '.back-btn', function (e) {
+      e.preventDefault();
+      window.location.href = `/course/{{course_id}}/assignment/`
+    });
 
     survey.on('click', '.student-view-btn', function (e) {
       e.preventDefault();

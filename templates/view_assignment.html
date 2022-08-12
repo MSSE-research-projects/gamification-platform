@@ -47,8 +47,6 @@
               <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
                 class="btn btn-outline-primary">Upload Artifact</button></a>
               {% endif %}
-              <a href="{% url 'review_survey' course_id assignment.id%}"><button type="button"
-                class="btn btn-outline-primary">Surveys</button></a>
               {% if userRole == 'Instructor' or userRole == 'TA'%}
               <a href="{% url 'artifact_admin' course_id assignment.id%}"><button type="button"
                 class="btn btn-outline-primary">Artifact Admin</button></a>

@@ -121,7 +121,7 @@ class Survey {
   _buildEditableHeaderElement() {
     var html = '';
     html += '<div class="survey-header row mb-3 align-items-center justify-content-between">';
-    html += '  <div class="col-md-6 col-sm-12 text-start">';
+    html += '  <div class="col-md-4 col-sm-12 text-start">';
     html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
     html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
     html += '  </div>';
@@ -138,6 +138,11 @@ class Survey {
     html += '  <div class="col-md-2 col-sm-12 text-end">';
     html += '    <button class="btn btn-primary add-section-btn" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
     html += '      <i class="fa fa-plus"></i> Add Section';
+    html += '    </button>';
+    html += '  </div>';
+    html += '  <div class="col-md-2 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary back-btn">';
+    html += '      Back';
     html += '    </button>';
     html += '  </div>';
     html += '</div>';

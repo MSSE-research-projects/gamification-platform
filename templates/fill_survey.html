@@ -145,6 +145,13 @@
             });
           }
         }
+        $.ajax({
+          async: false,
+          url: `/api/artifact_reviews/${artifact_review_pk}/is_complete/`,
+          type: 'POST',
+          success: function (data) {
+          },
+        });
         window.location.href = `/course/{{course_id}}/assignment/{{assignment_id}}/review_survey/`;
       }
       else {

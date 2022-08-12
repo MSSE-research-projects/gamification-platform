@@ -499,6 +499,9 @@ def view_course(request, course_id):
         return redirect('course')
 
 
+#
+
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def member_list(request, course_id):
@@ -539,12 +542,14 @@ def member_list(request, course_id):
             registration = Registration(
                 users=user, courses=course, userRole=role)
             registration.save()
-            message_info = 'A new mamber has been added'
+            message_info = 'A new member has been added'
+            #get_users_team(registration, request)
         else:
             registration = get_object_or_404(
                 Registration, users=user, courses=course)
             registration.userRole = role
             registration.save()
+            #get_users_team(registration, request)
             message_info = andrew_id + '\'s team has been added or updated'
         return registration, message_info
 
@@ -935,6 +940,7 @@ def review_survey(request, course_id, assignment_id):
         artifact_review_with_name = dict()
         artifact = artifact_review.artifact
         artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
+        artifact_review_with_name["status"] = artifact_review.status
         if assignment_type == "Team":
             entity = artifact.entity
             team = entity.team
@@ -943,7 +949,7 @@ def review_survey(request, course_id, assignment_id):
         else:
             entity = artifact.entity
             name = Membership.objects.get(
-                entity=entity).student.users.get_full_name()
+                entity=entity).student.users.name_or_andrew_id()
             artifact_review_with_name["name"] = name
         infos.append(artifact_review_with_name)
 

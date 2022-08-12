@@ -1,8 +1,10 @@
 import json
+from django.utils import timezone
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from ...models.feedback_survey import FeedbackSurvey
 from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.artifact import Artifact
 from app.gamification.models.answer import Answer, ArtifactFeedback
@@ -296,6 +298,24 @@ class ArtifactResult(generics.ListAPIView):
                                     answer.answer_text)
         data = json.dumps(answers)
         return Response(data)
+
+
+class SurveyComplete(generics.CreateAPIView):
+    def post(self, request, artifact_review_pk, *args, **kwargs):
+        artifact_review = get_object_or_404(
+            ArtifactReview, id=artifact_review_pk)
+        now = timezone.now()
+        artifact = artifact_review.artifact
+        assignment = artifact.assignment
+        feedback_survey = FeedbackSurvey.objects.get(assignment=assignment)
+        print(feedback_survey)
+        due_date = feedback_survey.date_due
+        if now > due_date:
+            artifact_review.status = ArtifactReview.ArtifactReviewType.LATE
+        else:
+            artifact_review.status = ArtifactReview.ArtifactReviewType.COMPLETED
+        artifact_review.save()
+        return Response(status=204)
 
 
 class CheckAllDone(generics.GenericAPIView):
