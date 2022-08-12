@@ -216,7 +216,8 @@ STATICFILES_DIRS = [
 
 if USE_S3:
     MEDIAFILES_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN }/{MEDIAFILES_LOCATION}/'
     DEFAULT_FILE_STORAGE = 'config.storages.MediaStorage'
-
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_URL = '/media/'
