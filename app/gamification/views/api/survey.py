@@ -9,7 +9,7 @@ from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
-from app.gamification.serializers.survey import OptionChoiceSerializer, OptionChoiceWithoutNumberOfTextSerializer, QuestionSerializer, SectionSerializer, SurveySerializer
+from app.gamification.serializers.survey import OptionChoiceSerializer, OptionChoiceWithoutNumberOfTextSerializer, QuestionSerializer, SectionSerializer, SurveySerializer, TemplateSectionSerializer
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
@@ -75,7 +75,8 @@ class SurveySectionList(generics.ListCreateAPIView):
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, survey_pk, *args, **kwargs):
-        sections = SurveySection.objects.filter(template=survey_pk)
+        sections = SurveySection.objects.filter(
+            template=survey_pk).order_by('pk')
         serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 
@@ -83,6 +84,10 @@ class SurveySectionList(generics.ListCreateAPIView):
         title = request.data.get('title').strip()
         if title == '':
             content = {'message': 'Section title cannot be empty'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        if title == 'Artifact':
+            content = {
+                'message': 'Artifact is a reserved section title. Please choose another title.'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         description = request.data.get('description')
         is_required = True if request.data.get(
@@ -141,7 +146,7 @@ class SectionQuestionList(generics.ListCreateAPIView):
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, section_pk, *args, **kwargs):
-        questions = Question.objects.filter(section=section_pk)
+        questions = Question.objects.filter(section=section_pk).order_by('pk')
         serializer = self.get_serializer(questions, many=True)
         return Response(serializer.data)
 
@@ -327,3 +332,82 @@ class OptionDetail(generics.RetrieveUpdateDestroyAPIView):
         option_choice = get_object_or_404(OptionChoice, id=option_pk)
         option_choice.delete()
         return Response(status=204)
+
+
+class TemplateSectionList(generics.ListAPIView):
+    def get(self, request, *args, **kwargs):
+        survey_template = get_object_or_404(
+            SurveyTemplate, is_template=True)
+        data = dict()
+        data['pk'] = survey_template.pk
+        data['is_template'] = survey_template.is_template
+        data['name'] = survey_template.name
+        data['instructions'] = survey_template.instructions
+        data['other_info'] = survey_template.other_info
+        data['sections'] = []
+        for section in survey_template.sections:
+            curr_section = dict()
+            curr_section['pk'] = section.pk
+            curr_section['title'] = section.title
+            curr_section['is_required'] = section.is_required
+            curr_section['questions'] = []
+            for question in section.questions:
+                curr_question = dict()
+                curr_question['pk'] = question.pk
+                curr_question['text'] = question.text
+                curr_question['is_required'] = question.is_required
+                curr_question['question_type'] = question.question_type
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                    curr_question['option_choices'] = []
+                    for option_choice in question.options:
+                        curr_option_choice = dict()
+                        curr_option_choice['pk'] = option_choice.option_choice.pk
+                        curr_option_choice['text'] = option_choice.option_choice.text
+                        curr_question['option_choices'].append(
+                            curr_option_choice)
+                else:
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    curr_question['number_of_text'] = question_option.number_of_text
+                curr_section['questions'].append(curr_question)
+            data['sections'].append(curr_section)
+        return Response(json.dumps(data))
+
+
+class SurveyGetInfo(generics.ListAPIView):
+    def get(self, request, survey_pk, *args, **kwargs):
+        survey_template = get_object_or_404(
+            SurveyTemplate, pk=survey_pk)
+        data = dict()
+        data['pk'] = survey_pk
+        data['name'] = survey_template.name
+        data['instructions'] = survey_template.instructions
+        data['other_info'] = survey_template.other_info
+        data['sections'] = []
+        for section in survey_template.sections:
+            curr_section = dict()
+            curr_section['pk'] = section.pk
+            curr_section['title'] = section.title
+            curr_section['is_required'] = section.is_required
+            curr_section['questions'] = []
+            for question in section.questions:
+                curr_question = dict()
+                curr_question['pk'] = question.pk
+                curr_question['text'] = question.text
+                curr_question['is_required'] = question.is_required
+                curr_question['question_type'] = question.question_type
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                    curr_question['option_choices'] = []
+                    for option_choice in question.options:
+                        curr_option_choice = dict()
+                        curr_option_choice['pk'] = option_choice.option_choice.pk
+                        curr_option_choice['text'] = option_choice.option_choice.text
+                        curr_question['option_choices'].append(
+                            curr_option_choice)
+                else:
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    curr_question['number_of_text'] = question_option.number_of_text
+                curr_section['questions'].append(curr_question)
+            data['sections'].append(curr_section)
+        return Response(json.dumps(data))

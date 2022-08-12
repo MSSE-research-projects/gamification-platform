@@ -81,9 +81,16 @@ class Survey {
 
   _buildNormalHeaderElement() {
     var html = '';
-    html += '<div class="survey-header">';
-    html += '  <h2 class="card-title survey-name">' + this.name + '</h2>';
-    html += '  <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '<div class="survey-header row mb-3 align-items-center justify-content-between">';
+    html += '  <div class="col-md-6 col-sm-12 text-start">';
+    html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
+    html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary artifact-preview-btn" data-bs-toggle="modal" data-bs-target="#artifactPreviewModal">';
+    html += '      Artifact Preview';
+    html += '    </button>';
+    html += '  </div>';
     html += '</div>';
 
     return htmlToElement(html);
@@ -95,6 +102,11 @@ class Survey {
     html += '  <div class="col-md-6 col-sm-12 text-start">';
     html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
     html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
+    html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary artifact-preview-btn" data-bs-toggle="modal" data-bs-target="#artifactPreviewModal">';
+    html += '      Artifact Preview';
+    html += '    </button>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
     html += '    <button class="btn btn-primary back-btn">';
@@ -109,18 +121,28 @@ class Survey {
   _buildEditableHeaderElement() {
     var html = '';
     html += '<div class="survey-header row mb-3 align-items-center justify-content-between">';
-    html += '  <div class="col-md-6 col-sm-12 text-start">';
+    html += '  <div class="col-md-4 col-sm-12 text-start">';
     html += '    <h2 class="card-title survey-name">' + this.name + '</h2>';
     html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
     html += '  </div>';
-    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '  <div class="col-md-2 col-sm-12 text-end">';
+    html += '    <button class="btn btn-secondary edit-template-btn">';
+    html += '      <i class="fa fa-edit"></i> Edit Survey';
+    html += '    </button>';
+    html += '  </div>';
+    html += '  <div class="col-md-2 col-sm-12 text-end">';
     html += '    <button class="btn btn-secondary student-view-btn">';
     html += '      <i class="fa fa-glasses"></i> Student View';
     html += '    </button>';
     html += '  </div>';
-    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '  <div class="col-md-2 col-sm-12 text-end">';
     html += '    <button class="btn btn-primary add-section-btn" data-bs-toggle="modal" data-bs-target="#addSectionModal">';
     html += '      <i class="fa fa-plus"></i> Add Section';
+    html += '    </button>';
+    html += '  </div>';
+    html += '  <div class="col-md-2 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary back-btn">';
+    html += '      Back';
     html += '    </button>';
     html += '  </div>';
     html += '</div>';
@@ -190,6 +212,17 @@ class Survey {
 
   getSectionByIndex(index) {
     return this.sections[index];
+  }
+
+  getSections() {
+    return this.sections;
+  }
+
+  getSectionTitles() {
+    // Returns an array of section titles
+    return this.sections.map(function (section) {
+      return section.title;
+    });
   }
 
   render(e) {
@@ -281,20 +314,55 @@ class Section {
   }
 
   _buildQuestionElement() {
+    var numGridQuestions = 0;
+    for (var i = 0; i < this.questions.length; i++) {
+      if (this.questions[i] instanceof GridStyleQuestion) {
+        numGridQuestions++;
+      }
+    }
+
     var div = document.createElement('div');
     div.classList.add('section-questions');
+
+    if (numGridQuestions > 0) {
+      div.appendChild(htmlToElement('<hr>'));
+      div.appendChild(this._buildGridQuestionElement());
+    }
+
     for (var i = 0; i < this.questions.length; i++) {
       var question = this.questions[i];
-      div.appendChild(question.element);
+      if (!(question instanceof GridStyleQuestion)) {
+        div.appendChild(htmlToElement('<hr>'));
+        div.appendChild(question.element);
+      }
+    }
+
+    return div;
+  }
+
+  _buildGridQuestionElement() {
+    var html = '';
+    html += '<div class="row mb-3 align-items-center justify-content-start">';
+    html += '</div>';
+
+    var div = htmlToElement(html);
+    for (var i = 0; i < this.questions.length; i++) {
+      var question = this.questions[i];
+      if (question instanceof GridStyleQuestion) {
+        div.appendChild(question.element);
+      }
     }
     return div;
   }
 
   _buildFooterElement() {
     var html = '';
-    html += '<div class="section-footer row mb-3 align-items-center justify-content-between">';
-    html += '  <div class="col text-end">';
-    html += '    <button type="button" class="btn btn-sm btn-primary save-section-btn"><i class="fa fa-save"></i> Save</button>';
+    html += '<div>';
+    html += '  <hr>';
+    html += '  <div class="section-footer row mb-3 align-items-center justify-content-between">';
+    html += '    <div class="col text-end">';
+    html += '      <button type="button" class="btn btn-sm btn-primary save-section-btn"><i class="fa fa-save"></i> Save</button>';
+    html += '    </div>';
     html += '  </div>';
     html += '</div>';
 
@@ -305,6 +373,7 @@ class Section {
   updateElement() {
     $(this.element).find('.section-title').text(this.title);
     $(this.headerElement).find('.section-description').text(this.description);
+    $(this.element).find('.section-questions').replaceWith(this._buildQuestionElement());
   }
 
   getQuestionByText(text) {
@@ -315,12 +384,12 @@ class Section {
 
   addQuestion(question) {
     this.questions.push(question);
-    this.questionElement.appendChild(question.element);
+    this.updateElement();
   }
 
   removeQuestion(question) {
     this.questions.splice(this.questions.indexOf(question), 1);
-    this.questionElement.removeChild(question.element);
+    this.updateElement();
   }
 
   removeQuestionByText(text) {
@@ -409,9 +478,8 @@ class Question {
   updateElement() {
     $(this.textElement).text(this.text);
 
-    this.oldOptionElement = this.optionElement;
     this.optionElement = this._buildOptionElement();
-    this.element.replaceChild(this.optionElement, this.oldOptionElement);
+    $(this.element).find('.question-option').replaceWith(this.optionElement);
   }
 }
 
@@ -524,6 +592,74 @@ class DefaultStyleQuestion extends Question {
   }
 }
 
+class GridStyleQuestion extends Question {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+
+    if (new.target === GridStyleQuestion) {
+      throw new TypeError('Cannot construct GridStyleQuestion instances directly');
+    }
+
+    if (this._buildOption == undefined) {
+      throw new TypeError('GridStyleQuestion subclass must implement _buildOption');
+    }
+  }
+
+  buildElement() {
+    this.element = this._buildWrapperElement();
+    this.textElement = this._buildTextElement();
+    this.optionElement = this._buildOptionElement();
+
+    $(this.element).find('.row').append(this.textElement);
+    $(this.element).find('.row').append(this.optionElement);
+
+    if (this.options.editable) {
+      this.editElement = this._buildEditElement();
+      $(this.element).find('.row').append(this.editElement);
+    }
+  }
+
+  _buildWrapperElement() {
+    var html = '';
+
+    if (this.options.editable) {
+      html += '<div class="col-6">';
+      html += '  <div class="row mb-3 align-items-center justify-content-center">';
+      html += '  </div>';
+      html += '</div>';
+    } else {
+      html += '<div class="col col-sm-12 col-lg-3">';
+      html += '  <div class="row mb-3 align-items-center justify-content-center">';
+      html += '  </div>';
+      html += '</div>';
+    }
+
+    return htmlToElement(html);
+  }
+
+  _buildTextElement() {
+    var html = '';
+    html += '<label class="question-text col-auto form-label">' + this.text + '</label>';
+
+    return htmlToElement(html);
+  }
+
+  _buildOptionElement() {
+    var html = '';
+    html += '<div class="col">';
+    html += '</div>';
+
+    var optionWrapper = htmlToElement(html);
+
+    optionWrapper.appendChild(this._buildOption());
+    optionWrapper.appendChild(this._buildErrorMessageElement());
+
+    return optionWrapper;
+  }
+}
+
+
+
 class MultipleChoiceQuestion extends InlineStyleQuestion {
   constructor(data = {}, options = {}) {
     super(data, options);
@@ -548,6 +684,12 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
     html += '</div>';
 
     return htmlToElement(html);
+  }
+
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      $(this.element).find(`input[value="${values[i]}"]`).prop('checked', true);
+    }
   }
 
   getAnswers() {
@@ -589,7 +731,7 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
   }
 }
 
-class TextInputQuestion extends DefaultStyleQuestion {
+class FixedTextInputQuestion extends DefaultStyleQuestion {
   constructor(data = {}, options = {}) {
     super(data, options);
     this.placeholder = data.placeholder ? data.placeholder : '';
@@ -614,11 +756,102 @@ class TextInputQuestion extends DefaultStyleQuestion {
     return htmlToElement(html);
   }
 
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      $(this.element).find('input')[i].value = values[i];
+    }
+  }
+
   getAnswers() {
     var inputs = $(this.element).find('input');
     var answers = [];
     for (var i = 0; i < inputs.length; i++) {
-      answers.push(inputs[i].value);
+      if (inputs[i].value) {
+        answers.push(inputs[i].value);
+      }
+    }
+    return answers;
+  }
+}
+
+class MultiTextInputQuestion extends DefaultStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.placeholder = data.placeholder ? data.placeholder : '';
+    this.numberOfText = data.numberOfText ? data.numberOfText : 1;
+    this.type = 'text';
+
+    this.buildElement();
+
+    this.on('click', '.add-text-input-btn', this.addTextInput.bind(this));
+    this.on('click', '.remove-text-input-btn', this.removeTextInput.bind(this));
+  }
+
+  buildElement() {
+    super.buildElement();
+
+    var footerElement = this._buildFooterElement();
+    this.element.appendChild(footerElement);
+  }
+
+  _buildOption() {
+    var html = '';
+    html += '<div class="text-lines">';
+    for (var i = 0; i < this.numberOfText; i++) {
+      if (i === 0) {
+        html += '<input type="text" class="form-control mb-2" placeholder="' + this.placeholder + '">';
+      } else {
+        html += '<input type="text" class="form-control mb-2">';
+      }
+    }
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildFooterElement() {
+    var html = '';
+    html += '<div class="col text-end">';
+    if (this.options.editable) {
+      html += '  <button type="button" class="btn btn-sm btn-primary add-text-input-btn" disabled><i class="fa fa-plus"></i> Add New Line</button>';
+    } else {
+      html += '  <button type="button" class="btn btn-sm btn-primary add-text-input-btn"><i class="fa fa-plus"></i> Add New Line</button>';
+    }
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  addTextInput() {
+    $(this.element).find('.text-lines').append(
+      '<div class="input-group mb-2">' +
+      '  <input type="text" class="form-control">' +
+      '  <button class="btn btn-outline-danger remove-text-input-btn" type="button">Remove</button>' +
+      '</div>'
+    );
+  }
+
+  removeTextInput(event) {
+    var button = $(event.currentTarget);
+    button.closest('.input-group').remove();
+  }
+
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      if (i >= this.numberOfText) {
+        this.addTextInput();
+      }
+      $(this.element).find('input')[i].value = values[i];
+    }
+  }
+
+  getAnswers() {
+    var inputs = $(this.element).find('input');
+    var answers = [];
+    for (var i = 0; i < inputs.length; i++) {
+      if (inputs[i].value) {
+        answers.push(inputs[i].value);
+      }
     }
     return answers;
   }
@@ -641,9 +874,66 @@ class TextAreaQuestion extends DefaultStyleQuestion {
     return htmlToElement(html);
   }
 
+  setAnswers(values) {
+    $(this.element).find('textarea').val(values[0]);
+  }
+
   getAnswers() {
     var answer = $(this.element).find('textarea').val();
-    return answer;
+    return [answer];
+  }
+}
+
+class NumericInputQuestion extends GridStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.minValue = data.minValue ? data.minValue : 1;
+    this.maxValue = data.maxValue ? data.maxValue : 10;
+    this.step = data.step ? data.step : 1;
+    this.type = 'number';
+
+    this.buildElement();
+  }
+
+  _buildErrorMessageElement() {
+    var html = '';
+    html += '<div class="invalid-feedback">';
+    html += '  Input number 1-10';
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  _buildOption() {
+    var html = '';
+    html += `<input type="number" min="${this.minValue}" max="${this.maxValue}" step="${this.step}" class="question-option col form-control">`;
+
+    return htmlToElement(html);
+  }
+
+  setAnswers(values) {
+    $(this.element).find('input').val(values[0]);
+  }
+
+  checkAnswers(answers) {
+    var answer = answers[0];
+    if (answer < this.minValue || answer > this.maxValue) {
+      return false;
+    }
+    return true;
+  }
+
+  getAnswers() {
+    var inputs = $(this.element).find('input');
+    var answers = [];
+    for (var i = 0; i < inputs.length; i++) {
+      answers.push(inputs[i].value);
+    }
+    return answers;
+  }
+
+  showError() {
+    $(this.element).find('input').addClass('is-invalid');
   }
 }
 
@@ -658,7 +948,7 @@ class SectionModal {
   }
 
   reset() {
-    this.modal.find('#sectionName').val('');
+    this.modal.find('#sectionTitle').val('');
     this.modal.find('#sectionDescription').val('');
   }
 
@@ -704,14 +994,23 @@ class QuestionModal {
       case 'mcq':
         this.modal.find('#mcqFields').show();
         this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').hide();
         break;
-      case 'text':
+      case 'fixed-text':
+      case 'multi-text':
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').show();
+        this.modal.find('#numericFields').hide();
+        break;
+      case 'number':
+        this.modal.find('#mcqFields').hide();
+        this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').show();
         break;
       default:
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').hide();
         break;
     }
   }
@@ -739,7 +1038,7 @@ class QuestionModal {
   }
 
   reset() {
-    this.modal.find('#sectionNameInQuestionModal').val('');
+    this.modal.find('#sectionTitleInQuestionModal').val('');
     this.modal.find('#questionText').val('');
     this.modal.find('#questionType').val('');
     this.modal.find('#questionType').trigger('change');
@@ -749,7 +1048,7 @@ class QuestionModal {
     );
     this.modal.find('#mcqOptions').val('');
     // Reset the number of blanks in text fields
-    this.modal.find('#displayNum').val('');
+    this.modal.find('#numberOfText').val('');
   }
 
   on(event, selector, handler) {

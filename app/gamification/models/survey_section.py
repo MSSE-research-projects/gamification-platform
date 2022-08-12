@@ -16,6 +16,8 @@ class SurveySection(models.Model):
 
     is_required = models.BooleanField(default=False)
 
+    is_template = models.BooleanField(default=False)
+
     class Meta:
         db_table = 'survey_section'
         verbose_name = _('survey section')
@@ -23,7 +25,7 @@ class SurveySection(models.Model):
 
     @property
     def questions(self):
-        return Question.objects.filter(section=self)
+        return Question.objects.filter(section=self).order_by('pk')
 
     def __str__(self):
         return self.title

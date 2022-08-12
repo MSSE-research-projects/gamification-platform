@@ -1,7 +1,4 @@
 import os
-from ctypes import sizeof
-from hashlib import new
-from webbrowser import get
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -15,8 +12,12 @@ from django.utils.timezone import now
 
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm, TodoListForm
-from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Entity, Individual, TodoList
-from .survey_views import *
+from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Individual, FeedbackSurvey, Question, OptionChoice, QuestionOption
+from app.gamification.models.answer import Answer
+from app.gamification.models.artifact_review import ArtifactReview
+from app.gamification.models.survey_section import SurveySection
+from app.gamification.models.survey_template import SurveyTemplate
+from app.gamification.models.todo_list import TodoList
 
 
 def signup(request):
@@ -42,6 +43,7 @@ def signin(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                # Redirect to where they were asked to login
                 return redirect('profile')
     else:
         form = AuthenticationForm()
@@ -174,6 +176,123 @@ def instructor_admin(request):
     return render(request, 'instructor_admin.html')
 
 
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def add_survey(request, course_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+
+    if request.method == 'POST':
+        survey_template_name = request.POST.get('template_name').strip()
+        survey_template_instruction = request.POST.get('instructions')
+        survey_template_other_info = request.POST.get('other_info')
+        feedback_survey_date_released = request.POST.get('date_released')
+        feedback_survey_date_due = request.POST.get('date_due')
+        survey_template = SurveyTemplate(
+            name=survey_template_name, instructions=survey_template_instruction, other_info=survey_template_other_info)
+        survey_template.save()
+        feedback_survey = FeedbackSurvey(
+            assignment=assignment,
+            template=survey_template,
+            date_released=feedback_survey_date_released,
+            date_due=feedback_survey_date_due
+        )
+        feedback_survey.save()
+
+        if survey_template_name == "Default Template":
+            default_survey_template = get_object_or_404(
+                SurveyTemplate, is_template=True, name="Survey Template")
+            for default_section in default_survey_template.sections:
+                section = SurveySection(template=survey_template,
+                                        title=default_section.title,
+                                        description=default_section.description,
+                                        is_required=default_section.is_required,
+                                        )
+                section.save()
+                for default_question in default_section.questions:
+                    question = Question(section=section,
+                                        text=default_question.text,
+                                        question_type=default_question.question_type,
+                                        dependent_question=default_question.dependent_question,
+                                        is_required=default_question.is_required,
+                                        is_multiple=default_question.is_multiple,
+                                        )
+                    question.save()
+                    print(question.pk)
+                    for default_option in default_question.options:
+                        question_option = QuestionOption(
+                            question=question,
+                            option_choice=default_option.option_choice,
+                            number_of_text=default_option.number_of_text,
+                        )
+                        question_option.save()
+
+        else:
+
+            # Automatically create a section and question for artifact
+            artifact_section = SurveySection.objects.create(
+                template=survey_template,
+                title='Artifact',
+                description='Please review the artifact.',
+                is_required=False,
+            )
+            artifact_question = Question.objects.create(
+                section=artifact_section,
+                text='',
+                question_type=Question.QuestionType.SLIDEREVIEW,
+            )
+            empty_option = OptionChoice.objects.get(text='')
+            QuestionOption.objects.create(
+                question=artifact_question, option_choice=empty_option)
+
+        return redirect('edit_survey', course_id, assignment_id)
+    else:
+        feedback_survey = FeedbackSurvey.objects.filter(assignment=assignment)
+        if feedback_survey.count() > 0:
+            return redirect('edit_survey', course_id, assignment_id)
+        return render(request, 'add_survey.html', {'course_id': course_id, 'assignment_id': assignment_id})
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_survey_template(request, course_id, assignment_id):
+    if request.method == 'POST':
+
+        survey_template_name = request.POST.get('template_name')
+        survey_template_instruction = request.POST.get('instructions')
+        survey_template_other_info = request.POST.get('other_info')
+        feedback_survey_date_released = request.POST.get('date_released')
+        feedback_survey_date_due = request.POST.get('date_due')
+        feedback_survey = FeedbackSurvey.objects.get(
+            assignment_id=assignment_id
+        )
+        survey_template = feedback_survey.template
+
+        survey_template.name = survey_template_name
+        survey_template.instructions = survey_template_instruction
+        survey_template.other_info = survey_template_other_info
+        survey_template.save()
+
+        feedback_survey.template = survey_template
+        feedback_survey.date_released = feedback_survey_date_released
+        feedback_survey.date_due = feedback_survey_date_due
+        feedback_survey.save()
+        return redirect('edit_survey', course_id, assignment_id)
+    else:
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = FeedbackSurvey.objects.get(assignment=assignment)
+        survey_template = feedback_survey.template
+        context = {
+            'course_id': course_id,
+            'assignment_id': assignment_id,
+            'survey_template_name': survey_template.name,
+            'survey_template_instruction': survey_template.instructions,
+            'survey_template_other_info': survey_template.other_info,
+            'feedback_survey_date_released': feedback_survey.date_released,
+            'feedback_survey_date_due': feedback_survey.date_due
+        }
+        return render(request, 'edit_survey_template.html', context)
+
+
 def test(request):
     user = request.user
     return render(request, 'test.html')
@@ -184,19 +303,40 @@ def test_survey_template(request):
     return render(request, 'test-survey-template.html')
 
 
-def test_add_survey(request):
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_survey(request, course_id, assignment_id):
+    if request.method == 'GET':
+        assignment = get_object_or_404(Assignment, pk=assignment_id)
+        feedback_survey = get_object_or_404(
+            FeedbackSurvey, assignment=assignment)
+        survey_template = feedback_survey.template.pk
+        return render(request, 'edit_survey.html', {'survey_pk': survey_template, 'course_id': course_id, 'assignment_id': assignment_id})
+    else:
+        return render(request, 'edit_survey.html')
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA])
+def edit_preview_survey(request, course_id, assignment_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    feedback_survey = get_object_or_404(
+        FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template.pk
+    return render(request, 'edit_preview_survey.html', {'survey_pk': survey_template})
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def fill_survey(request, course_id, assignment_id, artifact_review_id):
     user = request.user
-    return render(request, 'test-add-survey.html', {'survey_pk': 1})
-
-
-def test_preview_survey(request):
-    user = request.user
-    return render(request, 'test-preview-survey.html', {'survey_pk': 1})
-
-
-def test_fill_survey(request):
-    user = request.user
-    return render(request, 'test-fill-survey.html', {'survey_pk': 1, 'artifact_review_pk': 1})
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    artifact = ArtifactReview.objects.get(
+        pk=artifact_review_id).artifact.file
+    feedback_survey = get_object_or_404(
+        FeedbackSurvey, assignment=assignment)
+    survey_template = feedback_survey.template.pk
+    return render(request, 'fill_survey.html', {'survey_pk': survey_template, 'artifact_review_pk': artifact_review_id, 'course_id': course_id, 'assignment_id': assignment_id, 'picture': artifact})
 
 
 def test_report(request):
@@ -359,6 +499,9 @@ def view_course(request, course_id):
         return redirect('course')
 
 
+#
+
+
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def member_list(request, course_id):
@@ -399,12 +542,14 @@ def member_list(request, course_id):
             registration = Registration(
                 users=user, courses=course, userRole=role)
             registration.save()
-            message_info = 'A new mamber has been added'
+            message_info = 'A new member has been added'
+            #get_users_team(registration, request)
         else:
             registration = get_object_or_404(
                 Registration, users=user, courses=course)
             registration.userRole = role
             registration.save()
+            #get_users_team(registration, request)
             message_info = andrew_id + '\'s team has been added or updated'
         return registration, message_info
 
@@ -636,7 +781,22 @@ def artifact(request, course_id, assignment_id):
     if request.method == 'POST':
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
         if form.is_valid():
-            form.save()
+            artifact = form.save()
+            if assignment_type == 'Team':
+                team_members = [i.pk for i in entity.members]
+                registrations = [i for i in Registration.objects.filter(
+                    courses=course) if i.users.pk not in team_members]
+                for registration in registrations:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=registration)
+                    artifact_review.save()
+            else:
+                registrations = [i for i in Registration.objects.filter(
+                    courses=course) if i.id != registration.id]
+                for single_registration in registrations:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=single_registration)
+                    artifact_review.save()
         else:
             print("form is not valid")
         artifacts = Artifact.objects.filter(
@@ -758,3 +918,39 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
 
     else:
         return redirect('artifact', course_id, assignment_id)
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def review_survey(request, course_id, assignment_id):
+    #team, button_survey
+    user = request.user
+    course = get_object_or_404(Course, id=course_id)
+    assignment = get_object_or_404(Assignment, id=assignment_id, course=course)
+    assignment_type = assignment.assignment_type
+    artifacts = Artifact.objects.filter(assignment=assignment)
+    # find artifact_review(registration, )
+    registration = get_object_or_404(Registration, users=user, courses=course)
+    artifact_reviews = []
+    for artifact in artifacts:
+        artifact_reviews.extend(ArtifactReview.objects.filter(
+            artifact=artifact, user=registration))
+    infos = []
+    for artifact_review in artifact_reviews:
+        artifact_review_with_name = dict()
+        artifact = artifact_review.artifact
+        artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
+        artifact_review_with_name["status"] = artifact_review.status
+        if assignment_type == "Team":
+            entity = artifact.entity
+            team = entity.team
+            artifact_review_with_name["name"] = team.name
+
+        else:
+            entity = artifact.entity
+            name = Membership.objects.get(
+                entity=entity).student.users.name_or_andrew_id()
+            artifact_review_with_name["name"] = name
+        infos.append(artifact_review_with_name)
+
+    return render(request, 'survey_list.html', {'course_id': course_id, 'assignment_id': assignment_id, 'infos': infos, 'assignment_type': assignment_type})

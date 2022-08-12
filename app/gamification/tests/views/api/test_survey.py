@@ -807,7 +807,7 @@ class StudentUpdateTest(TestCase):
         question = Question(
             section=self.section,
             text='Test Question',
-            question_type=Question.Question_type.MULTIPLETEXT,
+            question_type=Question.QuestionType.MULTIPLETEXT,
             is_required=True,
             is_multiple=True,
         )
@@ -818,7 +818,7 @@ class StudentUpdateTest(TestCase):
         data = {
             'section': self.section,
             'text': 'Test Question failed',
-            'question_type': Question.Question_type.MULTIPLETEXT,
+            'question_type': Question.QuestionType.MULTIPLETEXT,
             'is_required': True,
             'is_multiple': True,
         }

@@ -47,10 +47,6 @@ urlpatterns = [
     path('test/', page_views.test, name='test'),
     path('test_survey_template/', page_views.test_survey_template,
          name='test_survey_template'),
-    path('test_add_survey/', page_views.test_add_survey, name='test_add_survey'),
-    path('test_preview_survey/', page_views.test_preview_survey,
-         name='test_preview_survey'),
-    path('test_fill_survey/', page_views.test_fill_survey, name='test_fill_survey'),
     path('test_report/', page_views.test_report, name='test_report'),
 
     path('course/', include([
@@ -64,32 +60,30 @@ urlpatterns = [
             path('assignment/', include([
                 path('', page_views.assignment, name='assignment'),
                 path('<int:assignment_id>/', include([
+                    path('review_survey/', include([
+                         path('', page_views.review_survey,
+                              name='review_survey'),
+                         path('<int:artifact_review_id>/fill_survey/', page_views.fill_survey,
+                              name='fill_survey'),
+                         ])),
+
                     path('delete/', page_views.delete_assignment,
                          name='delete_assignment'),
                     path('edit/', page_views.edit_assignment,
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
-                    path('add/', page_views.add_survey, name='add_survey'),
-                    path('survey/', include([
-                        path('', page_views.survey_list, name='survey_list'),
-                        path('addsection/', page_views.add_section,
-                             name='add_section'),
-                        path('<int:section_id>/', include([
-                            path('delete/', page_views.delete_section,
-                                 name='delete_section'),
-                            path('edit/', page_views.edit_section,
-                                 name='edit_section'),
-                            path('add/', page_views.add_question,
-                                 name='add_question'),
-                            path('<int:question_id>/', include([
-                                path('delete/', page_views.delete_question,
-                                     name='delete_question'),
-                                path('edit/', page_views.edit_question,
-                                     name='edit_question')
-                            ])),
-                        ])),
-                    ])),
+                    path('template/', include([
+                         path('add/', page_views.add_survey, name='add_survey'),
+                         path('edit/', include([
+                              path('', page_views.edit_survey,
+                                   name='edit_survey'),
+                              path('preview/', page_views.edit_preview_survey,
+                                   name='preview_survey'),
+                              ])),
+                         path('edit_survey_template/', page_views.edit_survey_template,
+                              name='edit_survey_template'),
+                         ])),
 
                     path('artifact/', include([
                         path('', page_views.artifact, name='artifact'),

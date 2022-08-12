@@ -1,5 +1,6 @@
-function PDFCarousel(carousel, options = {}) {
+function PDFCarousel(carousel, feedbacks = {}, options = {}) {
   this.carousel = carousel;
+  this.feedbacks = feedbacks;
   this.options = options;
 
   this.init();
@@ -20,8 +21,6 @@ PDFCarousel.prototype.init = function () {
   this.feedbackTextArea = $(this.carousel).siblings('.feedback-textarea').children('textarea')[0];
   this.ctx = this.canvas.getContext('2d');
 
-  this.feedbacks = {};
-
   this.pdfDoc = null;
   this.pageNum = 1;
   this.pageRendering = false;
@@ -34,6 +33,10 @@ PDFCarousel.prototype.init = function () {
   this.renderPage = this.renderPage.bind(this);
   this.renderPDF = this.renderPDF.bind(this);
 };
+
+PDFCarousel.prototype.getFeedbacks = function () {
+  return this.feedbacks;
+}
 
 /**
  * Get page info from document, resize canvas accordingly, and render page.
@@ -96,16 +99,16 @@ PDFCarousel.prototype.queueRenderPage = function (num) {
 PDFCarousel.prototype.onPrevPage = function () {
   this.feedbacks[this.pageNum] = this.feedbackTextArea.value;
 
+  if (this.options.onPrevPage) {
+    this.options.onPrevPage(this.pageNum, this.feedbackTextArea.value);
+  }
+
   if (this.pageNum <= 1) {
     this.pageNum = this.pdfDoc.numPages;
   } else {
     this.pageNum--;
   }
   this.queueRenderPage(this.pageNum);
-
-  if (this.options.onPrevPage) {
-    this.options.onPrevPage();
-  }
 }
 
 /**
@@ -114,19 +117,19 @@ PDFCarousel.prototype.onPrevPage = function () {
 PDFCarousel.prototype.onNextPage = function () {
   this.feedbacks[this.pageNum] = this.feedbackTextArea.value;
 
+  if (this.options.onNextPage) {
+    this.options.onNextPage(this.pageNum, this.feedbackTextArea.value);
+  }
+
   if (this.pageNum >= this.pdfDoc.numPages) {
     this.pageNum = 1;
   } else {
     this.pageNum++;
   }
   this.queueRenderPage(this.pageNum);
-
-  if (this.options.onNextPage) {
-    this.options.onNextPage();
-  }
 }
 
-PDFCarousel.prototype.renderPDF = function (url) {
+PDFCarousel.prototype.renderPDF = function (url, onerror) {
   /**
    * Asynchronously downloads PDF.
    */
@@ -137,5 +140,7 @@ PDFCarousel.prototype.renderPDF = function (url) {
 
     // Initial/first page rendering
     this.renderPage(this.pageNum);
+  }.bind(this)).catch(function (error) {
+    onerror();
   }.bind(this));
 }

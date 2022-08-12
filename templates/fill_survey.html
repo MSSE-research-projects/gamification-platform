@@ -1,0 +1,271 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Test Fill in Survey{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-md-12 grid-margin" id="survey">
+    </div> <!-- end #survey -->
+  </div> <!-- end .row -->
+</div> <!-- end .content-wrapper -->
+
+<div class="modal fade" id="artifactPreviewModal" tabindex="-1" aria-labelledby="artifactPreviewModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-sm-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="artifactPreviewModalLabel">Artifact Preview</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+        <div id="artifactPreviewCarousel" class="carousel slide" data-bs-touch="false" data-bs-interval="false">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <canvas style="border: 1px solid black; width: 100%"></canvas>
+              <div class="carousel-caption d-none d-md-block">
+                <span class="page-number"></span> / <span class="page-count"></span>
+              </div>
+            </div>
+          </div>
+          <button id="prev" class="carousel-control-prev" type="button">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button id="next" class="carousel-control-next" type="button">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+
+        <div class="mb-3 feedback-textarea">
+          <label class="form-label">Enter your feedback here</label>
+          <textarea class="form-control" rows="5"></textarea>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/survey-template.css' %}">
+<link rel="stylesheet" href="{% static 'css/pdf-carousel.css' %}">
+{% endblock css %}
+
+{% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"
+  integrity="sha512-dw+7hmxlGiOvY3mCnzrPT5yoUwN/MRjVgYV7HGXqsiXnZeqsw1H9n9lsnnPu4kL2nx2bnrjFcuWK+P3lshekwQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"
+  integrity="sha512-fahFaRPTP2xrdxAbzgG31V4Vr+Ga/hp4gQu3ZBq83bhKO10NoWfTJ20OWg9ufEyT1Y4ZyCuh9wLHY9CHi6l95Q=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="{% static 'js/survey-template.js' %}"></script>
+<script src="{% static 'js/survey-page.js' %}"></script>
+<script src="{% static 'js/pdf-carousel.js' %}"></script>
+<script>
+
+  $(document).ready(function () {
+    var surveyDOM = document.getElementById('survey');
+    survey.render(surveyDOM);
+
+    survey.on('click', '.save-section-btn', function (e) {
+      var button = $(e.currentTarget);
+      var sectionTitle = button.closest('.section').find('.section-title').text();
+      var section = this.getSectionByTitle(sectionTitle);
+      var hasError = false;
+
+      for (var i = 0; i < section.questions.length; i++) {
+        var question = section.questions[i];
+        var answers = question.getAnswers();
+
+        if (question.checkAnswers(answers) === false) {
+          question.showError();
+          hasError = true;
+          continue;
+        }
+
+        // Put the ajax call here
+        $.ajax({
+          url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
+          type: 'PUT',
+          data: {
+            answer_text: JSON.stringify(answers),
+          },
+          success: function (data) {
+            // console.log(data);
+          },
+          error: function (err) {
+            hasError = true;
+          }
+        });
+      }
+
+      if (!hasError) {
+        alert('Saved!');
+      } else {
+        alert('Error saving!');
+      }
+    });
+
+    survey.on('click', '.submit-survey-btn', function (e) {
+      var button = $(e.currentTarget);
+      var sections = this.getSections();
+      var notDone = false;
+      for (var i = 0; i < sections.length; i++) {
+        for (var j = 0; j < sections[i].questions.length; j++) {
+          var question = sections[i].questions[j];
+          var answers = question.getAnswers();
+          $.ajax({
+            async: false,
+            url: `/api/questions/${question.pk}/check_all_done/`,
+            type: 'POST',
+            data: {
+              answer_text: JSON.stringify(answers),
+            },
+            error: function (err) {
+              console.log(err);
+              notDone = true;
+            }
+          });
+        }
+      }
+      if (!notDone) {
+        for (var i = 0; i < sections.length; i++) {
+          for (var j = 0; j < sections[i].questions.length; j++) {
+            var question = sections[i].questions[j];
+            var answers = question.getAnswers();
+            $.ajax({
+              async: false,
+              url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
+              type: 'PUT',
+              data: {
+                answer_text: JSON.stringify(answers),
+              },
+              success: function (data) {
+              },
+            });
+          }
+        }
+        $.ajax({
+          async: false,
+          url: `/api/artifact_reviews/${artifact_review_pk}/is_complete/`,
+          type: 'POST',
+          success: function (data) {
+          },
+        });
+        window.location.href = `/course/{{course_id}}/assignment/{{assignment_id}}/review_survey/`;
+      }
+      else {
+        alert('Please answer all questions!');
+      }
+    });
+
+    var artifactPreviewDOM = document.getElementById('artifactPreviewCarousel');
+    carousel = new PDFCarousel(
+      artifactPreviewDOM,
+      artifactFeedbacks,
+      options = {
+        onPrevPage: function (pageNum, text) {
+          $.ajax({
+            async: false,
+            url: `/api/artifact_reviews/${artifact_review_pk}/questions/${artifact_question_pk}/answers/`,
+            type: 'PUT',
+            data: {
+              page: pageNum,
+              answer_text: JSON.stringify([text]),
+            },
+            success: function (data) {
+              console.log(`Moving from page ${pageNum} to previous page`);
+            },
+            error: function (err) {
+            }
+          });
+        },
+        onNextPage: function (pageNum, text) {
+          $.ajax({
+            async: false,
+            url: `/api/artifact_reviews/${artifact_review_pk}/questions/${artifact_question_pk}/answers/`,
+            type: 'PUT',
+            data: {
+              page: pageNum,
+              answer_text: JSON.stringify([text]),
+            },
+            success: function (data) {
+              console.log(`Moving from page ${pageNum} to next page`);
+            },
+            error: function (err) {
+            }
+          });
+        }
+      });
+    carousel.renderPDF(pdfURL, () => {
+      // on error
+      $('#artifactPreviewCarousel').parent().html(
+        '<div class="alert alert-danger">' +
+        'Artifact has been uploaded.' +
+        '</div>'
+      );
+    });
+
+    $('#artifactPreviewModal').on('hidden.bs.modal', function (e) {
+      // Save review on current page
+      carousel.feedbacks[carousel.pageNum] = carousel.feedbackTextArea.value;
+      // Save all artifact feedbacks
+      var feedbacks = carousel.getFeedbacks();
+      var hasError = false;
+      var notEmpty = false;
+      for (const [key, value] of Object.entries(feedbacks)) {
+        var pageNum = key;
+        var text = value;
+        $.ajax({
+          url: `/api/artifact_reviews/${artifact_review_pk}/questions/${artifact_question_pk}/answers/`,
+          type: 'PUT',
+          data: {
+            page: pageNum,
+            answer_text: JSON.stringify([text]),
+          },
+          success: function (data) {
+            console.log(`Saved ${key}: ${value}`);
+          },
+          error: function (err) {
+            hasError = true;
+            console.log(err);
+          }
+        });
+
+        if (text != '') {
+          notEmpty = true;
+        }
+      }
+
+      if (hasError) {
+        alert('Error saving artifact reviews!');
+      } else if (!hasError && notEmpty) {
+        alert('Artifact reviews saved!');
+      }
+    });
+  });
+
+  $(function () {
+    $.ajaxSetup({
+      headers: { "X-CSRFToken": "{{ csrf_token }}" }
+    });
+  });
+
+  var artifact_review_pk = '{{ artifact_review_pk }}';
+  var survey_pk = '{{ survey_pk }}';
+  var pdfURL = '{{ picture.url }}';
+
+  var { survey, artifact_question_pk } = getSurvey(survey_pk, { editable: false, live: true });
+  updateAnswers(survey, artifact_review_pk);
+  var artifactFeedbacks = getArtifactReviews(artifact_review_pk, artifact_question_pk);
+
+  var carousel = null;
+
+</script>
+{% endblock js %}

@@ -1,4 +1,3 @@
-from pyexpat.errors import messages
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.validators import ASCIIUsernameValidator
@@ -7,6 +6,7 @@ from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 
 
@@ -44,6 +44,7 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(andrew_id, email, password, **extra_fields)
 
 
+@deconstructible
 class FileSizeValidator:
     '''
     Validates the size of a file.
@@ -154,6 +155,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         '''
         full_name = '%s %s' % (self.first_name, self.last_name)
         return full_name.strip()
+
+    def name_or_andrew_id(self):
+        if self.first_name == '':
+            return self.andrew_id
+        else:
+            full_name = '%s %s' % (self.first_name, self.last_name)
+            return full_name.strip()
 
     def __str__(self):
         return f'{self.andrew_id}'

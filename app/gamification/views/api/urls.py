@@ -5,8 +5,8 @@ from rest_framework.reverse import reverse
 
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
-from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyList, SurveyDetail, SurveySectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail
+from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyGetInfo, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete
 
 
 @api_view(['GET'])
@@ -18,8 +18,9 @@ def api_root(request, format=None):
         'sections': reverse('section-list', request=request, format=format),
         'questions': reverse('question-list', request=request, format=format),
         'options': reverse('option-list', request=request, format=format),
-        'answer': reverse('answer-list', request=request, format=format),
-        'artifact_review': reverse('artifact-review-list', request=request, format=format),
+        'answers': reverse('answer-list', request=request, format=format),
+        'template_section': reverse('template-section-list', request=request, format=format),
+        'artifact_reviews': reverse('artifact-review-list', request=request, format=format),
     })
 
 
@@ -41,6 +42,10 @@ urlpatterns = [
     # Get detail of a survey, Delete a survey, Update a survey
     path('surveys/<int:survey_pk>/', SurveyDetail.as_view(), name='survey-detail'),
 
+    # get all sections, questions, options of a survey
+    path('surveys/<int:survey_pk>/get_info/',
+         SurveyGetInfo.as_view(), name='survey-get-info'),
+
     # Get the sections of a survey, Post a new section of the survey
     path('surveys/<int:survey_pk>/sections/',
          SurveySectionList.as_view(), name='survey-section-list'),
@@ -48,6 +53,10 @@ urlpatterns = [
     # Get list of sections
     # ListAPIView
     path('sections/', SectionList.as_view(), name='section-list'),
+
+    # List template sections
+    path('template_sections/', TemplateSectionList.as_view(),
+         name='template-section-list'),
 
     # Get detail of a section, Update a section, Delete a section
     path('sections/<int:section_pk>/',
@@ -63,6 +72,9 @@ urlpatterns = [
     # Get detail of a question, Update a question, Delete a question
     path('questions/<int:question_pk>/',
          QuestionDetail.as_view(), name='question-detail'),
+
+    path('questions/<int:question_pk>/check_all_done/',
+         CheckAllDone.as_view(), name="check-all-done"),
 
     # Get list of options of a question, Post a new option of the question
     path('questions/<int:question_pk>/options/',
@@ -82,30 +94,33 @@ urlpatterns = [
     path('answers/', AnswerList.as_view(), name='answer-list'),
 
     # Get detail of answer, update an answer, delete an answer
-    path('answers/<int:answer_pk>', AnswerDetail.as_view(), name='answer-detail'),
+    path('answers/<int:answer_pk>/', AnswerDetail.as_view(), name='answer-detail'),
 
     # Get answers of artifact review
-    # TODO:add put
-    # TODO: response details(dict = 'question': 'answer') and answer_pk
-    path('artifact_review/<int:artifact_review_pk>/answers/',
+    path('artifact_reviews/<int:artifact_review_pk>/answers/',
          ArtifactAnswerList.as_view(), name='artifact-answer'),
 
-    # Post answer to artifact(response answer_pk)
-    path('artifact_review/<int:artifact_review_pk>/questions/<question_pk>/answers',
+    # Get answers of a question, Post answer to artifact(response answer_pk)
+    path('artifact_reviews/<int:artifact_review_pk>/questions/<question_pk>/answers/',
          CreateArtifactAnswer.as_view(), name='create-artifact-answer'),
 
     # Get list of artifact reviews
-    path('artifact_review/', ArtifactReviewList.as_view(),
+    path('artifact_reviews/', ArtifactReviewList.as_view(),
          name="artifact-review-list"),
 
     # Get detail of an artifact review. delete an artifact review
-    path('artifact_review/<int:artifact_review_id>',
+    path('artifact_reviews/<int:artifact_review_id>/',
          ArtifactReviewDetail.as_view(), name="artifact-review-detail"),
 
-    # Get artifact review of an artifact, post a new artifact review
-    path('artifact_review/<int:artifact_pk>/<int:registration_pk>',
-         CreateArtifactReview.as_view(), name="artifact-review")
+    path('artifact_reviews/<int:artifact_review_pk>/is_complete/',
+         SurveyComplete.as_view(), name="survey-complete"),
 
+    # Get artifact review of an artifact, post a new artifact review
+    path('artifact_reviews/<int:artifact_pk>/<int:registration_pk>',
+         CreateArtifactReview.as_view(), name="artifact-review"),
+
+    path('artifacts/<int:artifact_pk>/',
+         ArtifactResult.as_view(), name="artifact-result"),
 
 
 ]

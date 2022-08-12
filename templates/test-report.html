@@ -39,6 +39,44 @@
 
 {% block js %}
 <script>
+  // var data = {
+  //   'Section Name 1': {
+  //     'Question Text 1': {
+  //       'question_type': 'FIXEDTEXT or MULTIPLETEXT or TEXTAREA or NUMBER or ...',
+  //       'answers': [
+  //         'answer string 1',
+  //         'answer string 2',
+  //         'answer string 3',
+  //       ]
+  //     },
+  //   },
+  //   'Section Name 2': {
+  //     'Question Text 1': {
+  //       'question_type': 'MULTIPLECHOICE or ...',
+  //       'answers': [
+  //         { 'Agree': 1 },
+  //         { 'Disagree': 0 },
+  //         { 'Neutral': 0 },
+  //         ...
+  //       ]
+  //     }
+  //   }
+  // }
+
+  // Use this api to get survey data
+  var fromAPI = null;
+  $.ajax({
+    async: false,
+    url: `/api/artifacts/1/`,
+    type: 'GET',
+    success: function (data) {
+      fromAPI = JSON.parse(data);
+    },
+    error: function (err) {
+    }
+  });
+
+
   var data = {
     labels: ["2013", "2014", "2014", "2015", "2016", "2017"],
     datasets: [{
@@ -120,59 +158,59 @@
 
   var scatterChartData = {
     datasets: [{
-        label: 'First Dataset',
-        data: [{
-            x: -10,
-            y: 0
-          },
-          {
-            x: 0,
-            y: 3
-          },
-          {
-            x: -25,
-            y: 5
-          },
-          {
-            x: 40,
-            y: 5
-          }
-        ],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)'
-        ],
-        borderColor: [
-          'rgba(255,99,132,1)'
-        ],
-        borderWidth: 1
+      label: 'First Dataset',
+      data: [{
+        x: -10,
+        y: 0
       },
       {
-        label: 'Second Dataset',
-        data: [{
-            x: 10,
-            y: 5
-          },
-          {
-            x: 20,
-            y: -30
-          },
-          {
-            x: -25,
-            y: 15
-          },
-          {
-            x: -10,
-            y: 5
-          }
-        ],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.2)',
-        ],
-        borderColor: [
-          'rgba(54, 162, 235, 1)',
-        ],
-        borderWidth: 1
+        x: 0,
+        y: 3
+      },
+      {
+        x: -25,
+        y: 5
+      },
+      {
+        x: 40,
+        y: 5
       }
+      ],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)'
+      ],
+      borderWidth: 1
+    },
+    {
+      label: 'Second Dataset',
+      data: [{
+        x: 10,
+        y: 5
+      },
+      {
+        x: 20,
+        y: -30
+      },
+      {
+        x: -25,
+        y: 15
+      },
+      {
+        x: -10,
+        y: 5
+      }
+      ],
+      backgroundColor: [
+        'rgba(54, 162, 235, 0.2)',
+      ],
+      borderColor: [
+        'rgba(54, 162, 235, 1)',
+      ],
+      borderWidth: 1
+    }
     ]
   }
 
@@ -193,8 +231,8 @@
     },
     tooltips: {
       callbacks: {
-        label: function(tooltipItem, data) {
-          return data['datasets'][0]['data'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' +  + data['datasets'][0]['percentage'][tooltipItem['index']] + ')';
+        label: function (tooltipItem, data) {
+          return data['datasets'][0]['data'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + + data['datasets'][0]['percentage'][tooltipItem['index']] + ')';
         }
       }
     }
@@ -234,11 +272,11 @@
   };
 
   var mockData = [
-    {
-      'section': 'evaluation',
+    {% comment %} {
+    'section': 'evaluation',
       'summary': {
-        'team_name' : 'team1',
-        'evaluation':[
+      'team_name' : 'team1',
+        'evaluation': [
           {
             'evaluation_name': 'Content',
             'evaluation_content': '8.0/10.0',
@@ -256,7 +294,7 @@
             'evaluation_content': '8.0/10.0',
           },
         ],
-        'final_grade': 'B+',
+          'final_grade': 'B+',
       },
     },
     {
@@ -465,21 +503,21 @@
       summary2.appendChild(team_name);
 
       var evaluation = summaryData['evaluation'];
-      for(var j = 0; j < evaluation.length; j++){
+      for (var j = 0; j < evaluation.length; j++) {
         var evaluation_name = evaluation[j]['evaluation_name'];
         var evaluation_content = evaluation[j]['evaluation_content'];
         var evaluation_content_element = htmlToElement(
-        '<div>'+
-          '<b><p2 class="statistics-title">'+ evaluation_name +'</p></b>'+
-          '<center><h3 class="rate-percentage">' + evaluation_content + '</h3></center>'+
-        '</div>'
+          '<div>' +
+          '<b><p2 class="statistics-title">' + evaluation_name + '</p></b>' +
+          '<center><h3 class="rate-percentage">' + evaluation_content + '</h3></center>' +
+          '</div>'
         );
         summary2.appendChild(evaluation_content_element);
       }
       var final_grade = summaryData['final_grade'];
       var final_grade_element = htmlToElement(
-        '<div>'+
-          '<h1 class="rate-percentage">' + final_grade + '&nbsp&nbsp&nbsp&nbsp&nbsp</h1>' +
+        '<div>' +
+        '<h1 class="rate-percentage">' + final_grade + '&nbsp&nbsp&nbsp&nbsp&nbsp</h1>' +
         '</div>'
       );
       summary2.appendChild(final_grade_element);
@@ -516,14 +554,14 @@
         );
         
         var ChartSectionBody = htmlToElement(
-        '<div class="border-bottom py-3">' +
-        '</div>'
+          '<div class="border-bottom py-3">' +
+          '</div>'
         );
 
         var part_data = partData['part_data'];
         for ( var k = 0; k < part_data.length; k++) {
           // for each card
-          if( k % 3 == 0){
+          if (k % 3 == 0) {
             var ChartSectionBodyRow = htmlToElement(
               '<div class="row">' +
               '</div>'

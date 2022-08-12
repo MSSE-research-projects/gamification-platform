@@ -8,11 +8,13 @@ class Question(models.Model):
     """
     Model for Question
     """
-    class Question_type(models.TextChoices):
+    class QuestionType(models.TextChoices):
         MULTIPLETEXT = 'MULTIPLETEXT'
         FIXEDTEXT = 'FIXEDTEXT'
         MULTIPLECHOICE = 'MULTIPLECHOICE'
         SLIDEREVIEW = 'SLIDEREVIEW'
+        TEXTAREA = 'TEXTAREA'
+        NUMBER = 'NUMBER'
 
     section = models.ForeignKey('SurveySection', on_delete=models.CASCADE)
 
@@ -22,11 +24,13 @@ class Question(models.Model):
 
     is_multiple = models.BooleanField(default=False)
 
+    is_template = models.BooleanField(default=False)
+
     dependent_question = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True)
 
     question_type = models.TextField(
-        choices=Question_type.choices, default=Question_type.MULTIPLECHOICE)
+        choices=QuestionType.choices, default=QuestionType.MULTIPLECHOICE)
 
     option_choices = models.ManyToManyField(
         'OptionChoice', through='QuestionOption')
@@ -38,4 +42,4 @@ class Question(models.Model):
 
     @property
     def options(self):
-        return QuestionOption.objects.filter(question=self)
+        return QuestionOption.objects.filter(question=self).order_by('pk')

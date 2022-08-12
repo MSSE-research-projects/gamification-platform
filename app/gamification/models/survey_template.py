@@ -11,6 +11,8 @@ class SurveyTemplate(models.Model):
 
     instructions = models.TextField(blank=True)
 
+    is_template = models.BooleanField(default=False)
+
     other_info = models.TextField(blank=True)
 
     class Meta:
@@ -23,4 +25,4 @@ class SurveyTemplate(models.Model):
 
     @property
     def sections(self):
-        return SurveySection.objects.filter(template=self)
+        return SurveySection.objects.filter(template=self).order_by('pk')

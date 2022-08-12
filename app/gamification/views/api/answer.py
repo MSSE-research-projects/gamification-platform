@@ -1,7 +1,10 @@
+import json
+from django.utils import timezone
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from ...models.feedback_survey import FeedbackSurvey
 from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.artifact import Artifact
 from app.gamification.models.answer import Answer, ArtifactFeedback
@@ -72,59 +75,130 @@ class ArtifactAnswerList(generics.ListCreateAPIView):
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, artifact_review_pk, *args, **kwargs):
-        answer = Answer.objects.filter(artifact_review_id=artifact_review_pk)
+        answer = Answer.objects.filter(
+            artifact_review_id=artifact_review_pk).order_by('pk')
         serializer = self.get_serializer(answer)
         return Response(serializer.data)
 
 
-class CreateArtifactAnswer(generics.CreateAPIView):
+class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
     queryset = Answer.objects.all()
     serializer_class = CreateAnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
-    def post(self, request, artifact_review_pk, question_pk, *args, **kwargs):
+    def get(self, request, artifact_review_pk, question_pk, * args, **kwargs):
+        question = get_object_or_404(Question, id=question_pk)
+        if question.question_type == Question.QuestionType.SLIDEREVIEW:
+            self.serializer_class = ArtifactFeedbackSerializer
+            artifact_review = get_object_or_404(
+                ArtifactReview, id=artifact_review_pk)
+            question_options = question.options
+            answers = []
+            for question_option in question_options:
+                if ArtifactFeedback.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
+                    answer = ArtifactFeedback.objects.filter(
+                        question_option=question_option, artifact_review=artifact_review)
+                    answers.extend(answer)
+            serializer = self.get_serializer(answers, many=True)
+            return Response(serializer.data)
+        else:
+            artifact_review = get_object_or_404(
+                ArtifactReview, id=artifact_review_pk)
+            question_options = question.options
+            answers = []
+            for question_option in question_options:
+                if Answer.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
+                    answer = Answer.objects.filter(
+                        question_option=question_option, artifact_review=artifact_review)
+                    answers.extend(answer)
+            serializer = self.get_serializer(answers, many=True)
+            return Response(serializer.data)
+
+    def put(self, request, artifact_review_pk, question_pk, *args, **kwargs):
         # Multiple Choice text -> option_text
-        option_text = request.data.get('option_text')
         artifact_review = get_object_or_404(
             ArtifactReview, id=artifact_review_pk)
-        # Text input -> answer_text
-        answer_text = request.data.get('answer_text')
+        # Text input -> answer_text []
+        answer_texts = json.loads(request.data.get('answer_text'))
+        if '' in answer_texts:
+            answer_texts = [i for i in answer_texts if i != '']
         # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
-        page = request.data.get('page')
-        if question_type == Question.Question_type.MULTIPLECHOICE:
-            question_option = get_object_or_404(
-                QuestionOption, question=question, option_choice=OptionChoice.objects.get(text=option_text))
-            answer, _ = Answer.objects.get_or_create(
-                question_option=question_option,
-                artifact_review=artifact_review,
-                # TODO: change answer_text to option_text
-                answer_text=option_text
-            )
-            print(answer, answer.question_option)
+
+        if question_type == Question.QuestionType.MULTIPLECHOICE:
+            # delete original answer
+            if len(answer_texts) == 0:
+                return Response()
+            question_options = question.options.all()
+            # question_options = ['a', 'b', 'c', 'd']
+            for question_option in question_options:
+                if len(answer_texts) == 0:
+                    break
+                if Answer.objects.filter(question_option=question_option, artifact_review=artifact_review).count() > 0:
+                    answer = Answer.objects.get(
+                        question_option=question_option, artifact_review=artifact_review)
+                    # answer {answer_text= 'b', question_option= question_option(optionChoice=b, question=question), artifact_review= aritfact_review}
+                    # check answer_texts whether empty
+                    # answer_text = ['a']
+                    if len(answer_texts) > 0:
+                        current_answer = answer_texts.pop(0)
+                        answer.answer_text = current_answer
+                        question_option = QuestionOption.objects.get(
+                            option_choice=OptionChoice.objects.get(text=current_answer), question=question)
+                        answer.question_option = question_option
+                        answer.save()
+                    else:
+                        # original answers more than new answers
+                        answer.delete()
+            # new answers more than original answers
+            while len(answer_texts) != 0:
+                current_answer = answer_texts.pop(0)
+                question_option = QuestionOption.objects.get(
+                    option_choice=OptionChoice.objects.get(text=current_answer), question=question)
+                answer = Answer(answer_text=current_answer,
+                                question_option=question_option, artifact_review=artifact_review)
+                answer.save()
             serializer = self.get_serializer(answer)
-            print(serializer.data)
             return Response(serializer.data)
-        elif question_type == Question.Question_type.FIXEDTEXT or question_type == Question.Question_type.MULTIPLETEXT:
-            question_option = question.options
-            #answer_text = [texts]
-            for answerText in answer_text:
-                answer, _ = Answer.objects.get_or_create(
-                    question_option=question_option,
-                    artifact_review=artifact_review,
-                    answer_text=answerText,
-                )
+
+        elif question_type == Question.QuestionType.FIXEDTEXT or question_type == Question.QuestionType.MULTIPLETEXT or question_type == Question.QuestionType.TEXTAREA or question_type == Question.QuestionType.NUMBER:
+            answer = None
+            question_option = question.options[0]
+            answers = Answer.objects.filter(
+                question_option=question_option, artifact_review=artifact_review)
+            for answer in answers:
+                if len(answer_texts) > 0:
+                    current_answer = answer_texts.pop(0)
+                    answer.answer_text = current_answer
+                    answer.save()
+                else:
+                    # original answers more than new answers
+                    answer.delete()
+
+            while len(answer_texts) != 0:
+                current_answer = answer_texts.pop(0)
+                answer = Answer(answer_text=current_answer,
+                                question_option=question_option, artifact_review=artifact_review)
+                answer.save()
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
         else:
+            page = request.data.get('page')
+            if len(answer_texts) == 0:
+                return Response()
+            answer_text = answer_texts[0]
             self.serializer_class = ArtifactFeedbackSerializer
+            question_option = get_object_or_404(
+                QuestionOption, question=question)
+            # all answers of the slide question
             answer, _ = ArtifactFeedback.objects.get_or_create(
                 question_option=question_option,
                 artifact_review=artifact_review,
-                answer_text=answer_text,
                 page=page,
             )
+            answer.answer_text = answer_text
+            answer.save()
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
 
@@ -173,3 +247,85 @@ class CreateArtifactReview(generics.ListCreateAPIView):
         )
         serializer = self.get_serializer(artifact_review)
         return Response(serializer.data)
+
+
+class ArtifactResult(generics.ListAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+
+    def get(self, request, artifact_pk, *args, **kwargs):
+        artifact = get_object_or_404(Artifact, pk=artifact_pk)
+        assignment = artifact.assignment
+        survey_template = assignment.survey_template
+        sections = survey_template.sections
+        answers = {}
+        for section in sections:
+            answers[section.title] = dict()
+            for question in section.questions:
+                answers[section.title][question.text] = dict()
+                answers[section.title][question.text]['question_type'] = question.question_type
+                answers[section.title][question.text]['answers'] = []
+
+                artifact_reviews = ArtifactReview.objects.filter(
+                    artifact=artifact)
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                    question_options = question.options
+                    for artifact_review in artifact_reviews:
+                        for question_option in question_options:
+                            answer = Answer.objects.filter(
+                                artifact_review=artifact_review, question_option=question_option)
+                            if len(answer) > 0:
+                                option_choice = question_option.option_choice
+                                if answers[section.title][question.text]['answers'] == []:
+                                    temp = dict()
+                                    temp[option_choice.text] = 1
+                                    answers[section.title][question.text]['answers'].append(
+                                        temp)
+                                else:
+                                    for answer_dict in answers[section.title][question.text]['answers']:
+                                        if option_choice.text in answer_dict.keys():
+                                            answer_dict[option_choice.text] += 1
+
+                else:
+                    question_option = QuestionOption.objects.get(
+                        question=question)
+                    for artifact_review in artifact_reviews:
+                        text_answers = Answer.objects.filter(
+                            artifact_review=artifact_review, question_option=question_option)
+                        if len(text_answers) > 0:
+                            for answer in text_answers:
+                                answers[section.title][question.text]['answers'].append(
+                                    answer.answer_text)
+        data = json.dumps(answers)
+        return Response(data)
+
+
+class SurveyComplete(generics.CreateAPIView):
+    def post(self, request, artifact_review_pk, *args, **kwargs):
+        artifact_review = get_object_or_404(
+            ArtifactReview, id=artifact_review_pk)
+        now = timezone.now()
+        artifact = artifact_review.artifact
+        assignment = artifact.assignment
+        feedback_survey = FeedbackSurvey.objects.get(assignment=assignment)
+        print(feedback_survey)
+        due_date = feedback_survey.date_due
+        if now > due_date:
+            artifact_review.status = ArtifactReview.ArtifactReviewType.LATE
+        else:
+            artifact_review.status = ArtifactReview.ArtifactReviewType.COMPLETED
+        artifact_review.save()
+        return Response(status=204)
+
+
+class CheckAllDone(generics.GenericAPIView):
+
+    def post(self, request, question_pk, *args, **kwargs):
+        question = get_object_or_404(Question, pk=question_pk)
+        is_required = question.is_required
+        answer_texts = json.loads(request.data.get('answer_text'))
+        answer_texts = [text for text in answer_texts if text != '']
+        if is_required and not answer_texts:
+            return Response(status=400)
+
+        return Response(status=200)
