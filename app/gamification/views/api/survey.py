@@ -404,7 +404,6 @@ class SurveyGetInfo(generics.ListAPIView):
                         curr_option_choice['text'] = option_choice.option_choice.text
                         curr_question['option_choices'].append(
                             curr_option_choice)
-                    curr_section['questions'].append(curr_question)
                 else:
                     question_option = get_object_or_404(
                         QuestionOption, question=question)
