@@ -24,11 +24,9 @@
                 <th>
                   Semester
                 </th>
-                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
                 <th>
-                  Status
+                  Visible
                 </th>
-                {% endif %}
               </tr>
             </thead>
             {% for reg in registration %}

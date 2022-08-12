@@ -70,9 +70,9 @@
                                 <h4 class="card-title card-title-dash">Todo list
                                 </h4>
                                 <div class="dropdown">
-                                  {% comment %} <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuIconButton1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuIconButton1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="mdi mdi-plus"></i>
-                                  </button> {% endcomment %}
+                                  </button>
                                   <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1" style="">
                                     <div width="400px">
                                       <form class="pt-3" method="post" enctype="multipart/form-data">
@@ -161,15 +161,15 @@
                                     {% else %}
                                       <li class="d-block">
                                         <div class="form-check w-100">
-                                          {% comment %} <a href="{% url 'delete_todo_list' todo.id %}">
+                                          <a href="{% url 'delete_todo_list' todo.id %}">
                                             <button class="btn btn-icons btn-rounded btn-primary todo-list-add-btn text-white me-0 pl-12p">
                                               <i class="mdi mdi-delete"></i>
                                             </button>
-                                          </a> {% endcomment %}
-                                          {% comment %} &nbsp&nbsp{{todo.text}} {% endcomment %}
-                                          <label class="form-check-label">
+                                          </a>
+                                          &nbsp&nbsp{{todo.text}}
+                                          {% comment %} <label class="form-check-label">
                                             <input class="checkbox" type="checkbox">{{ todo.text}}<i class="input-helper rounded"></i>
-                                          </label>
+                                          </label> {% endcomment %}
                                           <div class="d-flex mt-2">
                                             <div class="ps-4 text-small me-3">
                                               Due: {{todo.due_date}}</div>
