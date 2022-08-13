@@ -685,7 +685,7 @@ def edit_assignment(request, course_id, assignment_id):
         if form.is_valid():
             # TO-DO: update upload_time
             assignment = form.save()
-        return render(request, 'edit_assignment.html', {'course_id': course_id, 'form': form, 'userRole': userRole})
+        return redirect('assignment', course_id)
 
     if request.method == 'GET':
         form = AssignmentForm(instance=assignment)
