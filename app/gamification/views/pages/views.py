@@ -1,4 +1,6 @@
 import os
+import pytz
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -185,7 +187,8 @@ def add_survey(request, course_id, assignment_id):
         survey_template_name = request.POST.get('template_name').strip()
         survey_template_instruction = request.POST.get('instructions')
         survey_template_other_info = request.POST.get('other_info')
-        feedback_survey_date_released = parse_datetime(request.POST.get('date_released'))
+        feedback_survey_date_released = parse_datetime(
+            request.POST.get('date_released'))
         feedback_survey_date_due = parse_datetime(request.POST.get('date_due'))
         survey_template = SurveyTemplate(
             name=survey_template_name, instructions=survey_template_instruction, other_info=survey_template_other_info)
@@ -199,7 +202,7 @@ def add_survey(request, course_id, assignment_id):
         feedback_survey.save()
 
         if survey_template_name == "Default Template":
-            
+
             default_survey_template = get_object_or_404(
                 SurveyTemplate, is_template=True, name="Survey Template")
             for default_section in default_survey_template.sections:
@@ -261,8 +264,9 @@ def edit_survey_template(request, course_id, assignment_id):
         survey_template_name = request.POST.get('template_name')
         survey_template_instruction = request.POST.get('instructions')
         survey_template_other_info = request.POST.get('other_info')
-        feedback_survey_date_released = request.POST.get('date_released')
-        feedback_survey_date_due = request.POST.get('date_due')
+        feedback_survey_date_released = parse_datetime(
+            request.POST.get('date_released'))
+        feedback_survey_date_due = parse_datetime(request.POST.get('date_due'))
         feedback_survey = FeedbackSurvey.objects.get(
             assignment_id=assignment_id
         )
@@ -626,7 +630,12 @@ def assignment(request, course_id):
     userRole = Registration.objects.get(
         users=request.user, courses=course).userRole
     if request.method == 'GET':
-        assignments = Assignment.objects.filter(course=course)
+        if userRole == Registration.UserRole.Student:
+            infos = Assignment.objects.filter(course=course)
+            assignments = [assignment for assignment in infos if assignment.date_released <=
+                           datetime.now().replace(tzinfo=pytz.UTC)]
+        else:
+            assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,
                    "course_id": course_id,
                    "course": course,
@@ -935,6 +944,7 @@ def review_survey(request, course_id, assignment_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id)
     assignment = get_object_or_404(Assignment, id=assignment_id, course=course)
+    feedback_survey = get_object_or_404(FeedbackSurvey, assignment=assignment)
     assignment_type = assignment.assignment_type
     artifacts = Artifact.objects.filter(assignment=assignment)
     # find artifact_review(registration, )
@@ -947,18 +957,20 @@ def review_survey(request, course_id, assignment_id):
     for artifact_review in artifact_reviews:
         artifact_review_with_name = dict()
         artifact = artifact_review.artifact
-        artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
-        artifact_review_with_name["status"] = artifact_review.status
-        if assignment_type == "Team":
-            entity = artifact.entity
-            team = entity.team
-            artifact_review_with_name["name"] = team.name
+        feedback_survey_released_date = feedback_survey.date_released
+        if feedback_survey_released_date <= datetime.now().replace(tzinfo=pytz.UTC):
+            artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
+            artifact_review_with_name["status"] = artifact_review.status
+            if assignment_type == "Team":
+                entity = artifact.entity
+                team = entity.team
+                artifact_review_with_name["name"] = team.name
 
-        else:
-            entity = artifact.entity
-            name = Membership.objects.get(
-                entity=entity).student.users.name_or_andrew_id()
-            artifact_review_with_name["name"] = name
-        infos.append(artifact_review_with_name)
+            else:
+                entity = artifact.entity
+                name = Membership.objects.get(
+                    entity=entity).student.users.name_or_andrew_id()
+                artifact_review_with_name["name"] = name
+            infos.append(artifact_review_with_name)
 
     return render(request, 'survey_list.html', {'course_id': course_id, 'assignment_id': assignment_id, 'infos': infos, 'assignment_type': assignment_type})
