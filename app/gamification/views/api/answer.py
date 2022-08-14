@@ -282,16 +282,16 @@ class ArtifactResult(generics.ListAPIView):
                 elif question.question_type == Question.QuestionType.NUMBER:
                     question_option = get_object_or_404(
                         QuestionOption, question=question)
+                    count = 0
+                    sum = 0
                     for artifact_review in artifact_reviews:
                         text_answers = Answer.objects.filter(
                             artifact_review=artifact_review, question_option=question_option)
-                        count = 0
-                        sum = 0
-                        for answer in text_answers:
+                        if text_answers.count() > 0:
                             count += 1
-                            sum += answer
-                        answers[section.title][question.text]['answers'].append(
-                            sum / count)
+                            sum += int(text_answers[0].answer_text)
+                    answers[section.title][question.text]['answers'].append(
+                        sum / count)
 
                 else:
                     question_option = get_object_or_404(

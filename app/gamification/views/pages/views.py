@@ -632,8 +632,14 @@ def assignment(request, course_id):
     if request.method == 'GET':
         if userRole == Registration.UserRole.Student:
             infos = Assignment.objects.filter(course=course)
-            assignments = [assignment for assignment in infos if assignment.date_released <=
-                           datetime.now().replace(tzinfo=pytz.UTC)]
+            assignments = []
+            for assignment in infos:
+                if assignment.date_released != None and assignment.date_released <= datetime.now().replace(tzinfo=pytz.UTC):
+                    assignments.append(assignment)
+                elif assignment.date_released == None:
+                    assignments.append(assignment)
+            # assignments = [assignment for assignment in infos if assignment.date_released != None and assignment.date_released <=
+            #                datetime.now().replace(tzinfo=pytz.UTC)]
         else:
             assignments = Assignment.objects.filter(course=course)
         context = {'assignments': assignments,
