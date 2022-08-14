@@ -264,7 +264,7 @@ class ArtifactResult(generics.ListAPIView):
             for question in section.questions:
                 answers[section.title][question.text] = dict()
                 answers[section.title][question.text]['question_type'] = question.question_type
-                answers[section.title][question.text]['answers'] = []
+                answers[section.title][question.text]['answers'] = [] #dict{option_choice.text: number}
 
                 artifact_reviews = ArtifactReview.objects.filter(
                     artifact=artifact)
@@ -285,6 +285,11 @@ class ArtifactResult(generics.ListAPIView):
                                     for answer_dict in answers[section.title][question.text]['answers']:
                                         if option_choice.text in answer_dict.keys():
                                             answer_dict[option_choice.text] += 1
+                                        else:
+                                            temp = dict()
+                                            temp[option_choice.text] = 1
+                                            answers[section.title][question.text]['answers'].append(
+                                                temp)
 
                 else:
                     question_option = QuestionOption.objects.get(
