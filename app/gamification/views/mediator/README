@@ -1,0 +1,77 @@
+## Mediator Responsibility
+
+
+If object A has a foreign key pointing to object B (short for A->B), then A is called a referencing object, B is called a referenced object.
+All foreign keys in the system means the referencing object is tightly bound to the referenced object.
+
+Deleting the referenced object will delete the referencing objects as well.
+Example, B->A, C->A, deleting A will also delete B and C.
+
+Changing the referenced object can only be done through first deleting the original referencing object and creating a new object referencing the other one.
+Example, B->A. We want to change to B->C, this is achieved by first deleting B, then creating an almost the same copy B’, which has identical fields to B except this foreign key, and linking it to C, which eventually gives us B’->C.
+
+
+Entity ->(fully dependent on) Membership / Assignment / Course
+	// No memberships, no Entity (either Team or Individual)
+	// No individual assignments, no Individual
+	// No courses, no Entity
+
+ArtifactReview ->(fully dependent on) FeedbackSurvey / Artifact / Membership
+	// No surveys, no ArtifactReview
+	// No artifacts, no ArtifactReview
+	// No memberships, no ArtifactReview
+	New if ALL(FeedbackSurvey, Artifact, Membership) is created
+	Edit: can only change `status`
+	Delete if ANY(FeedbackSurvey, Artifact, Membership) is deleted
+
+Registration: (affect) Entity
+	New Registration:
+		-> Entity: new only if `userRole` = STUDENT
+			To Team: new or existing if provided team name / do nothing if no team name
+			To Individual: new if individual assignments exist
+	Edit Registration:
+		-> change `user` or `course`: same as deleting a registration
+		-> change `userRole`:
+			STUDENT -> TA/INSTRUCTOR: same as deleting a registration
+			TA/INSTRUCTOR -> STUDENT: same as a new registration
+	Delete Registration:
+		-> Entity: delete related
+
+Membership: (affect) Entity, ArtifactReview
+	New Membership:
+		-> Entity: new / existing
+		-> ArtifactReview: new for all artifacts under each assignment based on Entity info
+	Edit Membership: None
+	Delete Membership:
+		-> Entity: delete if last member in the entity is removed
+		-> ArtifactReview: delete related
+
+Course: (affect) None
+	Delete Course:
+		delete all related Registration, Entity, Assignment
+
+Assignment: (affect) Individual, Artifact, FeedbackSurvey
+	New Assignment:
+		-> Individual: new for all registrations in this course
+	Edit Assignment:
+		-> change `assignment_type`
+			TEAM -> INDIVIDUAL: ???
+			INDIVIDUAL -> TEAM: ???
+	Delete Assignment:
+		-> Individual: do nothing
+		-> Artifact: delete related
+		-> FeedbackSurvey: delete related
+
+FeedbackSurvey: (affect) ArtifactReview
+	New FeedbackSurvey:
+		-> ArtifactReview: new for all artifacts under the very assignment (this survey relates to) based on Entity info
+	Edit FeedbackSurvey: None
+	Delete FeedbackSurvey:
+		-> ArtifactReview: delete related
+
+Artifact: (affect) ArtifactReview
+	New Artifact:
+		-> ArtifactReview: new if there is FeedbackSurvey for the related assignment
+	Edit Artifact: None
+	Delete Artifact:
+		-> ArtifactReview: delete related
