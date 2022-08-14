@@ -503,14 +503,14 @@
           <span class="menu-title">Course</span>
         </a>
       </li>
-      {% comment %} {% if user.is_staff %} {% endcomment %}
+      {% if user.is_staff %}
       <li class="nav-item">
         <a class="nav-link" href="{% url 'instructor_admin' %}">
           <i class="menu-icon mdi mdi-settings-outline"></i>
           <span class="menu-title">Instructor Admin</span>
         </a>
       </li>
-      {% comment %} {% endif %} {% endcomment %}
+      {% endif %}
     </ul>
   </nav>
   {% block content %}
