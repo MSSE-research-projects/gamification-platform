@@ -19,7 +19,11 @@
             <thead>
               <tr>
                 <th>
-                  {{ assignment_type }}
+                  {% if assignment_type == 'Team' %}
+                  Team
+                  {% else %}
+                  Name
+                  {% endif %}
                 </th>
                 <th>
                   Status

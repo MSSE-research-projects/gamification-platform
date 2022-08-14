@@ -147,7 +147,7 @@ class AddMemberTest(TestCase):
         }
         self.response = self.client.post(self.url, self.data)
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(list(get_messages(self.response.wsgi_request))[0].message, 'A new mamber has been added')
+        self.assertEqual(list(get_messages(self.response.wsgi_request))[0].message, 'A new member has been added')
         self.assertEqual(self.response.context.get('membership')[1]['andrew_id'], test_member_andrewId)
         self.assertEqual(self.response.context.get('membership')[1]['userRole'], test_member_role)
         self.assertEqual(self.response.context.get('membership')[1]['team'], test_member_team)
