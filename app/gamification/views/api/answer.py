@@ -277,9 +277,10 @@ class ArtifactResult(generics.ListAPIView):
                             answer_text = question_option.option_choice.text
                             count = Answer.objects.filter(
                                 artifact_review=artifact_review, question_option=question_option).count()
-                            answers[section.title][question.text]['answers'].append(
-                                {answer_text: count}
-                            )
+                            if count > 0:
+                                answers[section.title][question.text]['answers'].append(
+                                    {answer_text: count}
+                                )
 
                 else:
                     question_option = QuestionOption.objects.get(
