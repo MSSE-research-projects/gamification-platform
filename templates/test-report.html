@@ -237,7 +237,7 @@
       }
     }
   }
-  var doughnutPieData = {
+  {% comment %} var doughnutPieData = {
     datasets: [{
       label: 'Dataset 1',
       data: [10, 10, 10, 10, 50, 10],
@@ -269,29 +269,29 @@
       'Disafd fsdfsdf gree',
       'Disafsff dsfsdfs fsafsafsdaf adsfdgree',
     ]
-  };
+  }; {% endcomment %}
 
   {% comment %} var mockData = [
     {
-    'section': 'evaluation',
+    'section': 'aspect',
       'summary': {
       'team_name' : 'team1',
-        'evaluation': [
+        'aspect': [
           {
-            'evaluation_name': 'Content',
-            'evaluation_content': '8.0/10.0',
+            'aspect_name': 'Content',
+            'aspect_content': '8.0/10.0',
           },
           {
-            'evaluation_name': 'Design',
-            'evaluation_content': '8.0/10.0',
+            'aspect_name': 'Design',
+            'aspect_content': '8.0/10.0',
           },
           {
-            'evaluation_name': 'Delivery',
-            'evaluation_content': '8.0/10.0',
+            'aspect_name': 'Delivery',
+            'aspect_content': '8.0/10.0',
           },
           {
-            'evaluation_name': 'Overall',
-            'evaluation_content': '8.0/10.0',
+            'aspect_name': 'Overall',
+            'aspect_content': '8.0/10.0',
           },
         ],
           'final_grade': 'B+',
@@ -478,90 +478,36 @@
   var $sectionTabContent = $('#sectinTabContent');
   var $summaryContent = $('#summaryContent');
   console.log("fromAPI", fromAPI);
-  var mockFromapi = {
-    "123": {
-      "123": {
-          "question_type": "MULTIPLECHOICE",
-          "answers": [
-              {
-                  "111": 1
-              }
-          ]
-      },
-      "234": {
-          "question_type": "MULTIPLECHOICE",
-          "answers": [
-              {
-                  "222": 1
-              }
-          ]
-      },
-      "345": {
-          "question_type": "MULTIPLECHOICE",
-          "answers": [
-              {
-                  "333": 1
-              }
-          ]
-      },
-      "fix": {
-          "question_type": "FIXEDTEXT",
-          "answers": [
-              "fix_1",
-              "fix_2"
-          ]
-      }
-    },
-    "333": {},
-    "Two": {
-      "111": {
-          "question_type": "MULTIPLECHOICE",
-          "answers": [
-              {
-                  "222": 1
-              }
-          ]
-      },
-      "321": {
-          "question_type": "FIXEDTEXT",
-          "answers": [
-              "666",
-              "777",
-              "888"
-          ]
-      }
-    }
-  }
 
-  var mock_evaluation_section = 
+  var mock_aspect_section = 
   {
-    'section': 'evaluation',
+    'section': 'aspect',
     'summary': {
     'team_name' : 'team1',
-      'evaluation': [
+      'aspect': [
         {
-          'evaluation_name': 'Content',
-          'evaluation_content': '8.0/10.0',
+          'aspect_name': 'Content',
+          'aspect_content': '8.0/10.0',
         },
         {
-          'evaluation_name': 'Design',
-          'evaluation_content': '8.0/10.0',
+          'aspect_name': 'Design',
+          'aspect_content': '8.0/10.0',
         },
         {
-          'evaluation_name': 'Delivery',
-          'evaluation_content': '8.0/10.0',
+          'aspect_name': 'Delivery',
+          'aspect_content': '8.0/10.0',
         },
         {
-          'evaluation_name': 'Overall',
-          'evaluation_content': '8.0/10.0',
+          'aspect_name': 'Overall',
+          'aspect_content': '8.0/10.0',
         },
       ],
-        'final_grade': 'B+',
+        'final_grade': '',
     },
   }
   // transform fromAPI to mockData
   var mockData = [];
-  mockData.push(mock_evaluation_section);
+  mockData.push(mock_aspect_section);
   for (var section in fromAPI) {
     var sectionData = fromAPI[section];
     var multipleChoicePart = {
@@ -587,8 +533,8 @@
         var doughnutPieDataTemp = {
           datasets: [{
             label: 'Dataset 1',
-            data: [10, 10, 10, 10, 50, 10],
-            percentage: [10, 10, 10, 10, 50, 10],
+            data: [],
+            percentage: [],
             backgroundColor: [
               'rgba(255, 99, 132, 0.5)',
               'rgba(54, 162, 235, 0.5)',
@@ -607,20 +553,21 @@
             ],
           }],
             // These labels appear in the legend and in the tooltips when hovering different arcs
-            labels: [
-            'Agree',
-            'Undecided',
-            'Disagree',
-            'Disagr fsdfsdf eeeee',
-            'Disafd fsdfsdf gree',
-            'Disafsff dsfsdfs fsafsafsdaf adsfdgree',
-          ]
+            labels: [],
         };
+        for (var m = 0; m < answers.length; ++m) {
+          for(var key in answers[m]) {
+            var count = answers[m][key];
+            doughnutPieDataTemp.datasets[0].data.push(count);
+            doughnutPieDataTemp.datasets[0].percentage.push(count/100);
+            doughnutPieDataTemp.labels.push(key); 
+          }
+        }
         var temp_part_data = {
           'title': question_name,
           'name': "pieChart-" + question_name,
           'type': 'pie',
-          'data': doughnutPieData,
+          'data': doughnutPieDataTemp,
           'options': doughnutPieOptionsNew
         }
         multipleChoicePart.part_data.push(temp_part_data);
@@ -641,9 +588,8 @@
     var sectionData = mockData[i];
     var sectionTitle = sectionData.section;
     var sectionTitleSlug = 'SectionTitle' + sectionData.section.replace(' ', '-');
-
-    if(sectionTitle == "evaluation"){
-      // evaluation part
+    if(sectionTitle == "aspect"){
+      // aspect part
       var MultipleChoiceContentItemBody = htmlToElement(
         '<div class="row">' +
         '</div>'
@@ -663,17 +609,17 @@
       );
       summary2.appendChild(team_name);
 
-      var evaluation = summaryData['evaluation'];
-      for (var j = 0; j < evaluation.length; j++) {
-        var evaluation_name = evaluation[j]['evaluation_name'];
-        var evaluation_content = evaluation[j]['evaluation_content'];
-        var evaluation_content_element = htmlToElement(
+      var aspect = summaryData['aspect'];
+      for (var j = 0; j < aspect.length; j++) {
+        var aspect_name = aspect[j]['aspect_name'];
+        var aspect_content = aspect[j]['aspect_content'];
+        var aspect_content_element = htmlToElement(
           '<div>' +
-          '<b><p2 class="statistics-title">' + evaluation_name + '</p></b>' +
-          '<center><h3 class="rate-percentage">' + evaluation_content + '</h3></center>' +
+          '<b><p2 class="statistics-title">' + aspect_name + '</p></b>' +
+          '<center><h3 class="rate-percentage">' + aspect_content + '</h3></center>' +
           '</div>'
         );
-        summary2.appendChild(evaluation_content_element);
+        summary2.appendChild(aspect_content_element);
       }
       var final_grade = summaryData['final_grade'];
       var final_grade_element = htmlToElement(
