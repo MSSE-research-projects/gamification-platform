@@ -41,13 +41,8 @@
                 </td>
                 {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
                 <td>
-                  <a href="{% url 'view_artifact' course_id assignment.id artifact.id %}">
-                    <button type="button" class="btn-sm btn-primary">view</button>
-                  </a>
-                </td>
-                <td>
                   <a href="{% url 'download_artifact' course_id assignment.id artifact.id %}">
-                    <button type="button" class="btn-sm btn-primary">Download</button>
+                    <button type="button" class="btn-sm btn-primary">View</button>
                   </a>
                 </td>
                 <td>
@@ -57,7 +52,7 @@
                 </td>
                 <td>
                   <a href="{% url 'delete_artifact' course_id assignment.id artifact.id %}">
-                    <button type="button" class="btn-sm btn-primary">delete</button>
+                    <button type="button" class="btn-sm btn-primary">Delete</button>
                   </a>
                 </td>
                 {% endif %}
