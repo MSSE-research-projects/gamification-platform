@@ -244,7 +244,7 @@ def add_survey(request, course_id, assignment_id):
                 text='',
                 question_type=Question.QuestionType.SLIDEREVIEW,
             )
-            empty_option = OptionChoice.objects.get(text='')
+            empty_option, _ = OptionChoice.objects.get_or_create(text='')
             QuestionOption.objects.create(
                 question=artifact_question, option_choice=empty_option)
 
