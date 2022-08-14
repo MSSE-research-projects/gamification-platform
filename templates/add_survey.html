@@ -14,7 +14,16 @@
         <div class="card-body">
           <form method="post">
             {% csrf_token %}
-            <h4 class="card-title">Add Survey</h4>
+            <div class="survey-header row mb-3 align-items-center justify-content-between">
+              <div class="col-md-6 col-sm-12 text-start">
+                <h4 class="card-title">Add Survey</h4>
+              </div>
+              <div class="col-md-4 col-sm-12 text-end">
+                <a href="{% url 'assignment' course_id %}">
+                  <button type="button" class="btn btn-outline-primary">Back</button>  
+                </a>
+              </div>
+            </div>
             <div class="form-group">
               <label for="template_name">Template</label>
               <div>
