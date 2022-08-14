@@ -115,6 +115,10 @@ PostgreSQL server database.
 
     Run command `python manage.py runserver`
 
+6. Install fixtures
+
+    Run command 'python manage.py loaddata assignments courses entities membership registration survey users'
+
 # How to Run
 
 After setting up the environment, run `python manage.py runserver` to start the server. Here are a few pages implemented at the moment:

@@ -1,4 +1,5 @@
 import os
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
@@ -9,11 +10,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.http import FileResponse
 from django.utils.timezone import now
-
+from app.gamification.utils import parse_datetime
 from app.gamification.decorators import admin_required, user_role_check
 from app.gamification.forms import AssignmentForm, SignUpForm, ProfileForm, CourseForm, PasswordResetForm, ArtifactForm, TodoListForm
 from app.gamification.models import Assignment, Course, CustomUser, Registration, Team, Membership, Artifact, Individual, FeedbackSurvey, Question, OptionChoice, QuestionOption
-from app.gamification.models.answer import Answer
 from app.gamification.models.artifact_review import ArtifactReview
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
@@ -185,8 +185,8 @@ def add_survey(request, course_id, assignment_id):
         survey_template_name = request.POST.get('template_name').strip()
         survey_template_instruction = request.POST.get('instructions')
         survey_template_other_info = request.POST.get('other_info')
-        feedback_survey_date_released = request.POST.get('date_released')
-        feedback_survey_date_due = request.POST.get('date_due')
+        feedback_survey_date_released = parse_datetime(request.POST.get('date_released'))
+        feedback_survey_date_due = parse_datetime(request.POST.get('date_due'))
         survey_template = SurveyTemplate(
             name=survey_template_name, instructions=survey_template_instruction, other_info=survey_template_other_info)
         survey_template.save()
@@ -199,6 +199,7 @@ def add_survey(request, course_id, assignment_id):
         feedback_survey.save()
 
         if survey_template_name == "Default Template":
+            
             default_survey_template = get_object_or_404(
                 SurveyTemplate, is_template=True, name="Survey Template")
             for default_section in default_survey_template.sections:
@@ -849,8 +850,15 @@ def artifact_admin(request, course_id, assignment_id):
 def download_artifact(request, course_id, assignment_id, artifact_id):
     if check_artifact_permisssion(artifact_id, request.user):
         artifact = get_object_or_404(Artifact, pk=artifact_id)
-        filename = artifact.file.path
-        response = FileResponse(open(filename, 'rb'))
+        if settings.USE_S3:
+            from config.storages import MediaStorage
+            storage = MediaStorage()
+            filename = artifact.file.name
+            filepath = storage.url(filename)
+            response = FileResponse(storage.open(filename, 'rb'))
+        else:
+            filepath = artifact.file.path
+            response = FileResponse(open(filepath, 'rb'))
         # TODO: return 404 if file does not exist
         return response
     else:

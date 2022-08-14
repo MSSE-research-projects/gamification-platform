@@ -264,27 +264,22 @@ class ArtifactResult(generics.ListAPIView):
             for question in section.questions:
                 answers[section.title][question.text] = dict()
                 answers[section.title][question.text]['question_type'] = question.question_type
+                # dict{option_choice.text: number}
                 answers[section.title][question.text]['answers'] = []
 
                 artifact_reviews = ArtifactReview.objects.filter(
                     artifact=artifact)
                 if question.question_type == Question.QuestionType.MULTIPLECHOICE:
                     question_options = question.options
-                    for artifact_review in artifact_reviews:
-                        for question_option in question_options:
-                            answer = Answer.objects.filter(
-                                artifact_review=artifact_review, question_option=question_option)
-                            if len(answer) > 0:
-                                option_choice = question_option.option_choice
-                                if answers[section.title][question.text]['answers'] == []:
-                                    temp = dict()
-                                    temp[option_choice.text] = 1
-                                    answers[section.title][question.text]['answers'].append(
-                                        temp)
-                                else:
-                                    for answer_dict in answers[section.title][question.text]['answers']:
-                                        if option_choice.text in answer_dict.keys():
-                                            answer_dict[option_choice.text] += 1
+
+                    for question_option in question_options:
+                        answer_text = question_option.option_choice.text
+                        count = Answer.objects.filter(
+                            artifact_review__in=artifact_reviews, question_option=question_option).count()
+                        if count > 0:
+                            answers[section.title][question.text]['answers'].append(
+                                {answer_text: count}
+                            )
 
                 else:
                     question_option = QuestionOption.objects.get(
