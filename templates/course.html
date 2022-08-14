@@ -24,9 +24,6 @@
                 <th>
                   Semester
                 </th>
-                <th>
-                  Visible
-                </th>
               </tr>
             </thead>
             {% for reg in registration %}
@@ -42,11 +39,6 @@
                 <td>
                   {{ reg.courses.semester}}
                 </td>
-                {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
-                <td>
-                  {{ reg.courses.visible}}
-                </td>
-                {% endif %}
                 <td>
                   <a href="{% url 'assignment' reg.courses.id %}">
                     <button type="button" class="btn-sm btn-primary">Assignments</button>
@@ -59,20 +51,20 @@
                 </td>
                 <td>
                   <a href="{% url 'view_course' reg.courses.id %}">
-                    <button type="button" class="btn-sm btn-primary">view</button>
+                    <button type="button" class="btn-sm btn-primary">View</button>
                   </a>
                 </td>
                 {% if reg.userRole == 'Instructor' or reg.userRole == 'TA' %}
                 <td>
                   <a href="{% url 'edit_course' reg.courses.id %}">
-                    <button type="button" class="btn-sm btn-primary">edit</button>
+                    <button type="button" class="btn-sm btn-primary">Edit</button>
                   </a>
                 </td>
                 {% endif %}
                 {% if reg.userRole == 'Instructor' %}
                 <td>
                   <a href="{% url 'delete_course' reg.courses.id %}">
-                    <button type="button" class="btn-sm btn-primary">delete</button>
+                    <button type="button" class="btn-sm btn-primary">Delete</button>
                   </a>
                 </td>
                 {% endif %}
