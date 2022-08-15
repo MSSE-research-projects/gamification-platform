@@ -34,50 +34,53 @@
                 </th>
               </tr>
             </thead>
-            {% for assignment in assignments %}
+            {% for info in infos %}
             <tbody>
               <tr>
                 <td>
-                  {{ assignment.assignment_name}}
+                  {{ info.assignment.assignment_name}}
                 </td>
                 <td>
-                  {{ assignment.assignment_type}}
+                  {{ info.assignment.assignment_type}}
                 </td>
                 <td>
-                  {{ assignment.total_score}}
+                  {{ info.assignment.total_score}}
                 </td>
                 <td>
-                  {{ assignment.date_released}}
+                  {{ info.assignment.date_released}}
                 </td>
                 <td>
-                  {{ assignment.date_due}}
+                  {{ info.assignment.date_due}}
                 </td>
                 <td>
-                  <a href="{% url 'view_assignment' course_id assignment.id %}">
+                  <a href="{% url 'view_assignment' course_id info.assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">View</button>
                   </a>
                 </td>
-                {% if userRole == 'Student' %}
+                {% if userRole == 'Student' and info.feedback_survey != 0 %}
                 <td>
-                  <a href="{% url 'review_survey' course_id assignment.id%}">
+                  <a href="{% url 'review_survey' course_id info.assignment.id%}">
                     <button type="button" class="btn-sm btn-primary">Survey</button>
                   </a>
+                </td>
+                {% elif userRole == 'Student' %}
+                <td>
                 </td>
                 {% endif %}
 
                 {% if userRole == 'Instructor' or userRole == 'TA' %}
                 <td>
-                  <a href="{% url 'add_survey' course_id assignment.id %}">
+                  <a href="{% url 'add_survey' course_id info.assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">Survey</button>
                   </a>
                 </td>
                 <td>
-                  <a href="{% url 'edit_assignment' course_id assignment.id %}">
+                  <a href="{% url 'edit_assignment' course_id info.assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">Edit</button>
                   </a>
                 </td>
                 <td>
-                  <a href="{% url 'delete_assignment' course_id assignment.id%}">
+                  <a href="{% url 'delete_assignment' course_id info.assignment.id%}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
                   </a>
                 </td>
