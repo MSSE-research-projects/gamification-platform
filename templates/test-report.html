@@ -232,7 +232,7 @@
     tooltips: {
       callbacks: {
         label: function (tooltipItem, data) {
-          return data['datasets'][0]['percentage'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + data['datasets'][0]['data'][tooltipItem['index']]+ ')';
+          return data['datasets'][0]['percentage'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + data['datasets'][0]['data'][tooltipItem['index']] + ')';
         }
       }
     }
@@ -273,9 +273,9 @@
 
   {% comment %} var mockData = [
     {
-    'section': 'aspect',
+      'section': 'aspect',
       'summary': {
-      'team_name' : 'team1',
+        'team_name': 'team1',
         'aspect': [
           {
             'aspect_name': 'Content',
@@ -294,14 +294,14 @@
             'aspect_content': '8.0/10.0',
           },
         ],
-          'final_grade': 'B+',
+        'final_grade': 'B+',
       },
     },
     {
       'section': 'Softwaaare_E',
       'parts': [
         {
-          'part_type' : 'multi-choice',
+          'part_type': 'multi-choice',
           'part_data': [
             {
               'title': 'title0',
@@ -348,7 +348,7 @@
           ]
         },
         {
-          'part_type' : 'text',
+          'part_type': 'text',
           'questions': [
             {
               'text': 'What is the title of this test?',
@@ -390,7 +390,7 @@
       'section': 'Software_Engineering_Problem',
       'parts': [
         {
-          'part_type' : 'multi-choice',
+          'part_type': 'multi-choice',
           'part_data': [
             {
               'title': 'title0',
@@ -465,7 +465,7 @@
     },
   ]; {% endcomment %}
 
-  
+
 
   function htmlToElement(html) {
     var template = document.createElement('template');
@@ -479,11 +479,11 @@
   var $summaryContent = $('#summaryContent');
   console.log("fromAPI", fromAPI);
 
-  {% comment %} var mock_aspect_section = 
+  {% comment %} var mock_aspect_section =
   {
     'section': 'Aspect',
     'summary': {
-    'team_name' : 'team1',
+      'team_name': 'team1',
       'aspect': [
         {
           'aspect_name': 'Content',
@@ -502,7 +502,7 @@
           'aspect_content': '8.0/10.0',
         },
       ],
-        'final_grade': '',
+      'final_grade': '',
     },
   } {% endcomment %}
   // transform fromAPI to mockData
@@ -511,12 +511,12 @@
   {% comment %} mockData.push(mock_aspect_section); {% endcomment %}
   for (var section in fromAPI) {
     var sectionData = fromAPI[section];
-    if (section == 'Aspect'){
-      var sectionMockData = 
+    if (section == 'Aspect') {
+      var sectionMockData =
       {
         'section': 'Aspect',
         'summary': {
-          'team_name' : "{{team_name}}",
+          'team_name': "{{team_name}}",
           'aspect': [],
           'final_grade': '',
         },
@@ -529,7 +529,7 @@
             'aspect_content': aspectData['answers'] + '/10.0',
           };
         }
-        else{
+        else {
           var aspectMockData = {
             'aspect_name': aspect,
             'aspect_content': "Empty",
@@ -552,14 +552,14 @@
       'section': section,
       'parts': [multipleChoicePart, fixedTextPart]
     };
-    
+
     for (var question in sectionData) {
       var questionData = sectionData[question];
       var question_name = question;
       var question_type = questionData.question_type;
       var answers = questionData.answers;
 
-      if (question_type == 'MULTIPLECHOICE'){
+      if (question_type == 'MULTIPLECHOICE') {
         var doughnutPieDataTemp = {
           datasets: [{
             label: 'Dataset 1',
@@ -582,22 +582,22 @@
               'rgba(255, 159, 64, 1)'
             ],
           }],
-            // These labels appear in the legend and in the tooltips when hovering different arcs
-            labels: [],
+          // These labels appear in the legend and in the tooltips when hovering different arcs
+          labels: [],
         };
         var sum = 0;
         for (var m = 0; m < answers.length; ++m) {
-          for(var key in answers[m]) {
+          for (var key in answers[m]) {
             var count = answers[m][key];
             sum += count;
           }
         }
         for (var m = 0; m < answers.length; ++m) {
-          for(var key in answers[m]) {
+          for (var key in answers[m]) {
             var count = answers[m][key];
             doughnutPieDataTemp.datasets[0].data.push(count);
-            doughnutPieDataTemp.datasets[0].percentage.push(100 * count/sum);
-            doughnutPieDataTemp.labels.push(key); 
+            doughnutPieDataTemp.datasets[0].percentage.push(100 * count / sum);
+            doughnutPieDataTemp.labels.push(key);
           }
         }
         var temp_part_data = {
@@ -610,21 +610,21 @@
         pieChart_count++;
         multipleChoicePart.part_data.push(temp_part_data);
       }
-      else if (question_type == 'FIXEDTEXT' ||question_type == 'MULTIPLETEXT' ||question_type == 'TEXTAREA'){
+      else if (question_type == 'FIXEDTEXT' || question_type == 'MULTIPLETEXT' || question_type == 'TEXTAREA') {
         var temp_part_data = {
           'text': question_name,
           'answers': answers
         }
         fixedTextPart.questions.push(temp_part_data);
       }
-      else if (question_type == 'NUMBER'){
+      else if (question_type == 'NUMBER') {
         var temp_part_data = {
           'text': question_name,
           'answers': answers
         }
         fixedTextPart.questions.push(temp_part_data);
       }
-      else{
+      else {
         console.log("question_type not found");
       }
     }
@@ -637,7 +637,7 @@
     var sectionTitle = sectionData.section;
     var sectionTitleSlug = 'SectionTitle-' + i;
     //var sectionTitleSlug = 'SectionTitle' + sectionData.section.replace(' ', '-');
-    if(sectionTitle == "Aspect"){
+    if (sectionTitle == "Aspect") {
       // aspect part
       var MultipleChoiceContentItemBody = htmlToElement(
         '<div class="row">' +
@@ -695,129 +695,139 @@
       `<div class="tab-pane${i === 0 ? ' active' : ''}" id="${sectionTitleSlug}" role="tabpanel" aria-labelledby="${sectionTitleSlug}-tab">` +
       '</div>'
     );
-    console.log("sectionData.parts", sectionData.parts);
-    console.log("sectionData.parts.length", sectionData.parts.length);
-    for (var j = 0; j < sectionData.parts.length; j++) {
-      // for each part
-      var partData = sectionData.parts[j];
-      var part_type = partData['part_type'];
-      console.log("part_type: " + part_type);
-      if(part_type == 'multi-choice'){
-        // multi-choice part
-        var MultipleChoiceContentItemBody2 = htmlToElement(
-          '<div class="row">' +
-          '</div>'
-        );
-        
-        var ChartSectionBody = htmlToElement(
-          '<div class="border-bottom py-3">' +
-          '</div>'
-        );
 
-        var part_data = partData['part_data'];
-        for ( var k = 0; k < part_data.length; k++) {
-          // for each card
-          if (k % 3 == 0) {
-            var ChartSectionBodyRow = htmlToElement(
-              '<div class="row">' +
-              '</div>'
-            );
-            ChartSectionBody.appendChild(ChartSectionBodyRow);
-          }
-          var part_data_inner = part_data[k];
-          var part_data_title = part_data_inner['title'];
-          var part_data_name = part_data_inner['name'];
-          var part_data_type = part_data_inner['type'];
-          var data = part_data_inner['data'];
-          var options = part_data_inner['options'];
-          var part_data_content_element = htmlToElement(
-            '<div class="col-lg-4 grid-margin stretch-card">' +
-              '<div class="card">' +
-                '<div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>' +
-                  '<h4 class="card-title">' + part_data_title + '</h4>' +
-                  '<canvas id="' + part_data_name +'" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>' +
-                '</div>' +
-              '</div>' +
+    feedbackData = sectionData.questions[0].answers;
+
+    sectionTabContentItemBody.appendChild(feedbackDiv);
+    sectionTabContentItemBody.appendChild(artifactPreview);
+
+    sectionTabContentItem.appendChild(sectionTabContentItemBody);
+    $sectionTabContent.append(sectionTabContentItem);
+
+    continue;
+  }
+
+  for (var j = 0; j < sectionData.parts.length; j++) {
+    // for each part
+    var partData = sectionData.parts[j];
+    var part_type = partData['part_type'];
+    console.log("part_type: " + part_type);
+    if (part_type == 'multi-choice') {
+      // multi-choice part
+      var MultipleChoiceContentItemBody2 = htmlToElement(
+        '<div class="row">' +
+        '</div>'
+      );
+
+      var ChartSectionBody = htmlToElement(
+        '<div class="border-bottom py-3">' +
+        '</div>'
+      );
+
+      var part_data = partData['part_data'];
+      for (var k = 0; k < part_data.length; k++) {
+        // for each card
+        if (k % 3 == 0) {
+          var ChartSectionBodyRow = htmlToElement(
+            '<div class="row">' +
             '</div>'
           );
-          ChartSectionBodyRow.appendChild(part_data_content_element);
+          ChartSectionBody.appendChild(ChartSectionBodyRow);
         }
-        MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
-        sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
-        $sectionTabContent.append(sectionTabContentItem);
+        var part_data_inner = part_data[k];
+        var part_data_title = part_data_inner['title'];
+        var part_data_name = part_data_inner['name'];
+        var part_data_type = part_data_inner['type'];
+        var data = part_data_inner['data'];
+        var options = part_data_inner['options'];
+        var part_data_content_element = htmlToElement(
+          '<div class="col-lg-4 grid-margin stretch-card">' +
+          '<div class="card">' +
+          '<div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>' +
+          '<h4 class="card-title">' + part_data_title + '</h4>' +
+          '<canvas id="' + part_data_name + '" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>' +
+          '</div>' +
+          '</div>' +
+          '</div>'
+        );
+        ChartSectionBodyRow.appendChild(part_data_content_element);
+      }
+      MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
+      sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
+      $sectionTabContent.append(sectionTabContentItem);
 
-        // draw Chart(only works when placed here or after)
-        for (var k = 0; k < sectionData.parts.length; k++) {
-          var partData = sectionData.parts[k];
-          var part_type = partData['part_type'];
-          if(part_type == 'multi-choice'){
-            var part_data = partData['part_data'];
-            for (var l = 0; l < part_data.length; l++) {
-              var part_data_inner = part_data[l];
-              var part_data_name = part_data_inner['name'];
-              var part_data_data = part_data_inner['data'];
-              var part_data_options = part_data_inner['options'];
-              var part_data_type = part_data_inner['type'];
-              // TODO: add more types
-              if ($("#" + part_data_name).length) {
-                var ChartCanvas = $("#" + part_data_name).get(0).getContext("2d");
-                var newChart = new Chart(ChartCanvas, {
-                  type: part_data_type,
-                  data: part_data_data,
-                  options: part_data_options
-                });
-              }
+      // draw Chart(only works when placed here or after)
+      for (var k = 0; k < sectionData.parts.length; k++) {
+        var partData = sectionData.parts[k];
+        var part_type = partData['part_type'];
+        if (part_type == 'multi-choice') {
+          var part_data = partData['part_data'];
+          for (var l = 0; l < part_data.length; l++) {
+            var part_data_inner = part_data[l];
+            var part_data_name = part_data_inner['name'];
+            var part_data_data = part_data_inner['data'];
+            var part_data_options = part_data_inner['options'];
+            var part_data_type = part_data_inner['type'];
+            // TODO: add more types
+            if ($("#" + part_data_name).length) {
+              var ChartCanvas = $("#" + part_data_name).get(0).getContext("2d");
+              var newChart = new Chart(ChartCanvas, {
+                type: part_data_type,
+                data: part_data_data,
+                options: part_data_options
+              });
             }
           }
         }
       }
-      else if(part_type == 'text'){
-        console.log("enter text");
-        var sectionTabContentItemBody = htmlToElement(
-          '<div class="row">' +
-          '</div>'
-        );
-        //partData
-        var questions = partData['questions'];
-        for (var l = 0; l < questions.length; l++) {
-          // for each question
-          var questionData = questions[l];
-          var question = htmlToElement(
-            '<div class="col-md-12" style="padding:1.5rem 1rem">' +
-            '</div>'
-          )
-    
-          var questionText = htmlToElement(
-            '<h4 class="text-left">' + questionData.text + '</h4>'
-          )
-          question.appendChild(questionText);
-    
-          var questionAnswers = htmlToElement(
-            '<div class="row vertical-scrollable">' +
-            '</div>'
-          )
-          for (var k = 0; k < questionData['answers'].length; k++) {
-            var answer_text = questionData['answers'][k];
-            var answer = htmlToElement(
-              '<div class="col-md-12">' +
-              '  <p class="text-left">' +
-              answer_text +
-              '  </p > ' +
-              '</div>'
-            )
-            questionAnswers.appendChild(answer);
-          }
-          question.appendChild(questionAnswers);
-          sectionTabContentItemBody.appendChild(question);
-        }
-  
-        sectionTabContentItem.appendChild(sectionTabContentItemBody);
-        $sectionTabContent.append(sectionTabContentItem);
-      }
-      else{
-        console.log("error: part_type not found");
-      }
     }
+    else if (part_type == 'text') {
+      console.log("enter text");
+      var sectionTabContentItemBody = htmlToElement(
+        '<div class="row">' +
+        '</div>'
+      );
+      //partData
+      var questions = partData['questions'];
+      for (var l = 0; l < questions.length; l++) {
+        // for each question
+        var questionData = questions[l];
+        var question = htmlToElement(
+          '<div class="col-md-12" style="padding:1.5rem 1rem">' +
+          '</div>'
+        )
+
+        var questionText = htmlToElement(
+          '<h4 class="text-left">' + questionData.text + '</h4>'
+        )
+        question.appendChild(questionText);
+
+        var questionAnswers = htmlToElement(
+          '<div class="row vertical-scrollable">' +
+          '</div>'
+        )
+        for (var k = 0; k < questionData['answers'].length; k++) {
+          var answer_text = questionData['answers'][k];
+          var answer = htmlToElement(
+            '<div class="col-md-12">' +
+            '  <p class="text-left">' +
+            answer_text +
+            '  </p > ' +
+            '</div>'
+          )
+          questionAnswers.appendChild(answer);
+        }
+        question.appendChild(questionAnswers);
+        sectionTabContentItemBody.appendChild(question);
+      }
+
+      sectionTabContentItem.appendChild(sectionTabContentItemBody);
+      $sectionTabContent.append(sectionTabContentItem);
+    }
+    else {
+      console.log("error: part_type not found");
+    }
+  }
   }
 </script>
 {% endblock %}
