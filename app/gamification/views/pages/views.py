@@ -376,8 +376,9 @@ def report(request, course_id, assignment_id, andrew_id):
             return redirect('assignment', course_id)
     else:
         return redirect('assignment', course_id)
-    #find artifact id with assignment id and entity id
-    artifact = get_object_or_404(Artifact, assignment=assignment, entity=entity)
+    # find artifact id with assignment id and entity id
+    artifact = get_object_or_404(
+        Artifact, assignment=assignment, entity=entity)
     artifact_id = artifact.pk
     # artifact_id = Artifact.objects.get(assignment=assignment, entity=entity).pk
     artifact_url = r"/api/artifacts/" + str(artifact_id) + "/"
@@ -516,8 +517,12 @@ def member_list(request, course_id):
                 users=user, courses=course, userRole=role)
             registration.save()
             message_info = 'A new member has been added'
-            assignments = [a for a in Assignment.objects.filter(
-                course=course, assignment_type=Assignment.AssigmentType.Individual) if a.date_due < datetime.now().replace(tzinfo=pytz.UTC)]
+            assignments = []
+            for a in Assignment.objects.filter(course=course, assignment_type=Assignment.AssigmentType.Individual):
+                if a.date_due != None and a.date_due < datetime.now().replace(tzinfo=pytz.UTC):
+                    assignments.append(a)
+                elif a.date_due == None:
+                    assignments.append(a)
             for assignment in assignments:
                 artifacts = Artifact.objects.filter(assignment=assignment)
                 for artifact in artifacts:
@@ -669,22 +674,11 @@ def assignment(request, course_id):
                    "userRole": userRole}
         return render(request, 'assignment.html', context)
 
-    if request.method == 'POST':
-        # redirect if user is student
-        if userRole == 'Student':
-            return redirect('assignment', course_id)
-
+    else:
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
             form.save()
         assignments = Assignment.objects.filter(course=course)
-        context = {'assignments': assignments,
-                   "course_id": course_id,
-                   "course": course,
-                   "userRole": userRole}
-        return render(request, 'assignment.html', context)
-
-    else:
         return redirect('assignment', course_id)
 
 
@@ -827,7 +821,7 @@ def artifact(request, course_id, assignment_id):
         # if artifact exists, redirect to the artifact page
         if Artifact.objects.filter(assignment=assignment, entity=entity).exists():
             return redirect('artifact', course_id, assignment_id)
-        
+
         form = ArtifactForm(request.POST, request.FILES, label_suffix='')
         if form.is_valid():
             artifact = form.save()
@@ -1004,6 +998,7 @@ def review_survey(request, course_id, assignment_id):
             artifact_review_with_name["status"] = artifact_review.status
             if assignment_type == "Team":
                 entity = artifact.entity
+                print(entity, artifact.pk, artifact.file.name)
                 team = entity.team
                 artifact_review_with_name["name"] = team.name
 
