@@ -271,7 +271,6 @@ class ArtifactResult(generics.ListAPIView):
                     artifact=artifact)
                 if question.question_type == Question.QuestionType.MULTIPLECHOICE:
                     question_options = question.options
-
                     for question_option in question_options:
                         answer_text = question_option.option_choice.text
                         count = Answer.objects.filter(
@@ -280,17 +279,29 @@ class ArtifactResult(generics.ListAPIView):
                             answers[section.title][question.text]['answers'].append(
                                 {answer_text: count}
                             )
-
-                else:
-                    question_option = QuestionOption.objects.get(
-                        question=question)
+                elif question.question_type == Question.QuestionType.NUMBER:
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    count = 0
+                    sum = 0
                     for artifact_review in artifact_reviews:
                         text_answers = Answer.objects.filter(
                             artifact_review=artifact_review, question_option=question_option)
-                        if len(text_answers) > 0:
-                            for answer in text_answers:
-                                answers[section.title][question.text]['answers'].append(
-                                    answer.answer_text)
+                        if text_answers.count() > 0:
+                            count += 1
+                            sum += int(text_answers[0].answer_text)
+                    answers[section.title][question.text]['answers'].append(
+                        sum / count)
+
+                else:
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    for artifact_review in artifact_reviews:
+                        text_answers = Answer.objects.filter(
+                            artifact_review=artifact_review, question_option=question_option)
+                        for answer in text_answers:
+                            answers[section.title][question.text]['answers'].append(
+                                answer.answer_text)
         data = json.dumps(answers)
         return Response(data)
 

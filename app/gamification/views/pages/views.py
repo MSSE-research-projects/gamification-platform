@@ -244,7 +244,7 @@ def add_survey(request, course_id, assignment_id):
                 text='',
                 question_type=Question.QuestionType.SLIDEREVIEW,
             )
-            empty_option = OptionChoice.objects.get(text='')
+            empty_option, _ = OptionChoice.objects.get_or_create(text='')
             QuestionOption.objects.create(
                 question=artifact_question, option_choice=empty_option)
 
@@ -512,6 +512,7 @@ def member_list(request, course_id):
                    'course_id': course_id, 'userRole': userRole}
         return context
 
+    # Create registration for user who is not registered this course, otherwise, return the registration
     def get_users_registration(users, request):
         andrew_id = request.POST['andrew_id']
         role = request.POST['membershipRadios']
@@ -520,28 +521,64 @@ def member_list(request, course_id):
                 users=user, courses=course, userRole=role)
             registration.save()
             message_info = 'A new member has been added'
-            #get_users_team(registration, request)
+            assignments = [a for a in Assignment.objects.filter(
+                course=course, assignment_type=Assignment.AssigmentType.Individual) if a.date_due < datetime.now().replace(tzinfo=pytz.UTC)]
+            for assignment in assignments:
+                artifacts = Artifact.objects.filter(assignment=assignment)
+                for artifact in artifacts:
+                    artifact_review = ArtifactReview(
+                        artifact=artifact, user=registration)
+                    artifact_review.save()
         else:
             registration = get_object_or_404(
                 Registration, users=user, courses=course)
             registration.userRole = role
             registration.save()
-            #get_users_team(registration, request)
+
             message_info = andrew_id + '\'s team has been added or updated'
         return registration, message_info
 
+    # Create membership for user's team
     def get_users_team(registration, request):
         team_name = request.POST['team_name']
         if team_name != '' and registration.userRole == 'Student':
+            membership = Membership.objects.filter(student=registration)
+            if len(membership) == 1:
+                team = Team.objects.filter(
+                    registration=registration, course=course)
+                if len(team) == 1:
+                    team = team[0]
+
+                members = team.members
+                if len(members) == 1:
+                    team.delete()
+                else:
+                    # add artifact_review for previous team
+                    artifacts = Artifact.objects.filter(entity=team)
+                    for artifact in artifacts:
+                        artifact_review = ArtifactReview(
+                            artifact=artifact, user=registration)
+                        artifact_review.save()
+            membership.delete()
             try:
                 team = Team.objects.get(
                     course=course, name=team_name)
+                print('1123112', team)
             except Team.DoesNotExist:
                 team = Team(course=course, name=team_name)
                 team.save()
             membership = Membership(
                 student=registration, entity=team)
             membership.save()
+            # delete artifact review for updated team
+            artifacts = Artifact.objects.filter(entity=team)
+            for artifact in artifacts:
+                artifact_reviews = ArtifactReview.objects.filter(
+                    artifact=artifact, user=registration)
+                for artifact_review in artifact_reviews:
+                    artifact_review.delete()
+
+    # Create a list of users in the course
 
     def add_users_from_the_same_course():
         users = []
@@ -550,13 +587,23 @@ def member_list(request, course_id):
         users.extend(course.instructors)
         return users
 
+    # Delete ta and instructor membership if he/she is student before
     def delete_memebership_after_switch_to_TA_or_instructor(registration):
         if registration.userRole == 'TA' or registration.userRole == 'Instructor':
             membership = Membership.objects.filter(student=registration)
             if len(membership) == 1:
-                team = Team.objects.filter(registration=registration)
-                team.delete()
+                team = Team.objects.filter(
+                    registration=registration, course=course)
+                if len(team) == 1:
+                    team = team[0]
+                members = team.members
+                if len(members) == 1:
+                    team.delete()
             membership.delete()
+            # delete all artifact_review of TA or instructor
+            artifact_reviews = ArtifactReview.objects.filter(user=registration)
+            for artifact_review in artifact_reviews:
+                artifact_review.delete()
 
     if request.method == 'GET':
         context = get_member_list(course_id)
@@ -604,11 +651,24 @@ def assignment(request, course_id):
     if request.method == 'GET':
         if userRole == Registration.UserRole.Student:
             infos = Assignment.objects.filter(course=course)
-            assignments = [assignment for assignment in infos if assignment.date_released <=
-                           datetime.now().replace(tzinfo=pytz.UTC)]
+            assignments = []
+            for assignment in infos:
+                if assignment.date_released != None and assignment.date_released <= datetime.now().replace(tzinfo=pytz.UTC):
+                    assignments.append(assignment)
+                elif assignment.date_released == None:
+                    assignments.append(assignment)
+            # assignments = [assignment for assignment in infos if assignment.date_released != None and assignment.date_released <=
+            #                datetime.now().replace(tzinfo=pytz.UTC)]
         else:
             assignments = Assignment.objects.filter(course=course)
-        context = {'assignments': assignments,
+        info = []
+        for a in assignments:
+            feedback_survey = FeedbackSurvey.objects.filter(assignment=a)
+            assign = dict()
+            assign['assignment'] = a
+            assign['feedback_survey'] = feedback_survey.count()
+            info.append(assign)
+        context = {'infos': info,
                    "course_id": course_id,
                    "course": course,
                    "userRole": userRole}
@@ -782,16 +842,18 @@ def artifact(request, course_id, assignment_id):
                 registrations = [i for i in Registration.objects.filter(
                     courses=course) if i.users.pk not in team_members]
                 for registration in registrations:
-                    artifact_review = ArtifactReview(
-                        artifact=artifact, user=registration)
-                    artifact_review.save()
+                    if registration.userRole == Registration.UserRole.Student:
+                        artifact_review = ArtifactReview(
+                            artifact=artifact, user=registration)
+                        artifact_review.save()
             else:
                 registrations = [i for i in Registration.objects.filter(
                     courses=course) if i.id != registration.id]
-                for single_registration in registrations:
-                    artifact_review = ArtifactReview(
-                        artifact=artifact, user=single_registration)
-                    artifact_review.save()
+                if registration.userRole == Registration.UserRole.Student:
+                    for single_registration in registrations:
+                        artifact_review = ArtifactReview(
+                            artifact=artifact, user=single_registration)
+                        artifact_review.save()
         else:
             print("form is not valid")
         artifacts = Artifact.objects.filter(
