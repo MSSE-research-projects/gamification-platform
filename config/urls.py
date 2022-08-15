@@ -110,10 +110,12 @@ urlpatterns = [
                     path('delete/', page_views.delete_member,
                          name='delete_member'),
                 ])),
-                path('<str:andrew_id>/', include([
-                    path('report/', page_views.report,
-                         name='report'),
-                ]))
+               path('<int:assignment_id>/', include([
+                    path('<str:andrew_id>/', include([
+                         path('report/', page_views.report,
+                              name='report'),
+                    ]))
+               ]))
             ])),
         ])),
     ])),

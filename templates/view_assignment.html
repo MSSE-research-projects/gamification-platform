@@ -46,6 +46,12 @@
               {% if userRole == 'Student'%}
               <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
                 class="btn btn-outline-primary">Upload Artifact</button></a>
+              <a href="{% url 'report' course_id assignment.id andrew_id %}">
+                <button type="button" class="btn btn-outline-primary">
+                  <i class="fa-regular fa-clipboard"></i>
+                  Report
+                </button>
+              </a>
               {% endif %}
               {% if userRole == 'Instructor' or userRole == 'TA'%}
               <a href="{% url 'artifact_admin' course_id assignment.id%}"><button type="button"

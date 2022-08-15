@@ -67,7 +67,7 @@
   var fromAPI = null;
   $.ajax({
     async: false,
-    url: `/api/artifacts/1/`, 
+    url: "{{artifact_url}}",
     type: 'GET',
     success: function (data) {
       fromAPI = JSON.parse(data);
@@ -232,7 +232,7 @@
     tooltips: {
       callbacks: {
         label: function (tooltipItem, data) {
-          return data['datasets'][0]['data'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + + data['datasets'][0]['percentage'][tooltipItem['index']] + ')';
+          return data['datasets'][0]['percentage'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + data['datasets'][0]['data'][tooltipItem['index']]+ ')';
         }
       }
     }
@@ -479,9 +479,9 @@
   var $summaryContent = $('#summaryContent');
   console.log("fromAPI", fromAPI);
 
-  var mock_aspect_section = 
+  {% comment %} var mock_aspect_section = 
   {
-    'section': 'aspect',
+    'section': 'Aspect',
     'summary': {
     'team_name' : 'team1',
       'aspect': [
@@ -504,12 +504,42 @@
       ],
         'final_grade': '',
     },
-  }
+  } {% endcomment %}
   // transform fromAPI to mockData
   var mockData = [];
-  mockData.push(mock_aspect_section);
+  pieChart_count = 0;
+  {% comment %} mockData.push(mock_aspect_section); {% endcomment %}
   for (var section in fromAPI) {
     var sectionData = fromAPI[section];
+    if (section == 'Aspect'){
+      var sectionMockData = 
+      {
+        'section': 'Aspect',
+        'summary': {
+          'team_name' : "{{team_name}}",
+          'aspect': [],
+          'final_grade': '',
+        },
+      };
+      for (var aspect in sectionData) {
+        var aspectData = sectionData[aspect];
+        if (aspectData['answers'].length > 0) {
+          var aspectMockData = {
+            'aspect_name': aspect,
+            'aspect_content': aspectData['answers'] + '/10.0',
+          };
+        }
+        else{
+          var aspectMockData = {
+            'aspect_name': aspect,
+            'aspect_content': "Empty",
+          };
+        }
+        sectionMockData['summary']['aspect'].push(aspectMockData);
+      }
+      mockData.push(sectionMockData);
+      continue;
+    }
     var multipleChoicePart = {
       'part_type': 'multi-choice',
       'part_data': []
@@ -555,29 +585,47 @@
             // These labels appear in the legend and in the tooltips when hovering different arcs
             labels: [],
         };
+        var sum = 0;
+        for (var m = 0; m < answers.length; ++m) {
+          for(var key in answers[m]) {
+            var count = answers[m][key];
+            sum += count;
+          }
+        }
         for (var m = 0; m < answers.length; ++m) {
           for(var key in answers[m]) {
             var count = answers[m][key];
             doughnutPieDataTemp.datasets[0].data.push(count);
-            doughnutPieDataTemp.datasets[0].percentage.push(count/100);
+            doughnutPieDataTemp.datasets[0].percentage.push(100 * count/sum);
             doughnutPieDataTemp.labels.push(key); 
           }
         }
         var temp_part_data = {
           'title': question_name,
-          'name': "pieChart-" + question_name,
+          'name': "pieChart-" + pieChart_count,
           'type': 'pie',
           'data': doughnutPieDataTemp,
           'options': doughnutPieOptionsNew
         }
+        pieChart_count++;
         multipleChoicePart.part_data.push(temp_part_data);
       }
-      else if (question_type == 'FIXEDTEXT'){
+      else if (question_type == 'FIXEDTEXT' ||question_type == 'MULTIPLETEXT' ||question_type == 'TEXTAREA'){
         var temp_part_data = {
           'text': question_name,
           'answers': answers
         }
         fixedTextPart.questions.push(temp_part_data);
+      }
+      else if (question_type == 'NUMBER'){
+        var temp_part_data = {
+          'text': question_name,
+          'answers': answers
+        }
+        fixedTextPart.questions.push(temp_part_data);
+      }
+      else{
+        console.log("question_type not found");
       }
     }
     mockData.push(sectionMockData);
@@ -587,8 +635,9 @@
   for (var i = 0; i < mockData.length; i++) {
     var sectionData = mockData[i];
     var sectionTitle = sectionData.section;
-    var sectionTitleSlug = 'SectionTitle' + sectionData.section.replace(' ', '-');
-    if(sectionTitle == "aspect"){
+    var sectionTitleSlug = 'SectionTitle-' + i;
+    //var sectionTitleSlug = 'SectionTitle' + sectionData.section.replace(' ', '-');
+    if(sectionTitle == "Aspect"){
       // aspect part
       var MultipleChoiceContentItemBody = htmlToElement(
         '<div class="row">' +
@@ -636,14 +685,14 @@
 
     var sectionTabItem = htmlToElement(
       '<li class="nav-item">' +
-      ` <button class="nav-link${i === 1 ? ' active' : ''}" id="${sectionTitleSlug}-tab" data-bs-toggle="tab" data-bs-target="#${sectionTitleSlug}"` +
+      ` <button class="nav-link${i === 0 ? ' active' : ''}" id="${sectionTitleSlug}-tab" data-bs-toggle="tab" data-bs-target="#${sectionTitleSlug}"` +
       `         type="button" role="tab" aria-controls="${sectionTitleSlug}" aria-selected="${i === 0 ? 'true' : 'false'}">${sectionTitle}</button>` +
       '</li>'
     );
     $sectionTab.append(sectionTabItem);
 
     var sectionTabContentItem = htmlToElement(
-      `<div class="tab-pane${i === 1 ? ' active' : ''}" id="${sectionTitleSlug}" role="tabpanel" aria-labelledby="${sectionTitleSlug}-tab">` +
+      `<div class="tab-pane${i === 0 ? ' active' : ''}" id="${sectionTitleSlug}" role="tabpanel" aria-labelledby="${sectionTitleSlug}-tab">` +
       '</div>'
     );
     console.log("sectionData.parts", sectionData.parts);
