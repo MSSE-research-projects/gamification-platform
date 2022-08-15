@@ -64,8 +64,6 @@
         <div class="form-group">
           <label for="sectionTitle">Section Title</label>
           <input type="text" class="form-control" id="sectionTitle" placeholder="Section Title" required>
-          <small class="form-text text-muted"><b>DO NOT</b> use <b>'Artifact'</b> because that's a reserved section for
-            artifact reviews.</small>
         </div>
         <div class="form-group">
           <label for="sectionDescription">Section Description</label>
@@ -104,6 +102,10 @@
             required>
           <datalist id="textCandidates">
           </datalist>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="questionRequired">
+          <label class="form-check-label" for="questionRequired">Required</label>
         </div>
         <div class="form-group">
           <label for="questionType">Question Type</label>
@@ -182,6 +184,10 @@
         <div class="form-group">
           <label for="questionText">Question Text</label>
           <input type="text" class="form-control" id="questionText" placeholder="Question Text" required>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="questionRequired">
+          <label class="form-check-label" for="questionRequired">Required</label>
         </div>
         <div class="form-group">
           <label for="questionType">Question Type</label>
@@ -340,6 +346,7 @@
           csrfmiddlewaretoken: '{{ csrf_token }}',
           title: sectionTitle,
           description: sectionDescription,
+          is_required: sectionRequired,
         },
         success: function (data) {
           data.survey = survey;
@@ -364,6 +371,7 @@
         template_data[sectionTitle].questions.forEach(questionData => {
           var questionText = questionData.text;
           var questionType = queTypeMapRev[questionData.question_type];
+          var questionRequired = questionData.is_required;
           var choices = null;
           var numberOfText = null;
           var minValue = '1';
@@ -375,7 +383,7 @@
           if (questionData.number_of_text)
             numberOfText = questionData.number_of_text;
 
-          addQuestionAjax(section, questionText, questionType, choices, numberOfText, minValue, maxValue, step);
+          addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, minValue, maxValue, step);
         });
       }
 
@@ -383,7 +391,18 @@
       this.hide();
       this.reset();
     });
-
+    addSectionModal.on('input', '#sectionTitle', function (e) {
+      var title = $(e.currentTarget).val().trim();
+      var option = $('#titleCandidates option').filter(function () {
+        return $(this).text() === title;
+      });
+      if (option.length > 0) {
+        var required = option.data('required');
+        this.modal.find('#sectionRequired').prop('checked', required);
+      } else {
+        this.modal.find('#sectionRequired').prop('checked', false);
+      }
+    });
 
     var editSectionModal = new SectionModal($('#editSectionModal'));
     editSectionModal.on('show.bs.modal', function (event) {
@@ -391,9 +410,13 @@
       var sectionTitle = button.closest('fieldset').find('.section-title').text();
       var sectionDescription = button.closest('fieldset').find('.section-description').text();
 
+      var section = survey.getSectionByTitle(sectionTitle);
+      var sectionRequired = section.is_required;
+
       this.modal.find('#originalTitle').val(sectionTitle);
       this.modal.find('#sectionTitle').val(sectionTitle);
       this.modal.find('#sectionDescription').val(sectionDescription);
+      this.modal.find('#sectionRequired').prop('checked', sectionRequired);
     });
     editSectionModal.on('click', '.save-btn', function () {
       var originalTitle = this.modal.find('#originalTitle').val();
@@ -436,6 +459,9 @@
       var sectionTitle = button.closest('fieldset').find('.section-title').text();
       this.modal.find('#sectionTitleInQuestionModal').val(sectionTitle);
 
+      var section = survey.getSectionByTitle(sectionTitle);
+      this.modal.find('#questionRequired').prop('checked', section.is_required);
+
       if (sectionTitle !== 'Aspect') {
         var $lastOption = this.modal.find('#questionType option:last');
         if ($lastOption.val() === 'number') {
@@ -463,6 +489,7 @@
 
       var questionText = this.modal.find('#questionText').val();
       var questionType = this.modal.find('#questionType').val();
+      var questionRequired = this.modal.find('#questionRequired').is(':checked');
 
       var choices = [];
       this.modal.find('#choices').find('input').each(function () {
@@ -483,7 +510,7 @@
       var maxValue = this.modal.find('#maxValue').val();
       var step = this.modal.find('#step').val();
 
-      addQuestionAjax(section, questionText, questionType, choices, numberOfText, minValue, maxValue, step);
+      addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, minValue, maxValue, step);
 
       // Hide modal
       this.hide();
@@ -503,6 +530,7 @@
       this.modal.find('#originalText').val(questionText);
       this.modal.find('#questionText').val(questionText);
       this.modal.find('#sectionTitleInQuestionModal').val(sectionTitle);
+      this.modal.find('#questionRequired').prop('checked', question.is_required);
       this.modal.find('#questionType').val(question.type);
       this.modal.find('#questionType').trigger('change');
 
@@ -534,6 +562,7 @@
       var originalText = this.modal.find('#originalText').val();
       var questionText = this.modal.find('#questionText').val();
       var questionType = this.modal.find('#questionType').val();
+      var questionRequired = this.modal.find('#questionRequired').is(':checked');
 
       // Get question from section
       var sectionTitle = this.modal.find('#sectionTitleInQuestionModal').val();
@@ -658,7 +687,7 @@
       data.forEach(element => {
         var title = element.title;
         template_data[title] = element;
-        $('#titleCandidates').append(`<option value="${title}">${title}</option>`);
+        $('#titleCandidates').append(`<option value="${title}" data-required=${element.is_required}>${title}</option>`);
       });
     },
     error: function (data) {
@@ -667,7 +696,7 @@
     }
   });
 
-  function addQuestionAjax(section, questionText, questionType, choices, numberOfText, minValue, maxValue, step) {
+  function addQuestionAjax(section, questionText, questionType, questionRequried, choices, numberOfText, minValue, maxValue, step) {
     // Add question to server
     var question = null;
     $.ajax({
@@ -678,6 +707,7 @@
         csrfmiddlewaretoken: '{{ csrf_token }}',
         text: questionText,
         question_type: queTypeMap[questionType],
+        is_required: questionRequried,
       },
       success: function (data) {
         data.section = section;

@@ -236,9 +236,10 @@ class Survey {
 /*******************************************/
 class Section {
   constructor(data = {}, questions = [], options = {}) {
+    console.log(data);
     this.pk = data.pk;
     this.title = data.title;
-    this.description = data.description;
+    this.description = data.description || '';
     this.is_required = data.is_required;
     this.survey = data.survey;
 
@@ -421,6 +422,7 @@ class Question {
   constructor(data = {}, options = {}) {
     this.pk = data.pk;
     this.text = data.text;
+    this.is_required = data.is_required;
     this.section = data.section;
 
     this.options = options;
@@ -954,7 +956,7 @@ class SectionModal {
   reset() {
     this.modal.find('#sectionTitle').val('');
     this.modal.find('#sectionDescription').val('');
-    this.modal.find('#sectinRequired').hide();
+    this.modal.find('#sectionRequired').prop('checked', false);
   }
 
   hide() {
