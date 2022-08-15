@@ -1,5 +1,6 @@
 import os
 import pytz
+from pytz import timezone
 from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -20,6 +21,8 @@ from app.gamification.models.artifact_review import ArtifactReview
 from app.gamification.models.survey_section import SurveySection
 from app.gamification.models.survey_template import SurveyTemplate
 from app.gamification.models.todo_list import TodoList
+
+LA = timezone('America/Los_Angeles')
 
 
 def signup(request):
@@ -521,7 +524,7 @@ def member_list(request, course_id):
             message_info = 'A new member has been added'
             assignments = []
             for a in Assignment.objects.filter(course=course, assignment_type=Assignment.AssigmentType.Individual):
-                if a.date_due != None and a.date_due < datetime.now().replace(tzinfo=pytz.UTC):
+                if a.date_due != None and a.date_due < datetime.now().replace(tzinfo=LA):
                     assignments.append(a)
                 elif a.date_due == None:
                     assignments.append(a)
@@ -655,12 +658,10 @@ def assignment(request, course_id):
             infos = Assignment.objects.filter(course=course)
             assignments = []
             for assignment in infos:
-                if assignment.date_released != None and assignment.date_released <= datetime.now().replace(tzinfo=pytz.UTC):
+                if assignment.date_released != None and assignment.date_released.astimezone(pytz.timezone('America/Los_Angeles')) <= datetime.now().replace(tzinfo=LA):
                     assignments.append(assignment)
                 elif assignment.date_released == None:
                     assignments.append(assignment)
-            # assignments = [assignment for assignment in infos if assignment.date_released != None and assignment.date_released <=
-            #                datetime.now().replace(tzinfo=pytz.UTC)]
         else:
             assignments = Assignment.objects.filter(course=course)
         info = []
@@ -995,8 +996,10 @@ def review_survey(request, course_id, assignment_id):
     for artifact_review in artifact_reviews:
         artifact_review_with_name = dict()
         artifact = artifact_review.artifact
-        feedback_survey_released_date = feedback_survey.date_released
-        if feedback_survey_released_date <= datetime.now().replace(tzinfo=pytz.UTC):
+        feedback_survey_released_date = feedback_survey.date_released.astimezone(pytz.timezone('America/Los_Angeles')) 
+        print(feedback_survey_released_date)
+
+        if feedback_survey_released_date <= datetime.now().replace(tzinfo=LA):
             artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
             artifact_review_with_name["status"] = artifact_review.status
             if assignment_type == "Team":

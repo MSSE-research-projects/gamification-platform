@@ -77,7 +77,7 @@ PostgreSQL server database.
       ```sql
       ALTER ROLE dbuser SET client_encoding TO 'utf8';
       ALTER ROLE dbuser SET default_transaction_isolation TO 'read committed';
-      ALTER ROLE dbuser SET timezone TO 'UTC';
+      ALTER ROLE dbuser SET timezone TO 'US/Pacific';
       ```
 
       After creating new user `dbuser`, we can login into psql shell as this
