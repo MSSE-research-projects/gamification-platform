@@ -380,6 +380,7 @@ def report(request, course_id, assignment_id, andrew_id):
     artifact = get_object_or_404(
         Artifact, assignment=assignment, entity=entity)
     artifact_id = artifact.pk
+    artifact_path = artifact.file.url
     # artifact_id = Artifact.objects.get(assignment=assignment, entity=entity).pk
     artifact_url = r"/api/artifacts/" + str(artifact_id) + "/"
     print("artifact_url: " + artifact_url)
@@ -389,6 +390,7 @@ def report(request, course_id, assignment_id, andrew_id):
                'entity': entity,
                'userRole': userRole,
                'artifact_url': artifact_url,
+               'artifact_path': artifact_path,
                'team_name': team_name,
                }
     return render(request, 'test-report.html', context)
@@ -447,11 +449,11 @@ def edit_course(request, course_id):
 
         if form.is_valid():
             course = form.save()
+        return redirect('course')
 
     else:
         form = CourseForm(instance=course)
-
-    return render(request, 'edit_course.html', {'course': course, 'form': form})
+        return render(request, 'edit_course.html', {'course': course, 'form': form})
 
 
 @login_required
@@ -962,7 +964,8 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
                 # print("old file deleted, old_file_path:", old_file_path)
                 old_file_path.delete()
             artifact = form.save()
-        return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
+        return redirect('artifact', course_id, assignment_id)
+        # return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
 
     if request.method == 'GET':
         form = ArtifactForm(instance=artifact)

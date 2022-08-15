@@ -1,4 +1,5 @@
 {% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
 
 {% block title %}Test Report Question{% endblock %}
 
@@ -32,12 +33,28 @@
     max-height: 150px;
     overflow-y: auto;
   }
+
+  .artifact-feedback .vertical-scrollable.row {
+    height: 100%;
+    overflow-y: auto;
+  }
 </style>
+
+<link rel="stylesheet" href="{% static 'css/pdf-carousel.css' %}">
 {% endblock %}
 
 
 
 {% block js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"
+  integrity="sha512-dw+7hmxlGiOvY3mCnzrPT5yoUwN/MRjVgYV7HGXqsiXnZeqsw1H9n9lsnnPu4kL2nx2bnrjFcuWK+P3lshekwQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"
+  integrity="sha512-fahFaRPTP2xrdxAbzgG31V4Vr+Ga/hp4gQu3ZBq83bhKO10NoWfTJ20OWg9ufEyT1Y4ZyCuh9wLHY9CHi6l95Q=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="{% static 'js/artifact-report.js' %}"></script>
+
 <script>
   // var data = {
   //   'Section Name 1': {
@@ -237,235 +254,6 @@
       }
     }
   }
-  {% comment %} var doughnutPieData = {
-    datasets: [{
-      label: 'Dataset 1',
-      data: [10, 10, 10, 10, 50, 10],
-      percentage: [10, 10, 10, 10, 50, 10],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.5)',
-        'rgba(54, 162, 235, 0.5)',
-        'rgba(255, 206, 86, 0.5)',
-        'rgba(75, 192, 192, 0.5)',
-        'rgba(153, 102, 255, 0.5)',
-        'rgba(255, 159, 64, 0.5)'
-      ],
-      borderColor: [
-        'rgba(255,99,132,1)',
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 206, 86, 1)',
-        'rgba(75, 192, 192, 1)',
-        'rgba(153, 102, 255, 1)',
-        'rgba(255, 159, 64, 1)'
-      ],
-    }],
-
-    // These labels appear in the legend and in the tooltips when hovering different arcs
-    labels: [
-      'Agree',
-      'Undecided',
-      'Disagree',
-      'Disagr fsdfsdf eeeee',
-      'Disafd fsdfsdf gree',
-      'Disafsff dsfsdfs fsafsafsdaf adsfdgree',
-    ]
-  }; {% endcomment %}
-
-  {% comment %} var mockData = [
-    {
-      'section': 'aspect',
-      'summary': {
-        'team_name': 'team1',
-        'aspect': [
-          {
-            'aspect_name': 'Content',
-            'aspect_content': '8.0/10.0',
-          },
-          {
-            'aspect_name': 'Design',
-            'aspect_content': '8.0/10.0',
-          },
-          {
-            'aspect_name': 'Delivery',
-            'aspect_content': '8.0/10.0',
-          },
-          {
-            'aspect_name': 'Overall',
-            'aspect_content': '8.0/10.0',
-          },
-        ],
-        'final_grade': 'B+',
-      },
-    },
-    {
-      'section': 'Softwaaare_E',
-      'parts': [
-        {
-          'part_type': 'multi-choice',
-          'part_data': [
-            {
-              'title': 'title0',
-              'name': 'pieChart-10',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title1',
-              'name': 'pieChart-11',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title2',
-              'name': 'pieChart-12',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title3',
-              'name': 'pieChart-13',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title4',
-              'name': 'pieChart-14',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title5',
-              'name': 'pieChart-15',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            }
-          ]
-        },
-        {
-          'part_type': 'text',
-          'questions': [
-            {
-              'text': 'What is the title of this test?',
-              'answers': [
-                'Test Title',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-            {
-              'text': 'What is the title of this test?',
-              'answers': [
-                'Test Title',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-            {
-              'text': 'What is the title of this test?',
-              'answers': [
-                'Test Title',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-            {
-              'text': 'What is the title of this test?',
-              'answers': [
-                'Test Title',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-          ]
-        }
-      ]
-    },
-    {
-      'section': 'Software_Engineering_Problem',
-      'parts': [
-        {
-          'part_type': 'multi-choice',
-          'part_data': [
-            {
-              'title': 'title0',
-              'name': 'pieChart-00',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title1',
-              'name': 'pieChart-01',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title2',
-              'name': 'pieChart-02',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-            {
-              'title': 'title3',
-              'name': 'pieChart-03',
-              'type': 'pie',
-              'data': doughnutPieData,
-              'options': doughnutPieOptionsNew
-            },
-          ]
-        },
-        {
-          'part_type': 'text',
-          'questions': [
-            {
-              'text': 'What is the presentation of this test?',
-              'answers': [
-                'Test Title',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-            {
-              'text': 'What is the presentation of this test?',
-              'answers': [
-                'Test Title',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-            {
-              'text': 'What is the presentation of this test?',
-              'answers': [
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-            {
-              'text': 'What is the presentation of this test?',
-              'answers': [
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-                'Test Title 2',
-                'Test Title 3'
-              ]
-            },
-          ]
-        },
-      ]
-    },
-  ]; {% endcomment %}
-
-
 
   function htmlToElement(html) {
     var template = document.createElement('template');
@@ -479,36 +267,11 @@
   var $summaryContent = $('#summaryContent');
   console.log("fromAPI", fromAPI);
 
-  {% comment %} var mock_aspect_section =
-  {
-    'section': 'Aspect',
-    'summary': {
-      'team_name': 'team1',
-      'aspect': [
-        {
-          'aspect_name': 'Content',
-          'aspect_content': '8.0/10.0',
-        },
-        {
-          'aspect_name': 'Design',
-          'aspect_content': '8.0/10.0',
-        },
-        {
-          'aspect_name': 'Delivery',
-          'aspect_content': '8.0/10.0',
-        },
-        {
-          'aspect_name': 'Overall',
-          'aspect_content': '8.0/10.0',
-        },
-      ],
-      'final_grade': '',
-    },
-  } {% endcomment %}
+  
   // transform fromAPI to mockData
   var mockData = [];
   pieChart_count = 0;
-  {% comment %} mockData.push(mock_aspect_section); {% endcomment %}
+  
   for (var section in fromAPI) {
     var sectionData = fromAPI[section];
     if (section == 'Aspect') {
@@ -610,7 +373,7 @@
         pieChart_count++;
         multipleChoicePart.part_data.push(temp_part_data);
       }
-      else if (question_type == 'FIXEDTEXT' || question_type == 'MULTIPLETEXT' || question_type == 'TEXTAREA') {
+      else if (question_type == 'FIXEDTEXT' || question_type == 'MULTIPLETEXT' || question_type == 'TEXTAREA' || question_type == 'SLIDEREVIEW') {
         var temp_part_data = {
           'text': question_name,
           'answers': answers
@@ -696,138 +459,186 @@
       '</div>'
     );
 
-    feedbackData = sectionData.questions[0].answers;
-
-    sectionTabContentItemBody.appendChild(feedbackDiv);
-    sectionTabContentItemBody.appendChild(artifactPreview);
-
-    sectionTabContentItem.appendChild(sectionTabContentItemBody);
-    $sectionTabContent.append(sectionTabContentItem);
-
-    continue;
-  }
-
-  for (var j = 0; j < sectionData.parts.length; j++) {
-    // for each part
-    var partData = sectionData.parts[j];
-    var part_type = partData['part_type'];
-    console.log("part_type: " + part_type);
-    if (part_type == 'multi-choice') {
-      // multi-choice part
-      var MultipleChoiceContentItemBody2 = htmlToElement(
-        '<div class="row">' +
-        '</div>'
-      );
-
-      var ChartSectionBody = htmlToElement(
-        '<div class="border-bottom py-3">' +
-        '</div>'
-      );
-
-      var part_data = partData['part_data'];
-      for (var k = 0; k < part_data.length; k++) {
-        // for each card
-        if (k % 3 == 0) {
-          var ChartSectionBodyRow = htmlToElement(
-            '<div class="row">' +
-            '</div>'
-          );
-          ChartSectionBody.appendChild(ChartSectionBodyRow);
-        }
-        var part_data_inner = part_data[k];
-        var part_data_title = part_data_inner['title'];
-        var part_data_name = part_data_inner['name'];
-        var part_data_type = part_data_inner['type'];
-        var data = part_data_inner['data'];
-        var options = part_data_inner['options'];
-        var part_data_content_element = htmlToElement(
-          '<div class="col-lg-4 grid-margin stretch-card">' +
-          '<div class="card">' +
-          '<div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>' +
-          '<h4 class="card-title">' + part_data_title + '</h4>' +
-          '<canvas id="' + part_data_name + '" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>' +
-          '</div>' +
-          '</div>' +
-          '</div>'
-        );
-        ChartSectionBodyRow.appendChild(part_data_content_element);
-      }
-      MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
-      sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
-      $sectionTabContent.append(sectionTabContentItem);
-
-      // draw Chart(only works when placed here or after)
-      for (var k = 0; k < sectionData.parts.length; k++) {
-        var partData = sectionData.parts[k];
-        var part_type = partData['part_type'];
-        if (part_type == 'multi-choice') {
-          var part_data = partData['part_data'];
-          for (var l = 0; l < part_data.length; l++) {
-            var part_data_inner = part_data[l];
-            var part_data_name = part_data_inner['name'];
-            var part_data_data = part_data_inner['data'];
-            var part_data_options = part_data_inner['options'];
-            var part_data_type = part_data_inner['type'];
-            // TODO: add more types
-            if ($("#" + part_data_name).length) {
-              var ChartCanvas = $("#" + part_data_name).get(0).getContext("2d");
-              var newChart = new Chart(ChartCanvas, {
-                type: part_data_type,
-                data: part_data_data,
-                options: part_data_options
-              });
-            }
-          }
-        }
-      }
-    }
-    else if (part_type == 'text') {
-      console.log("enter text");
+    if (sectionTitle === 'Artifact') {
       var sectionTabContentItemBody = htmlToElement(
         '<div class="row">' +
         '</div>'
       );
-      //partData
-      var questions = partData['questions'];
-      for (var l = 0; l < questions.length; l++) {
-        // for each question
-        var questionData = questions[l];
-        var question = htmlToElement(
-          '<div class="col-md-12" style="padding:1.5rem 1rem">' +
-          '</div>'
-        )
+      sectionTabContentItemBody.classList.add('artifact');
 
-        var questionText = htmlToElement(
-          '<h4 class="text-left">' + questionData.text + '</h4>'
-        )
-        question.appendChild(questionText);
+      var artifactPreview = htmlToElement(
+        '<div class="col-md-8 col-12">' +
+        '  <div id="artifactPreviewCarousel" class="carousel slide" data-bs-touch="false" data-bs-interval="false">' +
+        '    <div class="carousel-inner">' +
+        '      <div class="carousel-item active">' +
+        '        <canvas style="border: 1px solid black; width: 100%"></canvas>' +
+        '        <div class="carousel-caption d-none d-md-block">' +
+        '          <span class="page-number"></span> / <span class="page-count"></span>' +
+        '        </div>' +
+        '      </div>' +
+        '    </div>' +
+        '    <button id="prev" class="carousel-control-prev" type="button">' +
+        '      <span class="carousel-control-prev-icon" aria-hidden="true"></span>' +
+        '      <span class="visually-hidden">Previous</span>' +
+        '    </button>' +
+        '    <button id="next" class="carousel-control-next" type="button">' +
+        '      <span class="carousel-control-next-icon" aria-hidden="true"></span>' +
+        '      <span class="visually-hidden">Next</span>' +
+        '    </button>' +
+        '  </div>' +
+        '</div>'
+      );
+      var feedbackDiv = htmlToElement(
+        '<div class="col-md-4 col-12 artifact-feedback">' +
+        '</div>'
+      );
 
-        var questionAnswers = htmlToElement(
-          '<div class="row vertical-scrollable">' +
-          '</div>'
-        )
-        for (var k = 0; k < questionData['answers'].length; k++) {
-          var answer_text = questionData['answers'][k];
-          var answer = htmlToElement(
-            '<div class="col-md-12">' +
-            '  <p class="text-left">' +
-            answer_text +
-            '  </p > ' +
-            '</div>'
-          )
-          questionAnswers.appendChild(answer);
-        }
-        question.appendChild(questionAnswers);
-        sectionTabContentItemBody.appendChild(question);
-      }
+      feedbackData = sectionData.parts[1].questions[0].answers;
+      console.log(feedbackData);
+
+      sectionTabContentItemBody.appendChild(feedbackDiv);
+      sectionTabContentItemBody.appendChild(artifactPreview);
 
       sectionTabContentItem.appendChild(sectionTabContentItemBody);
       $sectionTabContent.append(sectionTabContentItem);
+
+      continue;
     }
-    else {
-      console.log("error: part_type not found");
+
+    for (var j = 0; j < sectionData.parts.length; j++) {
+      // for each part
+      var partData = sectionData.parts[j];
+      var part_type = partData['part_type'];
+      console.log("part_type: " + part_type);
+      if (part_type == 'multi-choice') {
+        // multi-choice part
+        var MultipleChoiceContentItemBody2 = htmlToElement(
+          '<div class="row">' +
+          '</div>'
+        );
+
+        var ChartSectionBody = htmlToElement(
+          '<div class="border-bottom py-3">' +
+          '</div>'
+        );
+
+        var part_data = partData['part_data'];
+        for (var k = 0; k < part_data.length; k++) {
+          // for each card
+          if (k % 3 == 0) {
+            var ChartSectionBodyRow = htmlToElement(
+              '<div class="row">' +
+              '</div>'
+            );
+            ChartSectionBody.appendChild(ChartSectionBodyRow);
+          }
+          var part_data_inner = part_data[k];
+          var part_data_title = part_data_inner['title'];
+          var part_data_name = part_data_inner['name'];
+          var part_data_type = part_data_inner['type'];
+          var data = part_data_inner['data'];
+          var options = part_data_inner['options'];
+          var part_data_content_element = htmlToElement(
+            '<div class="col-lg-4 grid-margin stretch-card">' +
+            '<div class="card">' +
+            '<div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>' +
+            '<h4 class="card-title">' + part_data_title + '</h4>' +
+            '<canvas id="' + part_data_name + '" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>' +
+            '</div>' +
+            '</div>' +
+            '</div>'
+          );
+          ChartSectionBodyRow.appendChild(part_data_content_element);
+        }
+        MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
+        sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
+        $sectionTabContent.append(sectionTabContentItem);
+
+        // draw Chart(only works when placed here or after)
+        for (var k = 0; k < sectionData.parts.length; k++) {
+          var partData = sectionData.parts[k];
+          var part_type = partData['part_type'];
+          if (part_type == 'multi-choice') {
+            var part_data = partData['part_data'];
+            for (var l = 0; l < part_data.length; l++) {
+              var part_data_inner = part_data[l];
+              var part_data_name = part_data_inner['name'];
+              var part_data_data = part_data_inner['data'];
+              var part_data_options = part_data_inner['options'];
+              var part_data_type = part_data_inner['type'];
+              // TODO: add more types
+              if ($("#" + part_data_name).length) {
+                var ChartCanvas = $("#" + part_data_name).get(0).getContext("2d");
+                var newChart = new Chart(ChartCanvas, {
+                  type: part_data_type,
+                  data: part_data_data,
+                  options: part_data_options
+                });
+              }
+            }
+          }
+        }
+      }
+      else if (part_type == 'text') {
+        console.log("enter text");
+        var sectionTabContentItemBody = htmlToElement(
+          '<div class="row">' +
+          '</div>'
+        );
+        //partData
+        var questions = partData['questions'];
+        for (var l = 0; l < questions.length; l++) {
+          // for each question
+          var questionData = questions[l];
+          var question = htmlToElement(
+            '<div class="col-md-12" style="padding:1.5rem 1rem">' +
+            '</div>'
+          )
+
+          var questionText = htmlToElement(
+            '<h4 class="text-left">' + questionData.text + '</h4>'
+          )
+          question.appendChild(questionText);
+
+          var questionAnswers = htmlToElement(
+            '<div class="row vertical-scrollable">' +
+            '</div>'
+          )
+          for (var k = 0; k < questionData['answers'].length; k++) {
+            var answer_text = questionData['answers'][k];
+            var answer = htmlToElement(
+              '<div class="col-md-12">' +
+              '  <p class="text-left">' +
+              answer_text +
+              '  </p > ' +
+              '</div>'
+            )
+            questionAnswers.appendChild(answer);
+          }
+          question.appendChild(questionAnswers);
+          sectionTabContentItemBody.appendChild(question);
+        }
+
+        sectionTabContentItem.appendChild(sectionTabContentItemBody);
+        $sectionTabContent.append(sectionTabContentItem);
+      }
+      else {
+        console.log("error: part_type not found");
+      }
     }
   }
-  }
+
+  var pdfURL = '{{ artifact_path }}';
+
+  var artifactPreviewDOM = document.getElementById('artifactPreviewCarousel');
+  carousel = new PDFCarousel(artifactPreviewDOM, feedbackData);
+  carousel.renderPDF(pdfURL, () => {
+    // on error
+    $('#artifactPreviewCarousel').parent().html(
+      '<div class="alert alert-danger">' +
+      '  Artifact has not been uploaded.' +
+      '</div>'
+    );
+  });
 </script>
 {% endblock %}

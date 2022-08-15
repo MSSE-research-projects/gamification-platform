@@ -954,6 +954,7 @@ class SectionModal {
   reset() {
     this.modal.find('#sectionTitle').val('');
     this.modal.find('#sectionDescription').val('');
+    this.modal.find('#sectinRequired').hide();
   }
 
   hide() {

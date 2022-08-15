@@ -49,7 +49,7 @@ getSurvey = function (survey_pk, options) {
 
   sectionData.forEach(data => {
     if (data.title == 'Artifact') {
-      artifact_question_pk = data.pk;
+      artifact_question_pk = data.questions[0].pk;
       return;
     }
 

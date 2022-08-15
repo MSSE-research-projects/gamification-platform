@@ -37,6 +37,10 @@
           <label for="sectionDescription">Section Description</label>
           <textarea class="form-control" id="sectionDescription" rows="3"></textarea>
         </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="sectionRequired">
+          <label class="form-check-label" for="sectionRequired">Required</label>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -66,6 +70,10 @@
         <div class="form-group">
           <label for="sectionDescription">Section Description</label>
           <textarea class="form-control" id="sectionDescription" rows="3"></textarea>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="sectionRequired">
+          <label class="form-check-label" for="sectionRequired">Required</label>
         </div>
       </div>
       <div class="modal-footer">
@@ -309,6 +317,7 @@
     addSectionModal.on('click', '.save-btn', function () {
       var sectionTitle = this.modal.find('#sectionTitle').val().trim();
       var sectionDescription = this.modal.find('#sectionDescription').val();
+      var sectionRequired = this.modal.find('#sectionRequired').is(':checked');
 
       if (sectionTitle === 'Artifact') {
         alert('Artifact is a reserved section title. Please choose another title.');
@@ -390,6 +399,7 @@
       var originalTitle = this.modal.find('#originalTitle').val();
       var sectionTitle = this.modal.find('#sectionTitle').val();
       var sectionDescription = this.modal.find('#sectionDescription').val();
+      var sectionRequired = this.modal.find('#sectionRequired').is(':checked');
 
       var section = survey.getSectionByTitle(originalTitle);
 

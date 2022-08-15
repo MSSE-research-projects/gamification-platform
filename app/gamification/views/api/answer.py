@@ -13,6 +13,7 @@ from app.gamification.models.question import Question
 from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
+from collections import defaultdict
 
 
 class AnswerList(generics.ListAPIView):
@@ -292,6 +293,18 @@ class ArtifactResult(generics.ListAPIView):
                             sum += int(text_answers[0].answer_text)
                     answers[section.title][question.text]['answers'].append(
                         sum / count)
+
+                elif question.question_type == Question.QuestionType.SLIDEREVIEW:
+                    answers[section.title][question.text]['answers'] = defaultdict(
+                        list)
+                    question_option = get_object_or_404(
+                        QuestionOption, question=question)
+                    for artifact_review in artifact_reviews:
+                        text_answers = ArtifactFeedback.objects.filter(
+                            artifact_review=artifact_review, question_option=question_option)
+                        for answer in text_answers:
+                            answers[section.title][question.text]['answers'][answer.page].append(
+                                answer.answer_text)
 
                 else:
                     question_option = get_object_or_404(

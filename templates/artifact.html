@@ -34,7 +34,7 @@
                   <p> {{ artifact.id }}</p>
                 </td>
                 <td>
-                  {{ artifact.file}}
+                  {{ artifact.file|cut:'assignment_files/' }}
                 </td>
                 <td>
                   {{ artifact.upload_time}}
