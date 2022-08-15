@@ -44,8 +44,6 @@
               <a href="{% url 'assignment' course_id %}"><button type="button"
                   class="btn btn-outline-primary">Back</button></a>
               {% if userRole == 'Student'%}
-              <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
-                class="btn btn-outline-primary">Upload Artifact</button></a>
               <a href="{% url 'report' course_id assignment.id andrew_id %}">
                 <button type="button" class="btn btn-outline-primary">
                   <i class="fa-regular fa-clipboard"></i>
@@ -61,15 +59,29 @@
             <div class="col-lg-4">
               {% if latest_artifact != 'None' %}
                 <div class="border-bottom py-4">
-                  <p><b>Submission:</b></p>
-                  <p> Latest Submission: {{ latest_artifact.upload_time }}</p>
-                  <a href="{% url 'download_artifact' course_id assignment_id artifact_id%}"><button type="button"
-                    class="btn btn-success btn-sm">Download</button></a>
+                  <p2><b>Submission:</b></p>
+                  <p4> {{ latest_artifact_filename }} </p>
+                  <p3><b>Latest Submission:</b></p>
+                  <p3>{{ latest_artifact.upload_time }}</p>
+                  {% comment %} <a href="{% url 'download_artifact' course_id assignment_id artifact_id%}">
+                    <button type="button" class="btn btn-success btn-sm">Download</button>
+                  </a> {% endcomment %}
+                  <a href="{% url 'download_artifact' course_id assignment_id artifact_id %}">
+                    <button type="button" class="btn btn-success btn-sm">View</button>
+                  </a>
+                  <a href="{% url 'edit_artifact' course_id assignment_id artifact_id %}">
+                    <button type="button" class="btn btn-success btn-sm">Edit</button>
+                  </a>
+                  <a href="{% url 'delete_artifact' course_id assignment_id artifact_id %}">
+                    <button type="button" class="btn btn-success btn-sm">Delete</button>
+                  </a>
                 </div>
               {% else %}
                 <div class="border-bottom py-4">
-                  <p><b>Submission:</b></p>
-                  <p> No Submission found</p>
+                  <p2><b>Submission:</b></p>
+                  <p4> No Submission found</p>
+                  <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
+                    class="btn btn-outline-primary">Upload Artifact</button></a>
                 </div>
               {% endif %}
               {% comment %} <div class="border-bottom py-4">
