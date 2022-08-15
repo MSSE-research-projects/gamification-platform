@@ -602,7 +602,7 @@ def member_list(request, course_id):
             artifacts = Artifact.objects.filter(entity=team)
             for artifact in artifacts:
                 artifact_reviews = ArtifactReview.objects.filter(
-                    artifact=artifact)
+                    artifact=artifact, user=registration)
                 for artifact_review in artifact_reviews:
                     artifact_review.delete()
 
@@ -620,9 +620,18 @@ def member_list(request, course_id):
         if registration.userRole == 'TA' or registration.userRole == 'Instructor':
             membership = Membership.objects.filter(student=registration)
             if len(membership) == 1:
-                team = Team.objects.filter(registration=registration)
-                team.delete()
+                team = Team.objects.filter(
+                    registration=registration, course=course)
+                if len(team) == 1:
+                    team = team[0]
+                members = team.members
+                if len(members) == 1:
+                    team.delete()
             membership.delete()
+            # delete all artifact_review of TA or instructor
+            artifact_reviews = ArtifactReview.objects.filter(user=registration)
+            for artifact_review in artifact_reviews:
+                artifact_review.delete()
 
     if request.method == 'GET':
         context = get_member_list(course_id)
@@ -848,16 +857,18 @@ def artifact(request, course_id, assignment_id):
                 registrations = [i for i in Registration.objects.filter(
                     courses=course) if i.users.pk not in team_members]
                 for registration in registrations:
-                    artifact_review = ArtifactReview(
-                        artifact=artifact, user=registration)
-                    artifact_review.save()
+                    if registration.userRole == Registration.UserRole.Student:
+                        artifact_review = ArtifactReview(
+                            artifact=artifact, user=registration)
+                        artifact_review.save()
             else:
                 registrations = [i for i in Registration.objects.filter(
                     courses=course) if i.id != registration.id]
-                for single_registration in registrations:
-                    artifact_review = ArtifactReview(
-                        artifact=artifact, user=single_registration)
-                    artifact_review.save()
+                if registration.userRole == Registration.UserRole.Student:
+                    for single_registration in registrations:
+                        artifact_review = ArtifactReview(
+                            artifact=artifact, user=single_registration)
+                        artifact_review.save()
         else:
             print("form is not valid")
         artifacts = Artifact.objects.filter(
