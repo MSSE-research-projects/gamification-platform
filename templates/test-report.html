@@ -29,14 +29,14 @@
 
 {% block css %}
 <style>
-  .vertical-scrollable.row {
+  .text-question .vertical-scrollable.row {
     max-height: 150px;
     overflow-y: auto;
   }
 
   .artifact-feedback .vertical-scrollable.row {
-    height: 100%;
     overflow-y: auto;
+    max-height: 50vh;
   }
 </style>
 
@@ -56,30 +56,6 @@
 <script src="{% static 'js/artifact-report.js' %}"></script>
 
 <script>
-  // var data = {
-  //   'Section Name 1': {
-  //     'Question Text 1': {
-  //       'question_type': 'FIXEDTEXT or MULTIPLETEXT or TEXTAREA or NUMBER or ...',
-  //       'answers': [
-  //         'answer string 1',
-  //         'answer string 2',
-  //         'answer string 3',
-  //       ]
-  //     },
-  //   },
-  //   'Section Name 2': {
-  //     'Question Text 1': {
-  //       'question_type': 'MULTIPLECHOICE or ...',
-  //       'answers': [
-  //         { 'Agree': 1 },
-  //         { 'Disagree': 0 },
-  //         { 'Neutral': 0 },
-  //         ...
-  //       ]
-  //     }
-  //   }
-  // }
-
   // Use this api to get survey data
   var fromAPI = null;
   $.ajax({
@@ -265,7 +241,6 @@
   var $sectionTab = $('#sectinTab');
   var $sectionTabContent = $('#sectinTabContent');
   var $summaryContent = $('#summaryContent');
-  console.log("fromAPI", fromAPI);
 
   
   // transform fromAPI to mockData
@@ -393,7 +368,7 @@
     }
     mockData.push(sectionMockData);
   }
-  console.log("mockData", mockData);
+
 
   for (var i = 0; i < mockData.length; i++) {
     var sectionData = mockData[i];
@@ -461,7 +436,7 @@
 
     if (sectionTitle === 'Artifact') {
       var sectionTabContentItemBody = htmlToElement(
-        '<div class="row">' +
+        '<div class="row align-items-center">' +
         '</div>'
       );
       sectionTabContentItemBody.classList.add('artifact');
@@ -489,7 +464,7 @@
         '</div>'
       );
       var feedbackDiv = htmlToElement(
-        '<div class="col-md-4 col-12 artifact-feedback">' +
+        '<div class="col-md-4 col-12 align-self-start artifact-feedback">' +
         '</div>'
       );
 
@@ -591,7 +566,7 @@
           // for each question
           var questionData = questions[l];
           var question = htmlToElement(
-            '<div class="col-md-12" style="padding:1.5rem 1rem">' +
+            '<div class="col-md-12 text-question" style="padding:1.5rem 1rem">' +
             '</div>'
           )
 

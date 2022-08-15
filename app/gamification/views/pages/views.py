@@ -426,9 +426,10 @@ def course_list(request):
         else:
             form = CourseForm(label_suffix='')
 
-        registration = get_registrations(request.user)
-        context = {'registration': registration, 'form': form}
-        return render(request, 'course.html', context)
+        # registration = get_registrations(request.user)
+        # context = {'registration': registration, 'form': form}
+        # return render(request, 'course.html', context)
+        return redirect('edit_course', course.id)
 
 
 @login_required
@@ -680,9 +681,9 @@ def assignment(request, course_id):
     else:
         form = AssignmentForm(request.POST, label_suffix='')
         if form.is_valid():
-            form.save()
+            assignment = form.save()
         assignments = Assignment.objects.filter(course=course)
-        return redirect('assignment', course_id)
+        return redirect('edit_assignment', course_id, assignment.id)
 
 
 @login_required
@@ -996,7 +997,8 @@ def review_survey(request, course_id, assignment_id):
     for artifact_review in artifact_reviews:
         artifact_review_with_name = dict()
         artifact = artifact_review.artifact
-        feedback_survey_released_date = feedback_survey.date_released.astimezone(pytz.timezone('America/Los_Angeles')) 
+        feedback_survey_released_date = feedback_survey.date_released.astimezone(
+            pytz.timezone('America/Los_Angeles'))
         print(feedback_survey_released_date)
 
         if feedback_survey_released_date <= datetime.now().replace(tzinfo=LA):
