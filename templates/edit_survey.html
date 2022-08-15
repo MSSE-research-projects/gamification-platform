@@ -426,6 +426,20 @@
       var sectionTitle = button.closest('fieldset').find('.section-title').text();
       this.modal.find('#sectionTitleInQuestionModal').val(sectionTitle);
 
+      if (sectionTitle !== 'Aspect') {
+        var $lastOption = this.modal.find('#questionType option:last');
+        if ($lastOption.val() === 'number') {
+          $lastOption.remove();
+        }
+      } else {
+        var $lastOption = this.modal.find('#questionType option:last');
+        if ($lastOption.val() !== 'number') {
+          this.modal.find('#questionType').append(
+            '<option value="number">Numeric</option>'
+          );
+        }
+      }
+
       // Render question text candidates if it is in a template section
       // if (sectionTitle in template_data) {
       //   template_data[sectionTitle].questions.forEach(questionData => {

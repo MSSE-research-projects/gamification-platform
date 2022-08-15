@@ -481,6 +481,10 @@ class Question {
     this.optionElement = this._buildOptionElement();
     $(this.element).find('.question-option').replaceWith(this.optionElement);
   }
+
+  checkAnswers(answers) {
+    return true;
+  }
 }
 
 class InlineStyleQuestion extends Question {
@@ -623,12 +627,12 @@ class GridStyleQuestion extends Question {
     var html = '';
 
     if (this.options.editable) {
-      html += '<div class="col-6">';
+      html += '<div class="col-6 question">';
       html += '  <div class="row mb-3 align-items-center justify-content-center">';
       html += '  </div>';
       html += '</div>';
     } else {
-      html += '<div class="col col-sm-12 col-lg-3">';
+      html += '<div class="col col-sm-12 col-lg-3 question">';
       html += '  <div class="row mb-3 align-items-center justify-content-center">';
       html += '  </div>';
       html += '</div>';

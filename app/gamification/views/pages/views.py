@@ -115,7 +115,6 @@ def dashboard(request):
             todo_list, key=lambda x: x.due_date if x.due_date else now(), reverse=False)
         # TODO: change timezone
         time_now = now()
-        print(time_now)
         user = request.user
         context = {'registration': registration, 'request_user': user, 'form': form,
                    'andrew_id': andrew_id, 'todo_list': sorted_todo_list, 'time_now': time_now}
@@ -126,7 +125,6 @@ def dashboard(request):
 def add_todo_list(request):
     if request.method == 'POST':
         form = TodoListForm(request.POST, label_suffix='')
-        print("form: ", form)
         if form.is_valid():
             # todo_list = form.save(commit=False)
             # todo_list.user = request.user
@@ -146,7 +144,6 @@ def delete_todo_list(request, todo_list_id):
         #     todo_list.delete()
         #     return redirect('dashboard')
         todo_list.delete()
-        print("deleted")
         return redirect('dashboard')
     else:
         print("not deleted")
@@ -221,7 +218,6 @@ def add_survey(request, course_id, assignment_id):
                                         is_multiple=default_question.is_multiple,
                                         )
                     question.save()
-                    print(question.pk)
                     for default_option in default_question.options:
                         question_option = QuestionOption(
                             question=question,
@@ -377,7 +373,6 @@ def report(request, course_id, assignment_id, andrew_id):
             team_name = entity.name
         except Team.DoesNotExist:
             # TODO: Alert: you need to be a member of the team to upload the artifact
-            print("you need to be a member of the team to upload the artifact")
             return redirect('assignment', course_id)
     else:
         return redirect('assignment', course_id)
@@ -806,7 +801,6 @@ def artifact(request, course_id, assignment_id):
     userRole = registration.userRole
     # TODO: check the assigment type.
     assignment_type = assignment.assignment_type
-    print("assignment_type: " + assignment_type)
     if assignment_type == "Individual":
         try:
             entity = Individual.objects.get(

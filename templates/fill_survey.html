@@ -116,6 +116,7 @@
       var button = $(e.currentTarget);
       var sections = this.getSections();
       var notDone = false;
+      var hasError = false;
       for (var i = 0; i < sections.length; i++) {
         for (var j = 0; j < sections[i].questions.length; j++) {
           var question = sections[i].questions[j];
@@ -139,6 +140,11 @@
           for (var j = 0; j < sections[i].questions.length; j++) {
             var question = sections[i].questions[j];
             var answers = question.getAnswers();
+            if (question.checkAnswers(answers) === false) {
+              question.showError();
+              hasError = true;
+              continue;
+            }
             $.ajax({
               async: false,
               url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
@@ -151,6 +157,13 @@
             });
           }
         }
+      }
+      else {
+        alert('Please answer all questions!');
+      }
+
+      if (!hasError) {
+        alert('Saved!');
         $.ajax({
           async: false,
           url: `/api/artifact_reviews/${artifact_review_pk}/is_complete/`,
@@ -159,9 +172,8 @@
           },
         });
         window.location.href = `/course/{{course_id}}/assignment/{{assignment_id}}/review_survey/`;
-      }
-      else {
-        alert('Please answer all questions!');
+      } else {
+        alert('Error saving!');
       }
     });
 
