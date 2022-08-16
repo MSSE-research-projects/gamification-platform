@@ -1,7 +1,7 @@
 {% extends 'boilerplates/base_navbar.html' %}
 {% load static widget_tweaks %}
 
-{% block title %}Test Fill in Survey{% endblock %}
+{% block title %}Fill in Survey{% endblock %}
 
 {% block content %}
 <div class="content-wrapper">
@@ -79,6 +79,7 @@
       var section = this.getSectionByTitle(sectionTitle);
       var hasError = false;
 
+      var ajaxCalls = [];
       for (var i = 0; i < section.questions.length; i++) {
         var question = section.questions[i];
         var answers = question.getAnswers();
@@ -90,7 +91,7 @@
         }
 
         // Put the ajax call here
-        $.ajax({
+        var ajaxCall = $.ajax({
           url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
           type: 'PUT',
           data: {
@@ -103,7 +104,11 @@
             hasError = true;
           }
         });
+
+        ajaxCalls.push(ajaxCall);
       }
+
+      Promise.all(ajaxCalls);
 
       if (!hasError) {
         alert('Saved!');
@@ -117,12 +122,14 @@
       var sections = this.getSections();
       var allDone = true;
       var hasError = false;
+
+      var ajaxCalls = [];
       for (var i = 0; i < sections.length; i++) {
         for (var j = 0; j < sections[i].questions.length; j++) {
           var question = sections[i].questions[j];
           var answers = question.getAnswers();
-          $.ajax({
-            async: false,
+
+          var ajaxCall = $.ajax({
             url: `/api/questions/${question.pk}/check_all_done/`,
             type: 'POST',
             data: {
@@ -134,9 +141,14 @@
               question.showError();
             }
           });
+
+          ajaxCalls.push(ajaxCall);
         }
       }
+      Promise.all(ajaxCalls);
+
       if (allDone) {
+        var ajaxCalls = [];
         for (var i = 0; i < sections.length; i++) {
           for (var j = 0; j < sections[i].questions.length; j++) {
             var question = sections[i].questions[j];
@@ -146,8 +158,8 @@
               hasError = true;
               continue;
             }
-            $.ajax({
-              async: false,
+
+            var ajaxCall = $.ajax({
               url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
               type: 'PUT',
               data: {
@@ -156,8 +168,12 @@
               success: function (data) {
               },
             });
+
+            ajaxCalls.push(ajaxCall);
           }
         }
+
+        Promise.all(ajaxCalls);
       }
       else {
         alert('Please answer all questions!');
@@ -177,6 +193,10 @@
       } else {
         alert('Error saving!');
       }
+    });
+
+    survey.on('click', '.back-btn', function () {
+      window.location.href = `{% url 'review_survey' course_id assignment_id %}`
     });
 
     var artifactPreviewDOM = document.getElementById('artifactPreviewCarousel');
@@ -233,10 +253,17 @@
       var feedbacks = carousel.getFeedbacks();
       var hasError = false;
       var notEmpty = false;
+
+      var ajaxCalls = [];
       for (const [key, value] of Object.entries(feedbacks)) {
         var pageNum = key;
         var text = value;
-        $.ajax({
+
+        if (text != '') {
+          notEmpty = true;
+        }
+
+        var ajaxCall = $.ajax({
           url: `/api/artifact_reviews/${artifact_review_pk}/questions/${artifact_question_pk}/answers/`,
           type: 'PUT',
           data: {
@@ -252,10 +279,10 @@
           }
         });
 
-        if (text != '') {
-          notEmpty = true;
-        }
+        ajaxCalls.push(ajaxCall);
       }
+
+      Promise.all(ajaxCalls);
 
       if (hasError) {
         alert('Error saving artifact reviews!');

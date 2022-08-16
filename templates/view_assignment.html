@@ -41,19 +41,18 @@
                 </p3>
               </div>
               <p> </p>
-              <a href="{% url 'assignment' course_id %}"><button type="button"
-                  class="btn btn-outline-primary">Back</button></a>
+              <a role="button" class="btn btn-outline-primary" href="{% url 'assignment' course_id %}">
+                Back
+              </a>
               {% if userRole == 'Student'%}
-              <a href="{% url 'report' course_id assignment.id andrew_id %}">
-                <button type="button" class="btn btn-outline-primary">
-                  <i class="fa-regular fa-clipboard"></i>
-                  Report
-                </button>
+              <a role="button" class="btn btn-outline-primary" href="{% url 'report' course_id assignment.id andrew_id %}">
+                <i class="fa-regular fa-clipboard"></i> Report
               </a>
               {% endif %}
               {% if userRole == 'Instructor' or userRole == 'TA'%}
-              <a href="{% url 'artifact_admin' course_id assignment.id%}"><button type="button"
-                class="btn btn-outline-primary">Artifact Admin</button></a>
+              <a role="button" class="btn btn-outline-primary" href="{% url 'artifact_admin' course_id assignment.id%}">
+                Artifact Admin
+              </a>
               {% endif %}
             </div>
             <div class="col-lg-4">
@@ -63,31 +62,25 @@
                   <p4> {{ latest_artifact_filename }} </p>
                   <p3><b>Latest Submission:</b></p>
                   <p3>{{ latest_artifact.upload_time }}</p>
-                  {% comment %} <a href="{% url 'download_artifact' course_id assignment_id artifact_id%}">
-                    <button type="button" class="btn btn-success btn-sm">Download</button>
-                  </a> {% endcomment %}
-                  <a href="{% url 'download_artifact' course_id assignment_id artifact_id %}">
-                    <button type="button" class="btn btn-success btn-sm">View</button>
+                  <a role="button" class="btn btn-success btn-sm" href="{% url 'download_artifact' course_id assignment_id artifact_id %}">
+                    Download
                   </a>
-                  <a href="{% url 'edit_artifact' course_id assignment_id artifact_id %}">
-                    <button type="button" class="btn btn-success btn-sm">Edit</button>
+                  <a role="button" class="btn btn-success btn-sm" href="{% url 'edit_artifact' course_id assignment_id artifact_id %}">
+                    Edit
                   </a>
-                  <a href="{% url 'delete_artifact' course_id assignment_id artifact_id %}">
-                    <button type="button" class="btn btn-success btn-sm">Delete</button>
+                  <a role="button" class="btn btn-danger btn-sm" href="{% url 'delete_artifact' course_id assignment_id artifact_id %}">
+                    Delete
                   </a>
                 </div>
               {% else %}
                 <div class="border-bottom py-4">
                   <p2><b>Submission:</b></p>
                   <p4> No Submission found</p>
-                  <a href="{% url 'artifact' course_id assignment.id%}"><button type="button"
-                    class="btn btn-outline-primary">Upload Artifact</button></a>
+                  <a role="button" class="btn btn-outline-primary" href="{% url 'artifact' course_id assignment.id%}">
+                    Upload Artifact
+                  </a>
                 </div>
               {% endif %}
-              {% comment %} <div class="border-bottom py-4">
-                <a href="{% url 'test'%}"><button type="button"
-                  class="btn btn-success btn-sm">Survey</button></a>
-              </div> {% endcomment %}
               <div class="border-bottom py-4">
                 <p><b>Comments: </b></p>
               </div>

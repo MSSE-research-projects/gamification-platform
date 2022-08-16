@@ -91,6 +91,11 @@ class Survey {
     html += '      Artifact Preview';
     html += '    </button>';
     html += '  </div>';
+    html += '  <div class="col-md-3 col-sm-12 text-end">';
+    html += '    <button class="btn btn-primary back-btn">';
+    html += '      Back';
+    html += '    </button>';
+    html += '  </div>';
     html += '</div>';
 
     return htmlToElement(html);

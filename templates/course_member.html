@@ -25,8 +25,8 @@
       <div class="card-body">
         <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button"
               class="btn btn-outline-primary">Back</button></a>
-              Members
-            </h4>
+          Members
+        </h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -40,6 +40,14 @@
                 <th>
                   Team
                 </th>
+                {% if userRole != 'Student' %}
+                <th></th>
+                {% if not member.is_activated %}
+                <th></th>
+                {% else %}
+                <th></th>
+                {% endif %}
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -60,11 +68,6 @@
                     <button type="button" class="btn-sm btn-primary">Delete</button>
                   </a>
                 </td>
-                {% comment %} <td>
-                  <a href="{% url 'report' course_id member.andrew_id %}">
-                    <button type="button" class="btn-sm btn-primary">Report</button>
-                  </a>
-                </td> {% endcomment %}
                 {% if not member.is_activated %}
                 <td>
                   <form method="POST" action="{% url 'email_user' member.andrew_id %}">

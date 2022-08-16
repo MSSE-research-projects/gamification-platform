@@ -32,6 +32,17 @@
                 <th>
                   Due
                 </th>
+                <th></th>
+                {% if userRole == 'Student' and info.feedback_survey != 0 %}
+                <th></th>
+                {% elif userRole == 'Student' %}
+                {% endif %}
+
+                {% if userRole == 'Instructor' or userRole == 'TA' %}
+                <th></th>
+                <th></th>
+                <th></th>
+                {% endif %}
               </tr>
             </thead>
             {% for info in infos %}

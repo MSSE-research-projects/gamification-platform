@@ -10,8 +10,8 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title"><a href="{% url 'view_assignment' course_id assignment.id%}"><button type="button"
-            class="btn btn-outline-primary">Back</button></a>
-            &nbsp&nbsp&nbsp&nbsp&nbsp Course:{{ course.course_name}}</h4>
+              class="btn btn-outline-primary">Back</button></a>
+          &nbsp&nbsp&nbsp&nbsp&nbsp Course:{{ course.course_name}}</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -25,6 +25,12 @@
                 <th>
                   Upload time
                 </th>
+                {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                {% endif %}
               </tr>
             </thead>
             {% for artifact in artifacts %}
@@ -69,6 +75,6 @@
       </div>
     </div>
   </div>
-  
+
 </div>
 {% endblock content %}

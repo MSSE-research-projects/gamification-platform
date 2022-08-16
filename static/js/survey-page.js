@@ -115,13 +115,14 @@ getSurvey = function (survey_pk, options) {
 }
 
 updateAnswers = function (survey, artifact_review_pk) {
+  var ajaxCalls = [];
   for (var i = 0; i < survey.sections.length; i++) {
     var section = survey.sections[i];
     for (var j = 0; j < section.questions.length; j++) {
       var question = section.questions[j];
       var answers = [];
-      $.ajax({
-        async: false,
+
+      var ajaxCall = $.ajax({
         url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
         type: 'GET',
         dataType: 'json',
@@ -130,8 +131,12 @@ updateAnswers = function (survey, artifact_review_pk) {
           question.setAnswers(answers);
         }
       });
+
+      ajaxCalls.push(ajaxCall);
     }
   }
+
+  Promise.all(ajaxCalls);
 }
 
 getArtifactReviews = function (artifact_review_pk, artifact_question_pk) {

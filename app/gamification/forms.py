@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+import pytz
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth import forms as auth_forms
@@ -167,7 +169,7 @@ class CourseForm(forms.ModelForm):
                 user = CustomUser.objects.get(andrew_id=andrew_id)
             except CustomUser.DoesNotExist:
                 if name:
-                    first_name, last_name = name.split(' ')
+                    last_name, first_name = name.split(', ')
                 else:
                     first_name = last_name = ''
                 user = CustomUser.objects.create_user(
@@ -249,6 +251,13 @@ class ArtifactForm(forms.ModelForm):
             'assignment': forms.HiddenInput(),
             'upload_time': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
+
+    def save(self, commit=True):
+        artifact = super().save(commit=False)
+        artifact.upload_time = datetime.now().astimezone(
+            pytz.timezone('America/Los_Angeles'))
+        artifact.save()
+        return artifact
 
 
 class TodoListForm(forms.ModelForm):

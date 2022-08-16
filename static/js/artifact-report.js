@@ -92,6 +92,11 @@ PDFCarousel.prototype.renderFeedback = function (num) {
             '  </p > ' +
             '</div>'
         )
+
+        if (i !== 0) {
+            questionAnswers.appendChild(htmlToElement('<hr />'));
+        }
+
         questionAnswers.appendChild(answer);
     }
 

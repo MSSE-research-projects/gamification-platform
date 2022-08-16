@@ -987,8 +987,9 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
                 # print("old file deleted, old_file_path:", old_file_path)
                 old_file_path.delete()
             artifact = form.save()
-        return redirect('view_assignment', course_id, assignment_id)
-        # return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
+            return redirect('view_assignment', course_id, assignment_id)
+        else:
+            return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
 
     if request.method == 'GET':
         form = ArtifactForm(instance=artifact)
