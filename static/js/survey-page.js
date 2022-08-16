@@ -122,17 +122,21 @@ updateAnswers = function (survey, artifact_review_pk) {
       var question = section.questions[j];
       var answers = [];
 
-      var ajaxCall = $.ajax({
-        url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-          data.map(({ answer_text }) => answers.push(answer_text));
-          question.setAnswers(answers);
-        }
-      });
+      var ajaxCall = (question, answers) => {
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            url: `/api/artifact_reviews/${artifact_review_pk}/questions/${question.pk}/answers/`,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+              data.map(({ answer_text }) => answers.push(answer_text));
+              question.setAnswers(answers);
+            }
+          });
+        });
+      }
 
-      ajaxCalls.push(ajaxCall);
+      ajaxCalls.push(ajaxCall(question, answers));
     }
   }
 
