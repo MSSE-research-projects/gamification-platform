@@ -729,6 +729,15 @@ def view_assignment(request, course_id, assignment_id):
     course = get_object_or_404(Course, pk=course_id)
     andrew_id = request.user.andrew_id
     assignment_type = assignment.assignment_type
+    if userRole == Registration.UserRole.Instructor or userRole == Registration.UserRole.TA:
+        assignment_id = assignment.id
+        context = {'course_id': course_id,
+               'userRole': userRole,
+               'assignment': assignment,
+               'assignment_id': assignment_id,
+               'andrew_id': andrew_id,
+               }
+        return render(request, 'view_assignment_admin.html', context)
     if assignment_type == "Individual":
         try:
             entity = Individual.objects.get(
