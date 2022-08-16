@@ -13,7 +13,41 @@
           class="btn btn-outline-primary">Back</button></a>
             &nbsp&nbsp&nbsp&nbsp&nbsp {{ assignment.assignment_name }} - Artifact</h4>
         <div class="table-responsive">
-          <table class="table table-striped">
+          {% for artifact in artifacts %}
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-8">
+                  <div class="border-bottom text-center pb-4">
+                    {{ artifact.file|cut:'assignment_files/' }}
+                    {{ artifact.upload_time}}
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="border-bottom text-center pb-4">
+                    {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
+                      <td>
+                        <a href="{% url 'download_artifact' course_id assignment.id artifact.id %}">
+                          <button type="button" class="btn-sm btn-primary">View</button>
+                        </a>
+                      </td>
+                      <td>
+                        <a href="{% url 'edit_artifact' course_id assignment.id artifact.id %}">
+                          <button type="button" class="btn-sm btn-primary">Edit</button>
+                        </a>
+                      </td>
+                      <td>
+                        <a href="{% url 'delete_artifact' course_id assignment.id artifact.id %}">
+                          <button type="button" class="btn-sm btn-primary">Delete</button>
+                        </a>
+                      </td>
+                    {% endif %}
+                  </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% comment %} <table class="table table-striped">
             <thead>
               <tr>
                 <th>
@@ -59,7 +93,7 @@
               </tr>
             </tbody>
             {% endfor %}
-          </table>
+          </table> {% endcomment %}
         </div>
       </div>
     </div>

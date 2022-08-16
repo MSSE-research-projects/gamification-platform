@@ -733,6 +733,15 @@ def view_assignment(request, course_id, assignment_id):
     course = get_object_or_404(Course, pk=course_id)
     andrew_id = request.user.andrew_id
     assignment_type = assignment.assignment_type
+    if userRole == Registration.UserRole.Instructor or userRole == Registration.UserRole.TA:
+        assignment_id = assignment.id
+        context = {'course_id': course_id,
+               'userRole': userRole,
+               'assignment': assignment,
+               'assignment_id': assignment_id,
+               'andrew_id': andrew_id,
+               }
+        return render(request, 'view_assignment_admin.html', context)
     if assignment_type == "Individual":
         try:
             entity = Individual.objects.get(
@@ -762,8 +771,13 @@ def view_assignment(request, course_id, assignment_id):
         artifact_id = latest_artifact.id
     except Artifact.DoesNotExist:
         latest_artifact = "None"
-        artifact_id = 99999
-
+        artifact_id = None
+    
+    # if artifact exist
+    if artifact_id != None:
+        latest_artifact_filename = latest_artifact.file.name.split('/')[-1]
+    else: 
+        latest_artifact_filename = ""
     assignment_id = assignment.id
     context = {'course_id': course_id,
                'userRole': userRole,
@@ -771,7 +785,8 @@ def view_assignment(request, course_id, assignment_id):
                'latest_artifact': latest_artifact,
                'assignment_id': assignment_id,
                'artifact_id': artifact_id,
-               'andrew_id': andrew_id}
+               'andrew_id': andrew_id,
+               'latest_artifact_filename': latest_artifact_filename}
     return render(request, 'view_assignment.html', context)
 
 # return true if the user is the owner of the artifact
@@ -859,7 +874,8 @@ def artifact(request, course_id, assignment_id):
                    "userRole": userRole,
                    "assignment": assignment,
                    "entity": entity}
-        return render(request, 'artifact.html', context)
+        return redirect('view_assignment', course_id, assignment_id)
+        # return render(request, 'artifact.html', context)
 
     if request.method == 'GET':
         artifacts = Artifact.objects.filter(
@@ -871,6 +887,7 @@ def artifact(request, course_id, assignment_id):
                    "userRole": userRole,
                    "assignment": assignment,
                    "entity": entity}
+        # return redirect('view_assignment', course_id, assignment_id)
         return render(request, 'artifact.html', context)
 
     else:
@@ -918,6 +935,7 @@ def download_artifact(request, course_id, assignment_id, artifact_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def view_artifact(request, course_id, assignment_id, artifact_id):
+    return redirect('view_assignment', course_id, assignment_id)
     if check_artifact_permisssion(artifact_id, request.user):
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         assignment = get_object_or_404(Assignment, pk=assignment_id)
@@ -939,7 +957,8 @@ def delete_artifact(request, course_id, assignment_id, artifact_id):
         # delete the artifact file first
         artifact.file.delete()
         artifact.delete()
-        return redirect('artifact', course_id, assignment_id)
+        return redirect('view_assignment', course_id, assignment_id)
+        # return redirect('artifact', course_id, assignment_id)
     else:
         return redirect('artifact', course_id, assignment_id)
 
@@ -968,7 +987,7 @@ def edit_artifact(request, course_id, assignment_id, artifact_id):
                 # print("old file deleted, old_file_path:", old_file_path)
                 old_file_path.delete()
             artifact = form.save()
-        return redirect('artifact', course_id, assignment_id)
+        return redirect('view_assignment', course_id, assignment_id)
         # return render(request, 'edit_artifact.html', {'course_id': course_id, 'assignment_id': assignment_id, 'assignment': assignment, 'form': form, 'userRole': userRole})
 
     if request.method == 'GET':

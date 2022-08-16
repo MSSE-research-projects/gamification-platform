@@ -407,8 +407,8 @@
     var editSectionModal = new SectionModal($('#editSectionModal'));
     editSectionModal.on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
-      var sectionTitle = button.closest('fieldset').find('.section-title').text();
-      var sectionDescription = button.closest('fieldset').find('.section-description').text();
+      var sectionTitle = button.closest('fieldset').find('.section-title').ignore('span').text().trim();
+      var sectionDescription = button.closest('fieldset').find('.section-description').text().trim();
 
       var section = survey.getSectionByTitle(sectionTitle);
       var sectionRequired = section.is_required;
@@ -417,6 +417,9 @@
       this.modal.find('#sectionTitle').val(sectionTitle);
       this.modal.find('#sectionDescription').val(sectionDescription);
       this.modal.find('#sectionRequired').prop('checked', sectionRequired);
+    });
+    editSectionModal.on('hidden.bs.modal', function (event) {
+      this.reset();
     });
     editSectionModal.on('click', '.save-btn', function () {
       var originalTitle = this.modal.find('#originalTitle').val();
@@ -433,12 +436,14 @@
         data: {
           title: sectionTitle,
           description: sectionDescription,
+          is_required: sectionRequired,
         },
         success: function (data) {
           // Get section from survey and edit it
           var section = survey.getSectionByTitle(originalTitle);
           section.title = data.title;
           section.description = data.description;
+          section.is_required = data.is_required;
           section.pk = data.pk;
           section.updateElement();
         },
@@ -521,9 +526,9 @@
     var editQuestionModal = new QuestionModal($('#editQuestionModal'));
     editQuestionModal.on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
-      var questionText = button.closest('.question').find('.question-text').text();
+      var questionText = button.closest('.question').find('.question-text').ignore('span').text().trim();
 
-      var sectionTitle = button.closest('fieldset').find('.section-title').text();
+      var sectionTitle = button.closest('fieldset').find('.section-title').text().trim();
       var section = survey.getSectionByTitle(sectionTitle);
       var question = section.getQuestionByText(questionText);
 
@@ -558,6 +563,9 @@
           break;
       }
     });
+    editQuestionModal.on('hidden.bs.modal', function (event) {
+      this.reset();
+    });
     editQuestionModal.on('click', '.save-btn', function (event) {
       var originalText = this.modal.find('#originalText').val();
       var questionText = this.modal.find('#questionText').val();
@@ -577,10 +585,12 @@
         data: {
           text: questionText,
           question_type: queTypeMap[questionType],
+          is_required: questionRequired,
         },
         success: function (data) {
           question.pk = data.pk;
           question.text = data.text;
+          question.is_required = data.is_required;
           question.updateElement();
         },
         error: function (data) {
