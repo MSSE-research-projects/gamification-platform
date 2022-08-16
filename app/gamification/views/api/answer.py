@@ -314,7 +314,7 @@ class ArtifactResult(generics.ListAPIView):
                             res += int(text_answers[0].answer_text) * \
                                 int(confidence[artifact_review.pk])
                     answers[section.title][question.text]['answers'].append(
-                        res/(confidence['sum']))
+                        str(round(res/(confidence['sum']), 1)))
 
                 elif question.question_type == Question.QuestionType.NUMBER and question.text == 'Your confidence':
                     continue
