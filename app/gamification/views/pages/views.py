@@ -548,15 +548,11 @@ def member_list(request, course_id):
     def get_users_team(registration, request):
         team_name = request.POST['team_name']
         if team_name != '' and registration.userRole == 'Student':
-            membership = Membership.objects.filter(student=registration)
-            if len(membership) == 1:
-                team = Team.objects.filter(
-                    registration=registration, course=course)
-                if len(team) == 1:
-                    team = team[0]
-
-                members = team.members
-                if len(members) == 1:
+            team = registration.team
+            if team is not None:
+                membership = team.membership.get(student=registration)
+                membership.delete()
+                if len(team.members) == 0:
                     team.delete()
                 else:
                     # add artifact_review for previous team
@@ -565,7 +561,7 @@ def member_list(request, course_id):
                         artifact_review = ArtifactReview(
                             artifact=artifact, user=registration)
                         artifact_review.save()
-            membership.delete()
+
             try:
                 team = Team.objects.get(
                     course=course, name=team_name)
@@ -578,10 +574,8 @@ def member_list(request, course_id):
             # delete artifact review for updated team
             artifacts = Artifact.objects.filter(entity=team)
             for artifact in artifacts:
-                artifact_reviews = ArtifactReview.objects.filter(
-                    artifact=artifact, user=registration)
-                for artifact_review in artifact_reviews:
-                    artifact_review.delete()
+                ArtifactReview.objects.filter(
+                    artifact=artifact, user=registration).delete()
 
     # Create a list of users in the course
 

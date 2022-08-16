@@ -1,11 +1,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from .registration import Registration
-
 
 class Membership(models.Model):
-    student = models.ForeignKey(Registration, on_delete=models.CASCADE)
+    student = models.ForeignKey('Registration', on_delete=models.CASCADE)
 
     entity = models.ForeignKey('Entity', on_delete=models.CASCADE)
 

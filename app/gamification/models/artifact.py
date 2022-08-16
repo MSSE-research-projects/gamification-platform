@@ -3,12 +3,6 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator
 
-from .entity import Entity
-from .assignment import Assignment
-# from .feedback import Feedback
-# from .artifact_review import ArtifactReview
-# from app.gamification.models import artifact_review
-
 
 class Artifact(models.Model):
 
@@ -16,9 +10,9 @@ class Artifact(models.Model):
     file_extension_validator = FileExtensionValidator(
         allowed_extensions=['pdf'])
 
-    entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
+    entity = models.ForeignKey('Entity', on_delete=models.CASCADE)
 
-    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    assignment = models.ForeignKey('Assignment', on_delete=models.CASCADE)
 
     # TO-DO - check if default=now is correct after deployment
     upload_time = models.DateTimeField(

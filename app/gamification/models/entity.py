@@ -1,14 +1,11 @@
-from atexit import register
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from app.gamification.models.membership import Membership
 
-from app.gamification.models.registration import Registration
-
 
 class Entity(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE)
-    registration = models.ManyToManyField(Registration, through='Membership')
+    registration = models.ManyToManyField('Registration', through='Membership')
 
     class Meta:
         db_table = 'entities'
@@ -20,7 +17,6 @@ class Entity(models.Model):
         membership = Membership.objects.filter(entity=self.pk)
         students = [e.student.users for e in membership]
         return students
-    
 
 
 class Individual(Entity):
@@ -38,6 +34,6 @@ class Team(Entity):
         db_table = 'teams'
         verbose_name = _('team')
         verbose_name_plural = _('teams')
-        
+
     def __str__(self):
         return f'{self.name}'
