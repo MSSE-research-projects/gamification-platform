@@ -236,7 +236,6 @@ class Survey {
 /*******************************************/
 class Section {
   constructor(data = {}, questions = [], options = {}) {
-    console.log(data);
     this.pk = data.pk;
     this.title = data.title;
     this.description = data.description || '';
@@ -262,6 +261,10 @@ class Section {
   // Functions for building the DOM element
   buildElement() {
     this.element = this._buildWrapperElement();
+
+    this.titleElement = this._buildTitleElement();
+    this.element.appendChild(this.titleElement);
+
     this.headerElement;
     if (this.options.editable) {
       this.headerElement = this._buildEditableHeaderElement();
@@ -282,9 +285,20 @@ class Section {
   _buildWrapperElement() {
     var html = '';
     html += '<fieldset class="section">';
-    // html += `  <legend class="section-title">${this.title}${this.is_required ? '' : ' - Optional'}</legend>`;
-    html += `  <legend class="section-title">${this.title}</legend>`;
     html += '</fieldset>';
+
+    return htmlToElement(html);
+  }
+
+  _buildTitleElement() {
+    var html = '';
+    html += `<legend class="section-title">`;
+    if (this.is_required) {
+      html += `  <span style="color: red;">*</span> ` + this.title;
+    } else {
+      html += this.title;
+    }
+    html += `</legend>`;
 
     return htmlToElement(html);
   }
@@ -372,7 +386,8 @@ class Section {
 
   // Functions for manipulating the section
   updateElement() {
-    $(this.element).find('.section-title').text(this.title);
+    this.titleElement = this._buildTitleElement();
+    $(this.element).find('.section-title').replaceWith(this.titleElement);
     $(this.headerElement).find('.section-description').text(this.description);
     $(this.element).find('.section-questions').replaceWith(this._buildQuestionElement());
   }
@@ -478,14 +493,26 @@ class Question {
   }
 
   updateElement() {
-    $(this.textElement).text(this.text);
+    this.textElement = this._buildTextElement();
+    $(this.element).find('.question-text').replaceWith(this.textElement);
 
     this.optionElement = this._buildOptionElement();
     $(this.element).find('.question-option').replaceWith(this.optionElement);
   }
 
   checkAnswers(answers) {
+    if (this.is_required && answers.length === 0) {
+      return false;
+    }
     return true;
+  }
+
+  showError() {
+    $(this.element).find('input').addClass('is-invalid');
+  }
+
+  removeError() {
+    $(this.element).find('input').removeClass('is-invalid');
   }
 }
 
@@ -512,7 +539,13 @@ class InlineStyleQuestion extends Question {
 
   _buildTextElement() {
     var html = '';
-    html += '<label class="question-text col-lg-4 col-xxl-6 col-form-label">' + this.text + '</label>';
+    html += '<label class="question-text col-lg-4 col-xxl-6 col-form-label">'
+    if (this.is_required) {
+      html += '  <span style="color: red;">*</span> ' + this.text;
+    } else {
+      html += this.text;
+    }
+    html += '</label>';
 
     return htmlToElement(html);
   }
@@ -580,7 +613,13 @@ class DefaultStyleQuestion extends Question {
 
   _buildTextElement() {
     var html = '';
-    html += '<label class="question-text form-label">' + this.text + '</label>';
+    html += '<label class="question-text col-form-label">'
+    if (this.is_required) {
+      html += '  <span style="color: red;">*</span> ' + this.text;
+    } else {
+      html += this.text;
+    }
+    html += '</label>';
 
     return htmlToElement(html);
   }
@@ -645,7 +684,13 @@ class GridStyleQuestion extends Question {
 
   _buildTextElement() {
     var html = '';
-    html += '<label class="question-text col-auto form-label">' + this.text + '</label>';
+    html += '<label class="question-text col-lg-4 col-xxl-6 col-form-label">'
+    if (this.is_required) {
+      html += '  <span style="color: red;">*</span> ' + this.text;
+    } else {
+      html += this.text;
+    }
+    html += '</label>';
 
     return htmlToElement(html);
   }
@@ -673,6 +718,8 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
     this.type = 'mcq';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildOption() {
@@ -742,9 +789,11 @@ class FixedTextInputQuestion extends DefaultStyleQuestion {
     super(data, options);
     this.placeholder = data.placeholder ? data.placeholder : '';
     this.numberOfText = data.numberOfText ? data.numberOfText : 1;
-    this.type = 'text';
+    this.type = 'fixed-text';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildOption() {
@@ -785,12 +834,13 @@ class MultiTextInputQuestion extends DefaultStyleQuestion {
     super(data, options);
     this.placeholder = data.placeholder ? data.placeholder : '';
     this.numberOfText = data.numberOfText ? data.numberOfText : 1;
-    this.type = 'text';
+    this.type = 'multi-text';
 
     this.buildElement();
 
-    this.on('click', '.add-text-input-btn', this.addTextInput.bind(this));
-    this.on('click', '.remove-text-input-btn', this.removeTextInput.bind(this));
+    this.on('click', '.add-text-input-btn', this.addTextInput);
+    this.on('click', '.remove-text-input-btn', this.removeTextInput);
+    this.on('input', 'input', this.removeError);
   }
 
   buildElement() {
@@ -868,9 +918,11 @@ class TextAreaQuestion extends DefaultStyleQuestion {
     super(data, options);
     this.placeholder = data.placeholder ? data.placeholder : '';
     this.numberOfText = data.numberOfText ? data.numberOfText : 5;
-    this.type = 'text';
+    this.type = 'textarea';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildOption() {
@@ -899,6 +951,8 @@ class NumericInputQuestion extends GridStyleQuestion {
     this.type = 'number';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildErrorMessageElement() {
@@ -936,10 +990,6 @@ class NumericInputQuestion extends GridStyleQuestion {
       answers.push(inputs[i].value);
     }
     return answers;
-  }
-
-  showError() {
-    $(this.element).find('input').addClass('is-invalid');
   }
 }
 

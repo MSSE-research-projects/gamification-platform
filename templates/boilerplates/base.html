@@ -87,6 +87,12 @@
   <script src="{% static 'js/misc.js' %}"></script>
   <!-- End custom js for this page-->
 
+  <script>
+    $.fn.ignore = function (sel) {
+      return this.clone().find(sel || ">*").remove().end();
+    };
+  </script>
+
   {% block css %}
   {% endblock css %}
 
