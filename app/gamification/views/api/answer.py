@@ -14,6 +14,9 @@ from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
 from collections import defaultdict
+import pytz
+from pytz import timezone
+from datetime import datetime
 
 
 class AnswerList(generics.ListAPIView):
@@ -323,12 +326,12 @@ class SurveyComplete(generics.CreateAPIView):
     def post(self, request, artifact_review_pk, *args, **kwargs):
         artifact_review = get_object_or_404(
             ArtifactReview, id=artifact_review_pk)
-        now = timezone.now()
+        now = datetime.now().astimezone(pytz.timezone('America/Los_Angeles'))
         artifact = artifact_review.artifact
         assignment = artifact.assignment
         feedback_survey = FeedbackSurvey.objects.get(assignment=assignment)
-        print(feedback_survey)
-        due_date = feedback_survey.date_due
+        due_date = feedback_survey.date_due.astimezone(
+            pytz.timezone('America/Los_Angeles'))
         if now > due_date:
             artifact_review.status = ArtifactReview.ArtifactReviewType.LATE
         else:

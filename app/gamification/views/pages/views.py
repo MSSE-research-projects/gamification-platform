@@ -525,7 +525,7 @@ def member_list(request, course_id):
             message_info = 'A new member has been added'
             assignments = []
             for a in Assignment.objects.filter(course=course, assignment_type=Assignment.AssigmentType.Individual):
-                if a.date_due != None and a.date_due < datetime.now().replace(tzinfo=LA):
+                if a.date_due != None and a.date_due.astimezone(pytz.timezone('America/Los_Angeles')) < datetime.now().astimezone(pytz.timezone('America/Los_Angeles')):
                     assignments.append(a)
                 elif a.date_due == None:
                     assignments.append(a)
@@ -569,7 +569,6 @@ def member_list(request, course_id):
             try:
                 team = Team.objects.get(
                     course=course, name=team_name)
-                print('1123112', team)
             except Team.DoesNotExist:
                 team = Team(course=course, name=team_name)
                 team.save()
@@ -659,7 +658,8 @@ def assignment(request, course_id):
             infos = Assignment.objects.filter(course=course)
             assignments = []
             for assignment in infos:
-                if assignment.date_released != None and assignment.date_released.astimezone(pytz.timezone('America/Los_Angeles')) <= datetime.now().replace(tzinfo=LA):
+                if assignment.date_released != None and assignment.date_released.astimezone(pytz.timezone('America/Los_Angeles')) <= datetime.now().astimezone(
+                        pytz.timezone('America/Los_Angeles')):
                     assignments.append(assignment)
                 elif assignment.date_released == None:
                     assignments.append(assignment)
@@ -671,6 +671,14 @@ def assignment(request, course_id):
             assign = dict()
             assign['assignment'] = a
             assign['feedback_survey'] = feedback_survey.count()
+            if feedback_survey.count() == 1:
+                feedback_survey_release_date = feedback_survey[0].date_released.astimezone(
+                    pytz.timezone('America/Los_Angeles'))
+                if feedback_survey_release_date <= datetime.now().astimezone(
+                        pytz.timezone('America/Los_Angeles')):
+                    assign['feedback_survey'] = 1
+                else:
+                    assign['feedback_survey'] = 0
             info.append(assign)
         context = {'infos': info,
                    "course_id": course_id,
@@ -999,14 +1007,12 @@ def review_survey(request, course_id, assignment_id):
         artifact = artifact_review.artifact
         feedback_survey_released_date = feedback_survey.date_released.astimezone(
             pytz.timezone('America/Los_Angeles'))
-        print(feedback_survey_released_date)
-
-        if feedback_survey_released_date <= datetime.now().replace(tzinfo=LA):
+        if feedback_survey_released_date <= datetime.now().astimezone(
+                pytz.timezone('America/Los_Angeles')):
             artifact_review_with_name["artifact_review_pk"] = artifact_review.pk
             artifact_review_with_name["status"] = artifact_review.status
             if assignment_type == "Team":
                 entity = artifact.entity
-                print(entity, artifact.pk, artifact.file.name)
                 team = entity.team
                 artifact_review_with_name["name"] = team.name
 

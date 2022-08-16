@@ -46,11 +46,11 @@
             </div>
             <div class="form-group">
               <label for="date_released">Release Date</label>
-              <input type="text" name="date_released" class="form-control datetimepicker" id="date_released" placeholder="Release Date" value="{{ feedback_survey_date_released.date|date:"Y-m-d" }}" required>
+              <input type="text" name="date_released" class="form-control datetimepicker" id="date_released" placeholder="Release Date" value="{{ feedback_survey_date_released|date:'Y-m-d h:i:s A'}}" required> 
             </div>
             <div class="form-group">
               <label for="date_due">Due Date</label>
-              <input type="text" name="date_due" class="form-control datetimepicker" id="date_due" placeholder="Due Date" value = "{{ feedback_survey_date_due.date|date:"Y-m-d" }}" required>
+              <input type="text" name="date_due" class="form-control datetimepicker" id="date_due" placeholder="Due Date" value = "{{ feedback_survey_date_due|date:'Y-m-d h:i:s A'}}" required>
             </div>
 
             <button type="submit" class="btn btn-primary me-2">Save</button>
