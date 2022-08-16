@@ -38,7 +38,13 @@
                   {{ info.name }}
                 </td>
                 <td>
-                  {{ info.status }}
+                  {% if info.status == 'INCOMPLETE' %}
+                  <label class="badge badge-danger">Incomplete</label>
+                  {% elif info.status == 'LATE' %}
+                  <label class="badge badge-warning">Late</label>
+                  {% else %}
+                  <label class="badge badge-success">Completed</label>
+                  {% endif %}
                 </td>
 
                 <td>
