@@ -316,6 +316,9 @@ class ArtifactResult(generics.ListAPIView):
                     answers[section.title][question.text]['answers'].append(
                         res/(confidence['sum']))
 
+                elif question.question_type == Question.QuestionType.NUMBER and question.text == 'Your confidence':
+                    continue
+
                 elif question.question_type == Question.QuestionType.SLIDEREVIEW:
                     answers[section.title][question.text]['answers'] = defaultdict(
                         list)
