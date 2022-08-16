@@ -148,6 +148,8 @@ class CourseForm(forms.ModelForm):
                     code='invalid_format'
                 )
 
+        file.seek(0)    # Reset file iterator
+
         return file
 
     def _register_teams(self, course):
@@ -205,6 +207,8 @@ class CourseForm(forms.ModelForm):
             # Register this user to the team
             membership = Membership(student=registration, entity=team)
             membership.save()
+
+        file.seek(0)    # Reset file iterator
 
     def save(self, commit=True):
         course = super().save(commit=True)

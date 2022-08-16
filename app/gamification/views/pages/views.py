@@ -650,13 +650,25 @@ def assignment(request, course_id):
     if request.method == 'GET':
         if userRole == Registration.UserRole.Student:
             infos = Assignment.objects.filter(course=course)
+            user_is_individual = True
+            try:
+                registration = get_object_or_404(
+                    Registration, users=request.user, courses=course_id)
+                entity = Team.objects.get(registration=registration, course=course)
+                user_is_individual = False
+            except Team.DoesNotExist:
+                user_is_individual = True
             assignments = []
             for assignment in infos:
-                if assignment.date_released != None and assignment.date_released.astimezone(pytz.timezone('America/Los_Angeles')) <= datetime.now().astimezone(
-                        pytz.timezone('America/Los_Angeles')):
-                    assignments.append(assignment)
-                elif assignment.date_released == None:
-                    assignments.append(assignment)
+                assignment_type = assignment.assignment_type
+                if assignment_type == 'Team' and user_is_individual:
+                    print('individual user can not see this assignment')
+                else:
+                    if assignment.date_released != None and assignment.date_released.astimezone(pytz.timezone('America/Los_Angeles')) <= datetime.now().astimezone(
+                            pytz.timezone('America/Los_Angeles')):
+                        assignments.append(assignment)
+                    elif assignment.date_released == None:
+                        assignments.append(assignment)
         else:
             assignments = Assignment.objects.filter(course=course)
         info = []

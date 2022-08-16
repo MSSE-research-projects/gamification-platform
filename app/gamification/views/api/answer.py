@@ -283,6 +283,8 @@ class ArtifactResult(generics.ListAPIView):
         for section in sections:
             answers[section.title] = dict()
             for question in section.questions:
+                if question.question_type == Question.QuestionType.NUMBER and question.text == 'Your confidence':
+                    continue
                 answers[section.title][question.text] = dict()
                 answers[section.title][question.text]['question_type'] = question.question_type
                 # dict{option_choice.text: number}
@@ -314,7 +316,7 @@ class ArtifactResult(generics.ListAPIView):
                             res += int(text_answers[0].answer_text) * \
                                 int(confidence[artifact_review.pk])
                     answers[section.title][question.text]['answers'].append(
-                        res/(confidence['sum']))
+                        str(round(res/(confidence['sum']), 1)))
 
                 elif question.question_type == Question.QuestionType.SLIDEREVIEW:
                     answers[section.title][question.text]['answers'] = defaultdict(
