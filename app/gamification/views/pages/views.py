@@ -750,7 +750,7 @@ def view_assignment(request, course_id, assignment_id):
             entity = Team.objects.get(registration=registration, course=course)
         except Team.DoesNotExist:
             # TODO: Alert: you need to be a member of the team to upload the artifact
-            print("you need to be a member of the team to upload the artifact")
+            print("you need to be a member of the team to upload the artifact.")
             return redirect('assignment', course_id)
     else:
         return redirect('assignment', course_id)
