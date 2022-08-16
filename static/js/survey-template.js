@@ -501,7 +501,18 @@ class Question {
   }
 
   checkAnswers(answers) {
+    if (this.is_required && answers.length === 0) {
+      return false;
+    }
     return true;
+  }
+
+  showError() {
+    $(this.element).find('input').addClass('is-invalid');
+  }
+
+  removeError() {
+    $(this.element).find('input').removeClass('is-invalid');
   }
 }
 
@@ -707,6 +718,8 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
     this.type = 'mcq';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildOption() {
@@ -779,6 +792,8 @@ class FixedTextInputQuestion extends DefaultStyleQuestion {
     this.type = 'fixed-text';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildOption() {
@@ -823,8 +838,9 @@ class MultiTextInputQuestion extends DefaultStyleQuestion {
 
     this.buildElement();
 
-    this.on('click', '.add-text-input-btn', this.addTextInput.bind(this));
-    this.on('click', '.remove-text-input-btn', this.removeTextInput.bind(this));
+    this.on('click', '.add-text-input-btn', this.addTextInput);
+    this.on('click', '.remove-text-input-btn', this.removeTextInput);
+    this.on('input', 'input', this.removeError);
   }
 
   buildElement() {
@@ -905,6 +921,8 @@ class TextAreaQuestion extends DefaultStyleQuestion {
     this.type = 'textarea';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildOption() {
@@ -933,6 +951,8 @@ class NumericInputQuestion extends GridStyleQuestion {
     this.type = 'number';
 
     this.buildElement();
+
+    this.on('input', 'input', this.removeError);
   }
 
   _buildErrorMessageElement() {
@@ -970,10 +990,6 @@ class NumericInputQuestion extends GridStyleQuestion {
       answers.push(inputs[i].value);
     }
     return answers;
-  }
-
-  showError() {
-    $(this.element).find('input').addClass('is-invalid');
   }
 }
 

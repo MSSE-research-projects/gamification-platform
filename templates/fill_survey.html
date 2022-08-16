@@ -75,7 +75,7 @@
 
     survey.on('click', '.save-section-btn', function (e) {
       var button = $(e.currentTarget);
-      var sectionTitle = button.closest('.section').find('.section-title').text();
+      var sectionTitle = button.closest('.section').find('.section-title').ignore('span').text().trim();
       var section = this.getSectionByTitle(sectionTitle);
       var hasError = false;
 
@@ -115,7 +115,7 @@
     survey.on('click', '.submit-survey-btn', function (e) {
       var button = $(e.currentTarget);
       var sections = this.getSections();
-      var notDone = false;
+      var allDone = true;
       var hasError = false;
       for (var i = 0; i < sections.length; i++) {
         for (var j = 0; j < sections[i].questions.length; j++) {
@@ -130,12 +130,13 @@
             },
             error: function (err) {
               console.log(err);
-              notDone = true;
+              allDone = false;
+              question.showError();
             }
           });
         }
       }
-      if (!notDone) {
+      if (allDone) {
         for (var i = 0; i < sections.length; i++) {
           for (var j = 0; j < sections[i].questions.length; j++) {
             var question = sections[i].questions[j];
@@ -160,6 +161,7 @@
       }
       else {
         alert('Please answer all questions!');
+        return;
       }
 
       if (!hasError) {
