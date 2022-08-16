@@ -262,6 +262,23 @@ class ArtifactResult(generics.ListAPIView):
         assignment = artifact.assignment
         survey_template = assignment.survey_template
         sections = survey_template.sections
+
+        confidence = dict()
+        confidence['sum'] = 0
+        artifact_reviews = ArtifactReview.objects.filter(
+            artifact=artifact)
+        print('1111')
+        for artifact_review in artifact_reviews:
+            answers = Answer.objects.filter(
+                artifact_review=artifact_review)
+            for answer in answers:
+                print('-------')
+                print(answer.question_option.question.text)
+                if answer.question_option.question.text == 'Your confidence' and answer.question_option.question.question_type == Question.QuestionType.NUMBER:
+                    print('enter if')
+                    confidence[artifact_review.pk] = answer.answer_text
+                    confidence['sum'] += int(answer.answer_text)
+        print(confidence)
         answers = {}
         for section in sections:
             answers[section.title] = dict()
@@ -270,9 +287,9 @@ class ArtifactResult(generics.ListAPIView):
                 answers[section.title][question.text]['question_type'] = question.question_type
                 # dict{option_choice.text: number}
                 answers[section.title][question.text]['answers'] = []
-
                 artifact_reviews = ArtifactReview.objects.filter(
                     artifact=artifact)
+
                 if question.question_type == Question.QuestionType.MULTIPLECHOICE:
                     question_options = question.options
                     for question_option in question_options:
@@ -283,19 +300,21 @@ class ArtifactResult(generics.ListAPIView):
                             answers[section.title][question.text]['answers'].append(
                                 {answer_text: count}
                             )
-                elif question.question_type == Question.QuestionType.NUMBER:
+                elif question.question_type == Question.QuestionType.NUMBER and question.text != 'Your confidence':
                     question_option = get_object_or_404(
                         QuestionOption, question=question)
+
                     count = 0
-                    sum = 0
+                    res = 0
                     for artifact_review in artifact_reviews:
                         text_answers = Answer.objects.filter(
                             artifact_review=artifact_review, question_option=question_option)
                         if text_answers.count() > 0:
                             count += 1
-                            sum += int(text_answers[0].answer_text)
+                            res += int(text_answers[0].answer_text) * \
+                                int(confidence[artifact_review.pk])
                     answers[section.title][question.text]['answers'].append(
-                        sum / count)
+                        res/(confidence['sum']))
 
                 elif question.question_type == Question.QuestionType.SLIDEREVIEW:
                     answers[section.title][question.text]['answers'] = defaultdict(
