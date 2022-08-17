@@ -65,9 +65,8 @@
             <input hidden name="assignment" class="form-control" id="assignment-ID" value="{{ assignment.id }}">
             <div class="form-group">
                 <label for="file">File:</label>
-                <input type="file" name="file" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control" id="file">
+                <input type="file" name="file" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control" id="file" accept=".pdf">
             </div>
-            {% comment %} <input type="hidden" name="course" class="form-control" id="course-ID" value="{{ course_id }}"> {% endcomment %}
             <button type="submit" class="btn btn-primary me-2">Add</button>
             </form>
         </div>
