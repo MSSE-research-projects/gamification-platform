@@ -135,7 +135,12 @@ def artifact_admin(request, course_id, assignment_id):
 @login_required
 @user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
 def download_artifact(request, course_id, assignment_id, artifact_id):
-    if check_artifact_permisssion(artifact_id, request.user):
+    course = Course.objects.get(pk=course_id)
+    registration = Registration.objects.get(
+                users=request.user, courses=course)
+    userRole = registration.userRole
+    print('userRole: ', userRole)
+    if check_artifact_permisssion(artifact_id, request.user) or userRole == Registration.UserRole.Instructor or userRole == Registration.UserRole.TA:
         artifact = get_object_or_404(Artifact, pk=artifact_id)
         if settings.USE_S3:
             from config.storages import MediaStorage

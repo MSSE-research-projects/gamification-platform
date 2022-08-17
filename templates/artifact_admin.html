@@ -11,7 +11,7 @@
       <div class="card-body">
         <h4 class="card-title"><a href="{% url 'view_assignment' course_id assignment.id%}"><button type="button"
               class="btn btn-outline-primary">Back</button></a>
-          &nbsp&nbsp&nbsp&nbsp&nbsp Course:{{ course.course_name}}</h4>
+          &nbsp&nbsp&nbsp{{ course.course_name}} - {{assignment.assignment_name}}</h4>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -23,12 +23,12 @@
                   File
                 </th>
                 <th>
+                  Uploader
+                </th>
+                <th>
                   Upload time
                 </th>
                 {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
-                <th></th>
-                <th></th>
-                <th></th>
                 <th></th>
                 {% endif %}
               </tr>
@@ -40,23 +40,32 @@
                   <p> {{ artifact.id }}</p>
                 </td>
                 <td>
-                  {{ artifact.file}}
+                  {{ artifact.file|cut:'assignment_files/'}}
+                </td>
+                <td>
+                  {% if artifact.entity.team.name %}
+                  {{ artifact.entity.team.name }}
+                  {% else %}
+                    {% for member in artifact.entity.members%}
+                      {{ member }}
+                    {% endfor %}
+                  {% endif %}
                 </td>
                 <td>
                   {{ artifact.upload_time}}
                 </td>
                 {% if userRole == 'Instructor' or userRole == 'TA' or userRole == 'Student'%}
-                <td>
+                {% comment %} <td>
                   <a href="{% url 'view_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">view</button>
                   </a>
-                </td>
+                </td> {% endcomment %}
                 <td>
                   <a href="{% url 'download_artifact' course_id assignment.id artifact.id %}">
-                    <button type="button" class="btn-sm btn-primary">Download</button>
+                    <button type="button" class="btn-sm btn-primary">Open</button>
                   </a>
                 </td>
-                <td>
+                {% comment %} <td>
                   <a href="{% url 'edit_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">Edit</button>
                   </a>
@@ -65,7 +74,7 @@
                   <a href="{% url 'delete_artifact' course_id assignment.id artifact.id %}">
                     <button type="button" class="btn-sm btn-primary">delete</button>
                   </a>
-                </td>
+                </td> {% endcomment %}
                 {% endif %}
               </tr>
             </tbody>
