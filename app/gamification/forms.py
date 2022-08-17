@@ -106,9 +106,10 @@ class CourseForm(forms.ModelForm):
     }
 
     file = forms.FileField(
-        label=_('CATME file'),
+        label=_('CATME File'),
         required=False,
-        validators=[FileExtensionValidator(allowed_extensions=['json'])]
+        validators=[FileExtensionValidator(allowed_extensions=['json'])],
+        help_text=_('Upload a JSON file containing the team information.')
     )
 
     class Meta:
@@ -223,10 +224,8 @@ class AssignmentForm(forms.ModelForm):
         model = Assignment
         fields = ('course', 'assignment_name', 'description',
                   'assignment_type', 'submission_type', 'total_score',
-                  'weight', 'date_created', 'date_released', 'date_due', 'review_assign_policy')
+                  'date_created', 'date_released', 'date_due')
         widgets = {
-            # TODO: solve display issue
-            # 'course': forms.Select(attrs={'disabled': 'disabled'}),
             'course': forms.TextInput(attrs={'readonly': 'readonly'})
         }
 
