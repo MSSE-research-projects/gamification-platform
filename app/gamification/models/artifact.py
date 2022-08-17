@@ -22,7 +22,8 @@ class Artifact(models.Model):
         _('assignment file'),
         upload_to='assignment_files',
         blank=True,
-        validators=[file_extension_validator])
+        validators=[file_extension_validator],
+        help_text=_('Upload a PDF file.'))
 
     # @property
     # def artifact_reviews(self):
