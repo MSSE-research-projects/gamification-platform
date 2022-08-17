@@ -80,7 +80,8 @@ def member_list(request, course_id):
         if team_name != '' and registration.userRole == 'Student':
             team = registration.team
             if team is not None:
-                membership = team.membership.get(student=registration)
+                membership = get_object_or_404(
+                    Membership, student=registration, entity=team)
                 membership.delete()
                 if len(team.members) == 0:
                     team.delete()
