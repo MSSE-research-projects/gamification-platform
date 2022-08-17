@@ -267,18 +267,14 @@ class ArtifactResult(generics.ListAPIView):
         confidence['sum'] = 0
         artifact_reviews = ArtifactReview.objects.filter(
             artifact=artifact)
-        print('1111')
         for artifact_review in artifact_reviews:
             answers = Answer.objects.filter(
                 artifact_review=artifact_review)
             for answer in answers:
-                print('-------')
                 print(answer.question_option.question.text)
                 if answer.question_option.question.text == 'Your confidence' and answer.question_option.question.question_type == Question.QuestionType.NUMBER:
-                    print('enter if')
                     confidence[artifact_review.pk] = answer.answer_text
                     confidence['sum'] += int(answer.answer_text)
-        print(confidence)
         answers = {}
         for section in sections:
             answers[section.title] = dict()
@@ -315,8 +311,9 @@ class ArtifactResult(generics.ListAPIView):
                             count += 1
                             res += int(text_answers[0].answer_text) * \
                                 int(confidence[artifact_review.pk])
-                    answers[section.title][question.text]['answers'].append(
-                        str(round(res/(confidence['sum']), 1)))
+                    if confidence['sum'] != 0:
+                        answers[section.title][question.text]['answers'].append(
+                            str(round(res/(confidence['sum']), 1)))
 
                 elif question.question_type == Question.QuestionType.SLIDEREVIEW:
                     answers[section.title][question.text]['answers'] = defaultdict(
