@@ -116,6 +116,8 @@ def view_assignment(request, course_id, assignment_id):
     course = get_object_or_404(Course, pk=course_id)
     andrew_id = request.user.andrew_id
     assignment_type = assignment.assignment_type
+    feedback_survey = FeedbackSurvey.objects.filter(assignment=assignment)
+    print('feedback_survey.count()', feedback_survey.count())
     if userRole == Registration.UserRole.Instructor or userRole == Registration.UserRole.TA:
         assignment_id = assignment.id
         context = {'course_id': course_id,
