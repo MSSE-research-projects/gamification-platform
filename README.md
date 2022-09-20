@@ -117,7 +117,7 @@ PostgreSQL server database.
 
 6. Install fixtures
 
-    Run command 'python manage.py loaddata assignments courses entities membership registration survey users'
+    Run command 'python manage.py loaddata assignments courses entities membership registration survey users artifact'
 
 # How to Run
 
