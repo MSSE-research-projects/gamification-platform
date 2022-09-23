@@ -281,7 +281,7 @@
 
     survey.on('click', '.remove-section-btn', function (e) {
       var button = $(e.currentTarget);
-      var sectionTitle = button.closest('.section').find('.section-title').text();
+      var sectionTitle = button.closest('.section').find('.section-title').ignore('span').text().trim();
       var section = this.getSectionByTitle(sectionTitle);
 
       $.ajax({
@@ -299,8 +299,8 @@
 
     survey.on('click', '.remove-question-btn', function (e) {
       var button = $(e.currentTarget);
-      var questionText = button.closest('.question').find('.question-text').text();
-      var sectionTitle = button.closest('.section').find('.section-title').text();
+      var questionText = button.closest('.question').find('.question-text').ignore('span').text().trim();
+      var sectionTitle = button.closest('.section').find('.section-title').ignore('span').text().trim();
 
       var section = this.getSectionByTitle(sectionTitle);
       var question = section.getQuestionByText(questionText);
@@ -461,7 +461,7 @@
     var addQuestionModal = new QuestionModal($('#addQuestionModal'));
     addQuestionModal.on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
-      var sectionTitle = button.closest('fieldset').find('.section-title').text();
+      var sectionTitle = button.closest('fieldset').find('.section-title').ignore('span').text().trim();
       this.modal.find('#sectionTitleInQuestionModal').val(sectionTitle);
 
       var section = survey.getSectionByTitle(sectionTitle);
@@ -528,7 +528,7 @@
       var button = $(event.relatedTarget);
       var questionText = button.closest('.question').find('.question-text').ignore('span').text().trim();
 
-      var sectionTitle = button.closest('fieldset').find('.section-title').text().trim();
+      var sectionTitle = button.closest('fieldset').find('.section-title').ignore('span').text().trim();
       var section = survey.getSectionByTitle(sectionTitle);
       var question = section.getQuestionByText(questionText);
 
