@@ -14,7 +14,7 @@
         <div class="card-body">
           <form method="post">
             {% csrf_token %}
-            <h4 class="card-title">Edit Survey</h4>
+            <h4 class="card-title"><button onclick="backButton()" class="btn btn-outline-primary">Back</button>Edit Survey</h4>
             <div class="form-group">
               <label for="template_name">Template</label>
               <div>
@@ -73,6 +73,11 @@
     showObj.disabled = false;
     showObj.style.display = 'inline';
     showObj.focus();
+  }
+
+  function backButton() {
+    currentUrl = window.location.href;
+    window.location.href = currentUrl.replace('/edit_survey_template/', '/edit/');
   }
 
 
