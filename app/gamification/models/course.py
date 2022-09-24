@@ -9,7 +9,7 @@ from .registration import Registration
 class Course(models.Model):
 
     course_number = models.CharField(
-        _('course_number'), max_length=150, blank=True)
+        _('course number'), max_length=150, blank=True)
 
     course_name = models.CharField(
         _('course name'), max_length=150, blank=True)

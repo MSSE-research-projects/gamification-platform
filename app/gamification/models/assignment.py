@@ -43,9 +43,9 @@ class Assignment(models.Model):
         _('date created'), null=True, default=now, blank=True)
 
     date_released = models.DateTimeField(
-        _('date_released'),  null=True, blank=True)
+        _('date released'),  null=True, blank=True)
 
-    date_due = models.DateTimeField(_('date_due'),  null=True, blank=True)
+    date_due = models.DateTimeField(_('date due'),  null=True, blank=True)
 
     review_assign_policy = models.TextField(
         choices=ReviewerAssignPolicy.choices, default=ReviewerAssignPolicy.A, blank=True)
