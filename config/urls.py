@@ -42,6 +42,8 @@ urlpatterns = [
     ])),
 
     path('profile/', page_views.profile, name='profile'),
+    path('profile_edit/', page_views.profile_edit, name='profile_edit'),
+    
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
 
     path('test/', page_views.test, name='test'),

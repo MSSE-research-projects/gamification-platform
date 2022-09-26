@@ -29306,7 +29306,8 @@ div.tagsinput span.tag a {
   -ms-transition: width 0.25s ease, background 0.25s ease;
   width: 220px;
   height: 97px;
-  padding: 20px 35px;
+  /* padding: 20px 35px; */
+  padding: 15px 20px;
 }
 
 .sidebar-dark .navbar .navbar-brand-wrapper {

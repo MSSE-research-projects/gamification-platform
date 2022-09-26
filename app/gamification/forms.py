@@ -226,7 +226,8 @@ class AssignmentForm(forms.ModelForm):
                   'assignment_type', 'submission_type', 'total_score',
                   'date_created', 'date_released', 'date_due')
         widgets = {
-            'course': forms.TextInput(attrs={'readonly': 'readonly'})
+            # 'course': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'course': forms.HiddenInput(),
         }
 
 
