@@ -109,7 +109,7 @@ class Survey {
     html += '    <p class="card-description survey-instructions">' + this.instructions + '</p>';
     html += '  </div>';
     html += '  <div class="col-md-3 col-sm-12 text-end">';
-    html += '    <button class="btn btn-primary artifact-preview-btn" data-bs-toggle="modal" data-bs-target="#artifactPreviewModal">';
+    html += '    <button class="btn btn-primary artifact-preview-btn" data-bs-toggle="modal" data-bs-target="#artifactPreviewModal" disabled>';
     html += '      Artifact Preview';
     html += '    </button>';
     html += '  </div>';
