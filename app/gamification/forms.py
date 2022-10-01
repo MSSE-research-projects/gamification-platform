@@ -115,7 +115,7 @@ class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = ('course_number', 'course_name', 'syllabus',
-                  'semester', 'visible')
+                  'semester', 'visible', 'picture')
 
     def clean_course_number(self):
         course_number = self.cleaned_data.get('course_number')
