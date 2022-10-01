@@ -67,7 +67,7 @@ PostgreSQL server database.
       ```sql
       CREATE USER dbuser WITH PASSWORD 'dbuser';
       GRANT ALL PRIVILEGES ON DATABASE dev TO dbuser;
-      ```
+      ```python manage.py makemigration
 
       Afterwards, you can modify a few of the connection parameters for the
       `dbuser` you just created. This will speed up database operations so that
@@ -121,7 +121,7 @@ PostgreSQL server database.
     
 7. Django Migration 
     
-    After each time you make changes on the models, migrate the database run : `python manage.py makemigration` (make migration) `python manage.py migrate` (migrate the database to the new changes)  
+    After each time you make changes on the models, migrate the database run : `python manage.py makemigrations` (make migration) `python manage.py migrate` (migrate the database to the new changes)  
 
 # How to Run
 
