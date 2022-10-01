@@ -67,7 +67,7 @@ PostgreSQL server database.
       ```sql
       CREATE USER dbuser WITH PASSWORD 'dbuser';
       GRANT ALL PRIVILEGES ON DATABASE dev TO dbuser;
-      ```python manage.py makemigration
+      ```python manage.py makemigrations
 
       Afterwards, you can modify a few of the connection parameters for the
       `dbuser` you just created. This will speed up database operations so that
