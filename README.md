@@ -118,6 +118,10 @@ PostgreSQL server database.
 6. Install fixtures
 
     Run command 'python manage.py loaddata assignments courses entities membership registration survey users artifact'
+    
+7. Django Migration 
+    
+    After each time you make changes on the models, migrate the database run : `python manage.py makemigration` (make migration) `python manage.py migrate` (migrate the database to the new changes)  
 
 # How to Run
 
