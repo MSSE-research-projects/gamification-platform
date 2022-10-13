@@ -12,4 +12,9 @@ media/
 
 Pipfile
 Pipfile.lock
+<<<<<<< HEAD
 .DS_Store
+=======
+
+get-pip.py
+>>>>>>> dev
