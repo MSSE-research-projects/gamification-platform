@@ -12,3 +12,5 @@ media/
 
 Pipfile
 Pipfile.lock
+
+get-pip.py
