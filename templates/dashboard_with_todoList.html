@@ -1,0 +1,282 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="home-tab">
+          <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+          </div>
+          <div class="tab-content tab-content-basic">
+            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview">
+              <div class="row">
+                {% if registration %}
+                  <div class="col-md-7">
+                    {% for reg in registration %}
+                    <div class="col-md-12 grid-margin stretch-card">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="d-sm-flex flex-row flex-wrap text-start align-items-center">
+                              <img src="/static/images/cmusvfence.jpg" class="img-course-pic" alt="profile image">
+                            <div class="ms-sm-3 ms-md-0 ms-xl-3 mt-2 mt-sm-0 mt-md-2 mt-xl-0" padding-left="10px">
+                              <h3 class="mb-0">{{ reg.courses.course_name}}</h3>
+                              <p class="text-muted mb-1">{{ reg.courses.course_number}} - {{ reg.courses.semester}}</p>
+                              <a href="{% url 'view_course' reg.courses.id %}">
+                                <button type="button" class="btn btn-outline-primary btn-icon-text btn-lg">
+                                  <i class="fa-solid fa-circle-info"></i>
+                                  Course Detail
+                                </button>
+                              </a>
+                              <a href="{% url 'assignment' reg.courses.id %}">
+                                <button type="button" class="btn btn-outline-primary btn-icon-text btn-lg">
+                                  <i class="fa-solid fa-book"></i>
+                                  Assignments
+                                </button>
+                              </a>
+                              <a href="{% url 'report' reg.courses.id andrew_id %}">
+                                <button type="button" class="btn btn-outline-primary btn-icon-text btn-lg">
+                                  <i class="fa-regular fa-clipboard"></i>
+                                  Report
+                                </button>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="col-md-7">
+                    <br>
+                    <br>
+                    todo_list:{{todo_list}}
+                    time_now:{{time_now}}
+                    <center><h2><b> You are not registered for any courses.</b></h2></center>
+                  </div> 
+                {% endif %}
+                <div class="col-lg-5 d-flex flex-column">
+                  <div class="row flex-grow">
+                    <div class="col-12 grid-margin stretch-card">
+                      <div class="card card-rounded">
+                        <div class="card-body">
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="card-title card-title-dash">Todo list
+                                </h4>
+                                <div class="dropdown">
+                                  <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuIconButton1" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="mdi mdi-plus"></i>
+                                  </button>
+                                  <div class="dropdown-menu" aria-labelledby="dropdownMenuIconButton1" style="">
+                                    <div width="400px">
+                                      <form class="pt-3" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="form-group" hidden>
+                                          <label for="user">user</label>
+                                          {% comment %} <input type="text" name="user" class="form-control" required id="user"
+                                            value={{request_user}}> {% endcomment %}
+                                          <select name="user" style="height: auto; padding: 0.375rem 0.75rem; color: #212529;" class="form-control" required="" id="user">
+                                            <option value="1">111111</option>
+                                          </select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="text">text</label>
+                                          {% comment %} <input type="text" name="text" class="form-control" required id="text"
+                                            placeholder="text"> {% endcomment %}
+                                          <input type="text" name="text" maxlength="200" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control" required="" id="text">
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="due_date">due_date</label>
+                                          <input type="datetime-local" name="due_date" class="form-control" id="due_date"
+                                            placeholder="due_date">
+                                          {% comment %} <input type="text" name="due_date" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control datetimepicker" id="due_date"> {% endcomment %}
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="type_name">type_name</label>
+                                          {% comment %} <input type="text" name="type_name" class="form-control" style="height: auto; padding: 0.375rem 0.75rem;" 
+                                          required id="type_name" placeholder="type_name"> {% endcomment %}
+                                          {% comment %} <input type="text" name="type_name" value="Assignment" maxlength="200" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control" required="" id="type_name"> {% endcomment %}
+                                          <select name="type_name" style="height: auto; padding: 0.375rem 0.75rem; color: #212529;" class="form-control" required="" id="type_name">
+                                            <option value="Assignment">Assignment</option>
+                                          </select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="type_icon">type_icon</label>
+                                          {% comment %} <input type="text" name="type_icon" class="form-control" required id="type_icon"
+                                            placeholder="type_icon"> {% endcomment %}
+                                          {% comment %} <input type="text" name="type_icon" value="fa-solid fa-book" maxlength="100" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control" required="" id="type_icon"> {% endcomment %}
+                                          <select name="type_icon" style="height: auto; padding: 0.375rem 0.75rem; color: #212529;" class="form-control" required="" id="type_icon">
+                                            <option value="fa-solid fa-book">Book</option>
+                                          </select>
+                                        </div>
+                                        <div class="form-group">
+                                          <label for="mandatory">mandatory</label>
+                                          <input type="checkbox" name="mandatory" class="form-check-input" id="mandatory">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary me-2" formaction="{% url 'add_todo_list' %}">Add</button>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                                {% comment %} <div class="add-items d-flex mb-0"> {% endcomment %}
+                                  {% comment %} <input type="text" class="form-control todo-list-input" placeholder="What do you need to do today?"> {% endcomment %}
+                                  {% comment %} <button
+                                    class="add btn btn-icons btn-rounded btn-primary todo-list-add-btn text-white me-0 pl-12p"><i
+                                      class="mdi mdi-plus"></i></button> {% endcomment %}
+                                  
+                                {% comment %} </div> {% endcomment %}
+                              </div>
+                              
+                              <div class="list-wrapper">
+                                <ul class="todo-list todo-list-rounded">
+                                  {% for todo in todo_list %}
+                                    {% if forloop.last %}
+                                      <li class="border-bottom-0">
+                                        <div class="form-check w-100">
+                                          <label class="form-check-label">
+                                            <input class="checkbox" type="checkbox">{{todo.text}}<i class="input-helper rounded"></i>
+                                          </label>
+                                          <div class="d-flex mt-2">
+                                            <div class="ps-4 text-small me-3">
+                                              Due: {{todo.due_date}}</div>
+                                            <div class="badge badge-opacity-primary me-3">
+                                              <i class="{{todo.type_icon}}"></i> {{todo.type_name}}</div>
+                                            {% if todo.mandatory %}
+                                              <div class="badge badge-opacity-warning me-3">
+                                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                                Mandatory </div>
+                                            {% else %}
+                                              <div class="badge badge-opacity-success me-3">
+                                                <i class="mdi mdi-check-circle-outline"></i> Optional</div>
+                                            {% endif %} 
+                                          </div>
+                                        </div>
+                                      </li>
+                                    {% else %}
+                                      <li class="d-block">
+                                        <div class="form-check w-100">
+                                          <a href="{% url 'delete_todo_list' todo.id %}">
+                                            <button class="btn btn-icons btn-rounded btn-primary todo-list-add-btn text-white me-0 pl-12p">
+                                              <i class="mdi mdi-delete"></i>
+                                            </button>
+                                          </a>
+                                          &nbsp&nbsp{{todo.text}}
+                                          {% comment %} <label class="form-check-label">
+                                            <input class="checkbox" type="checkbox">{{ todo.text}}<i class="input-helper rounded"></i>
+                                          </label> {% endcomment %}
+                                          <div class="d-flex mt-2">
+                                            <div class="ps-4 text-small me-3">
+                                              Due: {{todo.due_date}}</div>
+                                            <div class="badge badge-opacity-primary me-3">
+                                              <i class="{{todo.type_icon}}"></i> {{todo.type_name}}</div>
+                                            {% if todo.mandatory %}
+                                              <div class="badge badge-opacity-warning me-3">
+                                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                                Mandatory </div>
+                                            {% else %}
+                                              <div class="badge badge-opacity-success me-3">
+                                                <i class="mdi mdi-check-circle-outline"></i> Optional</div>
+                                            {% endif %} 
+                                          </div>
+                                        </div>
+                                      </li>
+                                    {% endif %}
+                                  {% endfor %}
+                                  {% comment %} <li class="d-block">
+                                    <div class="form-check w-100">
+                                      <label class="form-check-label">
+                                        <input class="checkbox" type="checkbox"> MS Internship Enrollment Request Form
+                                         <i class="input-helper rounded"></i>
+                                      </label>
+                                      <div class="d-flex mt-2">
+                                        <div class="ps-4 text-small me-3">
+                                          24 June 2020</div>
+                                        <div class="badge badge-opacity-primary me-3">
+                                          <i class="fa-solid fa-book"></i> Assignment</div>
+                                        <div class="badge badge-opacity-warning me-3">
+                                          Due tomorrow</div>
+                                      </div>
+                                    </div>
+                                  </li>
+                                  <li class="d-block">
+                                    <div class="form-check w-100">
+                                      <label class="form-check-label">
+                                        <input class="checkbox" type="checkbox">Ice break<i class="input-helper rounded"></i>
+                                      </label>
+                                      <div class="d-flex mt-2">
+                                        <div class="ps-4 text-small me-3">
+                                          23 June 2020</div>
+                                        <div class="badge badge-opacity-primary me-3">
+                                          <i class="fa-solid fa-martini-glass"></i> Activity</div>
+                                        <div class="badge badge-opacity-warning me-3">
+                                          mandatory </div>
+                                      </div>
+                                    </div>
+                                  </li>
+                                  <li>
+                                    <div class="form-check w-100">
+                                      <label class="form-check-label">
+                                        <input class="checkbox" type="checkbox">MS Internship Enrollment Request Form<i class="input-helper rounded"></i>
+                                      </label>
+                                      <div class="d-flex mt-2">
+                                        <div class="ps-4 text-small me-3">
+                                          24 June 2020</div>
+                                        <div class="badge badge-opacity-primary me-3">
+                                          <i class="fa-solid fa-martini-glass"></i> Activity</div>
+                                        <div class="badge badge-opacity-success me-3">
+                                          non-mandatory</div>
+                                      </div>
+                                    </div>
+                                  </li>
+                                  <li class="border-bottom-0">
+                                    <div class="form-check w-100">
+                                      <label class="form-check-label">
+                                        <input class="checkbox" type="checkbox">MS Internship Enrollment Request Form<i class="input-helper rounded"></i>
+                                      </label>
+                                      <div class="d-flex mt-2">
+                                        <div class="ps-4 text-small me-3">
+                                          24 June 2020</div>
+                                        <div class="badge badge-opacity-primary me-3">
+                                          <i class="fa-solid fa-book"></i> Assignment</div>
+                                        <div class="badge badge-opacity-danger me-3">
+                                          Missed</div>
+                                      </div>
+                                    </div>
+                                  </li> {% endcomment %}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- content-wrapper ends -->
+  <!-- partial:partials/_footer.html -->
+  <footer class="footer">
+    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+      <span class="text-muted text-center text-sm-left d-block d-sm-inline-block"> </span>
+      <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">Copyright © 2022. All
+        rights reserved.</span>
+    </div>
+  </footer>
+  <!-- partial -->
+</div>
+<!-- main-panel ends -->
+{% endblock %}

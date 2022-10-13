@@ -1,0 +1,17 @@
+.vscode/
+.idea/
+
+.env
+.coverage
+htmlcov/
+db.sqlite3
+
+__pycache__/
+
+media/
+
+Pipfile
+Pipfile.lock
+.DS_Store
+
+get-pip.py

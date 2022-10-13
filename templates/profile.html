@@ -1,0 +1,168 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="border-bottom text-center pb-4">
+                {% if user.image %}
+                <img class="rounded-circle account-img" src="{{ user.image.url }}" width="100" height="100">
+                {% else %}
+                <img class="rounded-circle account-img" src="{% static 'images/default.jpg' %}" width="100"
+                  height="100">
+                {% endif %}
+                <div class="mb-3">
+                  <h3>{{ user.first_name }} {{ user.last_name}}</h3>
+                  <div class="d-flex align-items-center justify-content-center">
+                    <h5 class="mb-0 me-2 text-muted">Andrew ID: {{ user.andrew_id }}</h5>
+                    <div class="br-wrapper br-theme-css-stars"><select id="profile-rating" name="rating"
+                        autocomplete="off" style="display: none;">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                      </select>
+                      <div class="br-widget"><a href="#" data-rating-value="1" data-rating-text="1"
+                          class="br-selected br-current"></a><a href="#" data-rating-value="2"
+                          data-rating-text="2"></a><a href="#" data-rating-value="3" data-rating-text="3"></a><a
+                          href="#" data-rating-value="4" data-rating-text="4"></a><a href="#" data-rating-value="5"
+                          data-rating-text="5"></a></div>
+                    </div>
+                  </div>
+                </div>
+                {% comment %} <p class="w-75 mx-auto mb-3">This is my Bio. </p>
+                <div class="d-flex justify-content-center">
+                  <button class="btn btn-success">Message</button>
+                </div> {% endcomment %}
+              </div>
+              <div class="border-bottom py-4">
+                <p>Badges</p>
+                <div>
+                  <label class="badge badge-outline-dark mb-2">Best Code Quality-18668</label>
+                  <label class="badge badge-outline-dark mb-2">Great Collaboration-18652</label>
+                  <label class="badge badge-outline-dark mb-2">Pair Programming-18652</label>
+                  <label class="badge badge-outline-dark mb-2">Integration Testing-18654</label>
+                  <label class="badge badge-outline-dark mb-2">Extensive Documentation-18652</label>
+                </div>
+              </div>
+              <div class="border-bottom py-4">
+                <p>Credit: 11/20</p>
+                <div class="d-flex mb-3">
+                  <div class="progress progress-md flex-grow">
+                    <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="55" style="width: 55%"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+                <p>XXX</p>
+                <div class="d-flex">
+                  <div class="progress progress-md flex-grow">
+                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="75" style="width: 75%"
+                      aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="py-4">
+                {% comment %} <p class="clearfix">
+                  <span class="float-left">
+                    Active:
+                  </span>
+                  <span class="float-right text-muted">
+                    {{ user.is_active }}
+                  </span>
+                </p> {% endcomment %}
+                <p class="clearfix">
+                  <span class="float-left">
+                    Staff:
+                  </span>
+                  <span class="float-right text-muted">
+                    {% if user.is_staff == True %}
+                    Yes
+                    {% else %}
+                    No
+                    {% endif %}
+                    {% comment %} {{ user.is_staff }} {% endcomment %}
+                  </span>
+                </p>
+                <p class="clearfix">
+                  <span class="float-left">
+                    Date Joined:
+                  </span>
+                  <span class="float-right text-muted">
+                    {{ user.date_joined }}
+                  </span>
+                </p>
+                <p class="clearfix">
+                  <span class="float-left">
+                    Email:
+                  </span>
+                  <span class="float-right text-muted">
+                    {{ user.email }}
+                  </span>
+                </p>
+              </div>
+              {% comment %} <button class="btn btn-primary btn-block mb-2">Preview</button> {% endcomment %}
+            </div>
+            <div class="col-lg-8">
+              <div class="d-block d-md-flex justify-content-between mt-4 mt-md-0">
+                <div class="text-center mt-4 mt-md-0">
+                </div>
+              </div>
+              <div class="mt-4 py-2 border-top border-bottom">
+                <ul class="nav nav-tabs">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="#">
+                      <i class="ti-user"></i>
+                      Edit
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      <i class="ti-receipt"></i>
+                      XXX
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      <i class="ti-calendar"></i>
+                      XXX
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">
+                      <i class="ti-clip"></i>
+                      XXX
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div class="content-section">
+                <form class="pt-3" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+
+                  {% include 'boilerplates/form.html' %}
+
+                  <div class="mt-3">
+                    <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                      type="submit">Save</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

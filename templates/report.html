@@ -1,0 +1,53 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Report{% endblock %}
+
+{% block content %}
+<div class="main-panel">
+  <div class="content-wrapper">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="statistics-details d-flex align-items-center justify-content-between">
+          <div>
+            <h1 class="rate-percentage">&nbsp&nbsp&nbsp{{entity.name}}</h1>
+          </div>
+          {% for score in score_list %}
+          <div>
+            <b><p2 class="statistics-title">{{score.name}}</p></b>
+            <center><h3 class="rate-percentage">{{score.value}}/{{score.max_value}}</h3></center>
+          </div>
+          {% endfor %}
+          <div class="d-none d-md-block">
+            <h1 class="rate-percentage">{{final_score}}&nbsp&nbsp&nbsp&nbsp&nbsp</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% for section in sections %}
+    <div class="border-bottom py-4">
+        {% for row in section %}
+          {% if forloop.counter0  == 0 %}
+            <h2> {{row}} </h2>
+          {% else %}
+            <div class="row">
+              {% for card in row %}
+              <div class="col-lg-4 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                    <h4 class="card-title">{{card.title}}</h4>
+                    <canvas id="{{card.name}}" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
+
+

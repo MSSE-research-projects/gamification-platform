@@ -1,0 +1,127 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Assignment{% endblock %}
+
+{% block content %}
+<div class="container-scroller" style="width: 100%; height: 60%">
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title"><a href="{% url 'course'  %}"><button type="button"
+              class="btn btn-outline-primary">Back</button></a>
+          &nbsp&nbsp&nbsp&nbsp&nbsp{{ course.course_name}} - {{ course.course_number}} - Assignments - {{ userRole }}
+        </h4>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                  Assignment Name
+                </th>
+                <th>
+                  Assignment Type
+                </th>
+                <th>
+                  Total Score
+                </th>
+                <th>
+                  Available After
+                </th>
+                <th>
+                  Due
+                </th>
+                <th></th>
+                {% if userRole == 'Student' and info.feedback_survey != 0 %}
+                <th></th>
+                {% elif userRole == 'Student' %}
+                {% endif %}
+
+                {% if userRole == 'Instructor' or userRole == 'TA' %}
+                <th></th>
+                <th></th>
+                <th></th>
+                {% endif %}
+              </tr>
+            </thead>
+            {% for info in infos %}
+            <tbody>
+              <tr>
+                <td>
+                  {{ info.assignment.assignment_name}}
+                </td>
+                <td>
+                  {{ info.assignment.assignment_type}}
+                </td>
+                <td>
+                  {{ info.assignment.total_score}}
+                </td>
+                <td>
+                  {{ info.assignment.date_released}}
+                </td>
+                <td>
+                  {{ info.assignment.date_due}}
+                </td>
+                <td>
+                  <a href="{% url 'view_assignment' course_id info.assignment.id %}">
+                    <button type="button" class="btn-sm btn-primary">View</button>
+                  </a>
+                </td>
+                {% if userRole == 'Student' and info.feedback_survey != 0 %}
+                <td>
+                  <a href="{% url 'review_survey' course_id info.assignment.id%}">
+                    <button type="button" class="btn-sm btn-primary">Survey</button>
+                  </a>
+                </td>
+                {% elif userRole == 'Student' %}
+                <td>
+                </td>
+                {% endif %}
+
+                {% if userRole == 'Instructor' or userRole == 'TA' %}
+                <td>
+                  <a href="{% url 'add_survey' course_id info.assignment.id %}">
+                    <button type="button" class="btn-sm btn-primary">Survey</button>
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'edit_assignment' course_id info.assignment.id %}">
+                    <button type="button" class="btn-sm btn-primary">Edit</button>
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'delete_assignment' course_id info.assignment.id%}">
+                    <button type="button" class="btn-sm btn-primary">delete</button>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if userRole == 'Instructor' or userRole == 'TA' %}
+  <div class="col-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <h4 class="card-title">Add assignment</h4>
+          <div class="form-group">
+            <label for="assignment_name">Assignment Name</label>
+            <input type="text" name="assignment_name" class="form-control" id="assignment-name"
+              placeholder="assignment Name">
+          </div>
+          <input type="hidden" name="course" class="form-control" id="course-ID" value="{{ course_id }}">
+          <button type="submit" class="btn btn-primary me-2">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}

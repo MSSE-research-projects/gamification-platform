@@ -1,0 +1,94 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Assignment{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="border-bottom text-center pb-4">
+                <p> </p>
+                {% if assignment.assignment_name %}
+                <h2>{{ assignment.assignment_name }}</h2>
+                {% else %}
+                <h2>Empty Assignment Name</h2>
+                {% endif %}
+              </div>
+              <div class="border-bottom text-center pb-4">
+                <p> </p>
+                <p3>
+                  <b>Type:</b> {{ assignment.assignment_type }} &nbsp&nbsp&nbsp
+                  <b>Submission:</b> {{ assignment.submission_type }}
+                </p3>
+                <p> </p>
+                <p4>
+                  <b>Total Score:</b> {{ assignment.total_score }} &nbsp&nbsp
+                  <b>Weight:</b> {{ assignment.weight }} &nbsp&nbsp
+                  <b>Due:</b> {{ assignment.date_due }}
+                </p4>
+              </div>
+              <div class="border-bottom pb-4">
+                <p> </p>
+                <p3>
+                  <b>Description:</b>
+                  <p>{{ assignment.description|linebreaksbr }}</p>
+                </p3>
+              </div>
+              <p> </p>
+              <a role="button" class="btn btn-outline-primary" href="{% url 'assignment' course_id %}">
+                Back
+              </a>
+              {% if userRole == 'Student'%}
+              <a role="button" class="btn btn-outline-primary" href="{% url 'report' course_id assignment.id andrew_id %}">
+                <i class="fa-regular fa-clipboard"></i> Report
+              </a>
+              {% endif %}
+              {% if userRole == 'Instructor' or userRole == 'TA'%}
+              <a role="button" class="btn btn-outline-primary" href="{% url 'artifact_admin' course_id assignment.id%}">
+                Artifact Admin
+              </a>
+              {% endif %}
+            </div>
+            <div class="col-lg-4">
+              {% if latest_artifact != 'None' %}
+                <div class="border-bottom py-4">
+                  <p2><b>Submission:</b></p>
+                  <p4> {{ latest_artifact_filename }} </p>
+                  <p3><b>Latest Update:</b></p>
+                  <p3>{{ latest_artifact.upload_time }}</p>
+                  <a role="button" class="btn btn-success btn-sm" href="{% url 'download_artifact' course_id assignment_id artifact_id %}">
+                    Download
+                  </a>
+                  <a role="button" class="btn btn-success btn-sm" href="{% url 'edit_artifact' course_id assignment_id artifact_id %}">
+                    Edit
+                  </a>
+                  <a role="button" class="btn btn-danger btn-sm" href="{% url 'delete_artifact' course_id assignment_id artifact_id %}">
+                    Delete
+                  </a>
+                </div>
+              {% else %}
+                <div class="border-bottom py-4">
+                  <p2><b>Submission:</b></p>
+                  <p4> No Submission found</p>
+                  <a role="button" class="btn btn-outline-primary" href="{% url 'artifact' course_id assignment.id%}">
+                    Upload Artifact
+                  </a>
+                </div>
+              {% endif %}
+              <div class="border-bottom py-4">
+                <p><b>Comments: </b></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
