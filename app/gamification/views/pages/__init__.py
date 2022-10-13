@@ -10,3 +10,4 @@ from .signin_views import *
 from .survey_views import *
 from .test_views import *
 from .views import *
+from .dashboard_card import *

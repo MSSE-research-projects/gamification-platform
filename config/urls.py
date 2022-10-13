@@ -49,6 +49,8 @@ urlpatterns = [
          name='test_survey_template'),
     path('test_report/', page_views.test_report, name='test_report'),
 
+    path('dashboard_card/', page_views.dashboard_card, name='dashboard_card'),
+
     path('course/', include([
         path('', page_views.course_list, name='course'),
 
