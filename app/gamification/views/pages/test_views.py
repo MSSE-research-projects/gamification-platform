@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 def test(request):
     user = request.user
-    return render(request, 'three_test.html')
+    return render(request, 'test.html')
 
 def test2(request):
     user = request.user

@@ -11,3 +11,4 @@ from .survey_views import *
 from .test_views import *
 from .views import *
 from .dashboard_card import *
+from .data_visualization import *
