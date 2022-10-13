@@ -9,6 +9,7 @@ db.sqlite3
 __pycache__/
 
 media/
+static/three.js-master/
 
 Pipfile
 Pipfile.lock

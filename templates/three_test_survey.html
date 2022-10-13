@@ -1,0 +1,386 @@
+{% comment %} {% extends 'boilerplates/base_navbar.html' %} {% endcomment %}
+{% load static %}
+
+{% comment %} {% block title %}THREE TEST{% endblock %} {% endcomment %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body {
+			margin:0;
+			overflow:hidden;
+				background: black;
+			}
+			
+			img {
+			display:none;
+			}
+			
+			.loading {
+				margin: -50px -50px;
+				border:0.2em dashed white;
+				position:absolute;
+				width: 100px;
+				height: 100px;
+				border-radius: 100px;
+				animation: load 5s linear infinite;
+			}
+			
+			@keyframes load {
+				0% {
+					transform: translateX(50vw) translateY(50vh) rotateZ(0deg);
+				}
+				100% {
+					transform: translateX(50vw) translateY(50vh) rotateZ(360deg);
+				}
+			}
+		</style>
+		<script src="{% static 'three.js-master/build/three.min.js' %}"></script>
+	</head>
+	<body>
+		<script id="vertexShader" type="x-shader/x-vertex">
+			precision mediump float;
+			precision mediump int;
+			attribute vec4 color;
+			varying vec3 vPosition;
+			varying vec4 vColor;
+			varying vec2 vUv;
+			void main()	{
+				vUv = uv;
+						vPosition = position;
+						vColor = color;
+						gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1);
+					}
+		</script>
+		<script id="fragmentShader" type="x-shader/x-vertex">
+					precision mediump float;
+					precision mediump int;
+			uniform float time;
+					uniform float blend;
+					varying vec3 vPosition;
+					varying vec4 vColor;
+		
+			uniform sampler2D tex1;
+			uniform sampler2D tex2;
+			varying vec2 vUv;
+		
+			float length = 10.;
+		
+			mat2 scale(vec2 _scale){
+				return mat2(_scale.x,0.0,
+							0.0,_scale.y);
+			}
+		
+			mat3 k = mat3(
+					-0.3, 0., 1.,
+					-0.4, 0., 1.,
+					2., 0., 1.
+					);
+
+					float displaceAmount = 0.3;
+		
+					void main()	{
+						// invert blend;
+				float blend2 = 1.-blend;
+						vec4 image1 = texture2D(tex1, vUv);
+				vec4 image2 = texture2D(tex2, vUv);
+			
+				float t1 = ((image2.r*displaceAmount)*blend)*2.;
+				float t2 = ((image1.r*displaceAmount)*blend2)*2.;
+				
+				vec4 imageA = texture2D(tex2, vec2(vUv.x, vUv.y-t1))*blend2;
+				vec4 imageB = texture2D(tex1, vec2(vUv.x, vUv.y+t2))*blend;
+				
+						gl_FragColor = imageA.bbra * blend + imageA * blend2 +
+						imageB.bbra * blend2 + imageB * blend;
+
+						//gl_FragColor = image3;
+						
+					}
+		</script>
+
+		<div id="loading" class="loading"></div>
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/95/three.min.js" crossorigin="anonymous"></script>
+		{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/TweenMax.min.js" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.min.js" crossorigin="anonymous"></script>
+		<script src="https://threejs.org/examples/js/controls/OrbitControls.js" crossorigin="anonymous"></script> {% endcomment %}
+
+		<script>
+			// ARTWORK BY THOMAS DENMARK
+			// https://www.artstation.com/thomden
+			//
+			// I had used it in this codepen just for testing purposes.
+
+			const MOUSE_WHEEL_EVENT = "wheel";
+			const TOUCH_MOVE = "touchmove";
+			const TOUCH_END = "touchend";
+			const MOUSE_DOWN = "mousedown";
+			const MOUSE_UP = "mouseup";
+			const MOUSE_MOVE = "mousemove";
+			class ScrollPos {
+				constructor() {
+					this.acceleration = 0;
+					this.maxAcceleration = 5;
+					this.maxSpeed = 20;
+					this.velocity = 0;
+					this.dampen = 0.97;
+					this.speed = 8;
+					this.touchSpeed = 8;
+					this.scrollPos = 0;
+					this.velocityThreshold = 1;
+					this.snapToTarget = false;
+					this.mouseDown = false;
+					this.lastDelta = 0;
+					
+					document.addEventListener(
+						"touchstart",
+						function(event) {
+							event.preventDefault();
+						},
+						{ passive: false }
+					);
+					
+					window.addEventListener(MOUSE_WHEEL_EVENT, event => {
+						event.preventDefault();
+						this.accelerate(Math.sign(event.deltaY) * this.speed);
+					});
+					
+					window.addEventListener(TOUCH_MOVE, event => {
+						//event.preventDefault();
+						let delta = this.lastDelta-event.targetTouches[0].clientY;
+						this.accelerate(Math.sign(delta) * this.touchSpeed);
+						this.lastDelta = event.targetTouches[0].clientY;
+					})
+					
+					window.addEventListener(TOUCH_END, event =>{
+						this.lastDelta = 0;
+					})
+					
+					window.addEventListener(MOUSE_DOWN, event=>{
+						this.mouseDown = true;
+					})
+					
+					window.addEventListener(MOUSE_MOVE, event=>{
+						if(this.mouseDown){
+							let delta = this.lastDelta-event.clientY;
+							this.accelerate(Math.sign(delta) * this.touchSpeed*0.4);
+							this.lastDelta = event.clientY;
+						}
+					})
+					
+					window.addEventListener(MOUSE_UP, event=>{
+						this.lastDelta = 0;
+						this.mouseDown = false;
+					})
+
+				}
+				accelerate(amount) {
+					if (this.acceleration < this.maxAcceleration) {
+						this.acceleration += amount;
+					}
+				}
+				update() {
+					this.velocity += this.acceleration;
+					if (Math.abs(this.velocity) > this.velocityThreshold) {
+						this.velocity *= this.dampen;
+						this.scrollPos += this.velocity;
+					} else {
+						this.velocity = 0;
+					}
+					if (Math.abs(this.velocity) > this.maxSpeed) {
+						this.velocity = Math.sign(this.velocity) * this.maxSpeed;
+					}
+					this.acceleration = 0;
+				}
+				snap (snapTarget, dampenThreshold = 100, velocityThresholdOffset = 1.5) {
+					if(Math.abs(snapTarget - this.scrollPos) < dampenThreshold) {
+						this.velocity *= this.dampen;
+					}
+					if (Math.abs(this.velocity) < this.velocityThreshold+velocityThresholdOffset) {
+						this.scrollPos += (snapTarget - this.scrollPos) * 0.1;
+					}
+				}
+				project(steps = 1) {
+					if(steps === 1)	return this.scrollPos + this.velocity * this.dampen
+					var scrollPos = this.scrollPos;
+					var velocity = this.velocity;
+
+					for(var i = 0; i < steps; i++) {
+							velocity *= this.dampen;
+							scrollPos += velocity;
+					}
+					return scrollPos;
+				}
+			}
+
+			var mouseWheel = new ScrollPos();
+			const scrollPerImage = 500;
+
+			const KEYBOARD_ACCELERATION = 25;
+
+			window.addEventListener("keydown", (e)=>{
+				switch(e.keyCode) {
+					case 33:
+					case 38:
+						// UP
+						mouseWheel.acceleration -= KEYBOARD_ACCELERATION;
+						mouseWheel.update()
+						break;
+					case 34:
+					case 40:
+						// DOWN
+						mouseWheel.acceleration += KEYBOARD_ACCELERATION;
+						mouseWheel.update()
+						break;
+				}
+			})
+
+
+			const folder = "Ragnar";
+			const root = `https://mwmwmw.github.io/files/${folder}`;
+			const files = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			const ext = "jpg";
+			const IMAGE_SIZE = 512;
+
+			let imageContainer = document.getElementById("images");
+			let canvas = document.createElement("canvas");
+					canvas.width = IMAGE_SIZE;
+					canvas.height = IMAGE_SIZE;
+			let ctx = canvas.getContext("2d");
+
+			function resizeImage(image, size = IMAGE_SIZE) {
+				let newImage = image;
+				let {width, height} = image;
+				let newWidth = size/width;
+				let newHeight = size/height;
+				
+				ctx.drawImage(image, 0, 0, width, height, 0,0, size, size); 
+				
+				return ctx.getImageData(0,0,size,size);
+			}
+
+			function makeThreeTexture(image) {
+				let tex = new THREE.Texture(image);
+								tex.needsUpdate = true;
+				return tex
+			}
+
+			function loadImages() {
+				let promises = [];
+				for (var i = 0; i < files.length; i++) {
+					promises.push(
+						new Promise((resolve, reject) => {
+							let img = document.createElement("img");
+							img.crossOrigin = "anonymous";
+							img.src = `${root}/${files[i]}.${ext}`;
+							img.onload = image => {
+								return resolve(image.target);
+							};
+						}).then(resizeImage)
+							.then(makeThreeTexture)
+					);
+				}
+				return Promise.all(promises);
+			}
+
+			loadImages().then((images) => {
+				document.getElementById("loading").style = "display: none;";
+				init(images);
+			});
+
+			const renderer = new THREE.WebGLRenderer({ antialias: false });
+			document.body.appendChild(renderer.domElement);
+			
+			function init(textures) {
+				let scene = new THREE.Scene();
+				let camera = new THREE.PerspectiveCamera(
+					45,
+					window.innerWidth / window.innerHeight,
+					0.1,
+					2000
+				);
+				camera.position.set(0, 0, 10);
+
+				scene.add(camera);
+
+				let geometry = new THREE.PlaneGeometry(4.75, 7, 4, 4);
+
+				let material = new THREE.ShaderMaterial({
+					uniforms: {
+						time: { value: 1.0 },
+						blend: { value: 0.0 },
+						tex1: { type: "t", value: textures[1] },
+						tex2: { type: "t", value: textures[0] }
+					},
+					vertexShader: document.getElementById("vertexShader").textContent,
+					fragmentShader: document.getElementById("fragmentShader").textContent,
+				});
+
+				let mesh = new THREE.Mesh(geometry, material);
+
+				scene.add(mesh);
+
+				var tex1 = textures[1];
+				var tex2 = textures[0];
+				
+				function updateTexture(pos) {
+					if(tex2 != textures[Math.floor(pos / scrollPerImage)]) {
+						tex2 = textures[Math.floor(pos / scrollPerImage)]
+						material.uniforms.tex2.value = tex2;
+					}
+					if(tex1 != textures[Math.floor(pos / scrollPerImage) + 1]) {
+						tex1 = textures[Math.floor(pos / scrollPerImage) + 1]
+						material.uniforms.tex1.value = tex1;
+					}
+				}
+				
+				
+				
+				function draw() {
+					requestAnimationFrame(draw);
+					mouseWheel.update();
+					let scrollTarget = (Math.floor((mouseWheel.scrollPos+scrollPerImage*0.5) / scrollPerImage)) * scrollPerImage;
+					mouseWheel.snap(scrollTarget);
+					
+					let { scrollPos, velocity } = mouseWheel;
+					
+					if (scrollPos < 0) {
+						scrollPos = 0;
+					}
+					if (scrollPos > scrollPerImage * textures.length - 1) {
+						scrollPos = scrollPerImage * textures.length - 1;
+					}
+					
+					if (scrollPos > 0 && scrollPos < scrollPerImage * textures.length - 1) {
+						updateTexture(scrollPos);
+						material.uniforms.blend.value =
+							(scrollPos % scrollPerImage) / scrollPerImage;
+					}
+					
+					mouseWheel.scrollPos = scrollPos;
+
+					material.uniforms.time.value += 0.1;
+
+					renderer.render(scene, camera);
+				}
+
+				function resize() {
+					camera.aspect = window.innerWidth / window.innerHeight;
+					camera.updateProjectionMatrix();
+					renderer.setPixelRatio(window.devicePixelRatio);
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				}
+
+				window.addEventListener("resize", resize);
+				
+				resize();
+				draw();
+				
+			}
+
+		</script>
+	</body>
+</html>

@@ -79,53 +79,48 @@
                     {{ user.is_active }}
                   </span>
                 </p> {% endcomment %}
+                <p class="clearfix">
+                  <span class="float-left">
+                    Staff:
+                  </span>
+                  <span class="float-right text-muted">
+                    {% if user.is_staff == True %}
+                    Yes
+                    {% else %}
+                    No
+                    {% endif %}
+                    {% comment %} {{ user.is_staff }} {% endcomment %}
+                  </span>
+                </p>
+                <p class="clearfix">
+                  <span class="float-left">
+                    Date Joined:
+                  </span>
+                  <span class="float-right text-muted">
+                    {{ user.date_joined }}
+                  </span>
+                </p>
+
               </div>
               {% comment %} <button class="btn btn-primary btn-block mb-2">Preview</button> {% endcomment %}
             </div>
             <div class="col-lg-8">
               <div class="d-block d-md-flex justify-content-between mt-4 mt-md-0">
                 <div class="text-center mt-4 mt-md-0">
-                  <h4 class="card-title"><button onclick="backButton()" class="btn btn-outline-primary">Edit Profile</button></h4>
+                  <h4 class="card-title"><button onclick="backButton()" class="btn btn-outline-primary">Back</button></h4>
                 </div>
               </div>
               <div class="content-section">
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        {% comment %} <th>Profile</th>
-                        <th>VatNo.</th> {% endcomment %}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Email address: </td>
-                        <td>{{ user.email }} </td>
-                      </tr>
-                      <tr>
-                        <td>First Name: </td>
-                        <td>{{ user.first_name }}</td>
-                      </tr>
-                      <tr>
-                        <td>Last Name: </td>
-                        <td>{{ user.last_name}}</td>
-                      </tr>
-                      <tr>
-                        <td>Date joined: </td>
-                        <td>{{ user.date_joined }}</td>
-                      </tr>
-                      <tr>
-                        <td>Staff: </td>
-                        <td>{% if user.is_staff == True %}
-                          Yes
-                          {% else %}
-                          No
-                          {% endif %}</td>
-                      </tr>
+                <form class="pt-3" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
 
-                    </tbody>
-                  </table>
-                </div>
+                  {% include 'boilerplates/form.html' %}
+
+                  <div class="mt-3">
+                    <button class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                      type="submit">Save</button>
+                  </div>
+                </form>
               </div>
             </div>
 
@@ -142,7 +137,7 @@
 <script>
   function backButton() {
     currentUrl = window.location.href;
-    window.location.href = currentUrl.replace('/profile/', '/profile_edit/');
+    window.location.href = currentUrl.replace('/profile_edit/', '/profile/');
   }
 </script>
 

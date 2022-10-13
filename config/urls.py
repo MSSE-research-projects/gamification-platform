@@ -42,9 +42,13 @@ urlpatterns = [
     ])),
 
     path('profile/', page_views.profile, name='profile'),
+    path('profile_edit/', page_views.profile_edit, name='profile_edit'),
+    
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
 
-    path('test/', page_views.test, name='test'),
+#     path('test/', page_views.test, name='test'),
+#     path('test2/', page_views.test2, name='test2'),
+#     path('test3/', page_views.test3, name='test3'),
     path('test_survey_template/', page_views.test_survey_template,
          name='test_survey_template'),
     path('test_report/', page_views.test_report, name='test_report'),

@@ -25,3 +25,22 @@ def profile(request):
         form = ProfileForm(instance=user)
 
     return render(request, 'profile.html', {'user': user, 'form': form})
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES,
+                           instance=user, label_suffix='')
+
+        if form.is_valid():
+            user = form.save()
+            form = ProfileForm(instance=user)
+        else:
+            user = CustomUser.objects.get(andrew_id=user.andrew_id)
+
+    else:
+        form = ProfileForm(instance=user)
+
+    return render(request, 'profile_edit.html', {'user': user, 'form': form})
+
