@@ -4,7 +4,8 @@
   }
   #chart-container {
     position: relative;
-    height: 33vh;
+    height: 40vh;
+    /* height: 100%; */
     overflow: hidden;
   }
   
