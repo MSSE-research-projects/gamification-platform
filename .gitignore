@@ -12,3 +12,4 @@ media/
 
 Pipfile
 Pipfile.lock
+.DS_Store
