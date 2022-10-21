@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="content-wrapper">
-    {% if isIndividual %}
+    {% if is_individual %}
     {% for student_row in students %}
     <div class="row">
         {% for student in student_row %}
@@ -16,11 +16,16 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-lg-3">
-                            <img src="../static/images/faces/face12.jpg" class="img-lg rounded">
+                            {% if student.users.image %}
+                            <img src="{{student.users.image.url}}" class="img-lg rounded">
+                            {% else %}
+                            <img src="{% static 'images/default.jpg' %}" class="img-lg rounded">
+                            {% endif %}
                         </div>
+
                         <div class="col-lg-9">
-                            <h5 class="card-title">{{ student.get_full_name() }}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">{{ student.andrew_id }}</h6>
+                            <h5 class="card-title">{{ student.users.first_name}} {{student.users.last_name}}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ student.users.andrew_id }}</h6>
                             <p class="card-text">Student</p>
                             {% comment %} <a href="#" class="card-link">Student list</a> {% endcomment %}
                             <a href="#" class="card-link">Report</a>
@@ -45,7 +50,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-lg-3">
-                            <img src="../static/images/team-png-icon-free-download-396003.png" class="img-lg rounded">
+                            <img src="{% static 'images/team.png' %}" class="img-lg rounded">
                         </div>
                         <div class="col-lg-9">
                             <h5 class="card-title">{{ team.name }}</h5>
