@@ -1,0 +1,71 @@
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load widget_tweaks form_tags %}
+
+{% block title %}Dashboard Card{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    {% if isIndividual %}
+    {% for student_row in students %}
+    <div class="row">
+        {% for student in student_row %}
+        <div class="col-md-4 grid-margin stretch-card">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <img src="../static/images/faces/face12.jpg" class="img-lg rounded">
+                        </div>
+                        <div class="col-lg-9">
+                            <h5 class="card-title">{{ student.get_full_name() }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ student.andrew_id }}</h6>
+                            <p class="card-text">Student</p>
+                            {% comment %} <a href="#" class="card-link">Student list</a> {% endcomment %}
+                            <a href="#" class="card-link">Report</a>
+                        </div>
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"></li>
+                    <li class="list-group-item" style="text-align: center">98%</li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% else %}
+    {% for team_row in teams %}
+    <div class="row">
+        {% for team in team_row %}
+        <div class="col-md-4 grid-margin stretch-card">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <img src="../static/images/team-png-icon-free-download-396003.png" class="img-lg rounded">
+                        </div>
+                        <div class="col-lg-9">
+                            <h5 class="card-title">{{ team.name }}</h5>
+                            {% comment %} <h6 class="card-subtitle mb-2 text-muted">Team name</h6> {% endcomment %}
+                            <p class="card-text">5 Members</p>
+                            <a href="#" class="card-link">Team member list</a>
+                            <a href="#" class="card-link">Report</a>
+                        </div>
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" style="text-align: center"></li>
+                    <li class="list-group-item" style="text-align: center">98%</li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock content %}
