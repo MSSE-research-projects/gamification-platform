@@ -29,7 +29,7 @@ def view_reports(request, course_id, assignment_id):
             for user in users:
                 student_row.append(user)
                 counter += 1
-                if counter == 3:
+                if counter == 4:
                     students.append(student_row)
                     counter = 0
                     student_row = []
@@ -43,7 +43,7 @@ def view_reports(request, course_id, assignment_id):
             for team in all_teams:
                 team_row.append(team)
                 counter += 1
-                if counter == 3:
+                if counter == 4:
                     teams.append(team_row)
                     counter = 0
                     team_row = []

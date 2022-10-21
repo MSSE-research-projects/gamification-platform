@@ -11,7 +11,7 @@
     {% for student_row in students %}
     <div class="row">
         {% for student in student_row %}
-        <div class="col-md-4 grid-margin stretch-card">
+        <div class="col-md-3 grid-margin stretch-card">
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
                     <div class="row">
@@ -28,7 +28,7 @@
                             <h6 class="card-subtitle mb-2 text-muted">{{ student.users.andrew_id }}</h6>
                             <p class="card-text">Student</p>
                             {% comment %} <a href="#" class="card-link">Student list</a> {% endcomment %}
-                            <a href="#" class="card-link">Report</a>
+                            <a href="{% url 'report' course_id assignment_id student.users.andrew_id %}" class="card-link">Report</a>
                         </div>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
     {% for team_row in teams %}
     <div class="row">
         {% for team in team_row %}
-        <div class="col-md-4 grid-margin stretch-card">
+        <div class="col-md-3 grid-margin stretch-card">
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
                     <div class="row">
@@ -55,7 +55,11 @@
                         <div class="col-lg-9">
                             <h5 class="card-title">{{ team.name }}</h5>
                             {% comment %} <h6 class="card-subtitle mb-2 text-muted">Team name</h6> {% endcomment %}
-                            <p class="card-text">5 Members</p>
+                            {% if team.number_members == 1 %}
+                            <p class="card-text">1 member</p>
+                            {% elif team.number_members > 1 %}
+                            <p class="card-text">{{team.number_members}} members</p>
+                            {% endif %}
                             <a href="#" class="card-link">Team member list</a>
                             <a href="#" class="card-link">Report</a>
                         </div>
