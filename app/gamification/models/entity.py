@@ -18,6 +18,12 @@ class Entity(models.Model):
         students = [e.student.users for e in membership]
         return students
 
+    @property
+    def number_members(self):
+        membership = Membership.objects.filter(entity=self.pk)
+        students = [e.student.users for e in membership]
+        return len(students)
+
 
 class Individual(Entity):
 

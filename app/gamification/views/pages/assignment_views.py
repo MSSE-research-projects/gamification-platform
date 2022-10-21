@@ -173,3 +173,6 @@ def view_assignment(request, course_id, assignment_id):
                'andrew_id': andrew_id,
                'latest_artifact_filename': latest_artifact_filename}
     return render(request, 'view_assignment.html', context)
+
+
+

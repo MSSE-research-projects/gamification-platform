@@ -86,6 +86,11 @@
                   </a>
                 </td>
                 <td>
+                  <a href="{% url 'view_reports' course_id info.assignment.id %}">
+                    <button type="button" class="btn-sm btn-primary">Reports</button>
+                  </a>
+                </td>
+                <td>
                   <a href="{% url 'edit_assignment' course_id info.assignment.id %}">
                     <button type="button" class="btn-sm btn-primary">Edit</button>
                   </a>
