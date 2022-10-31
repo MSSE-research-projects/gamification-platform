@@ -505,21 +505,49 @@
             '<div class="row">' +
             '</div>'
           );
-          var part_data = partData['part_data'];
+
+          {% comment %} var ChartSectionBody = htmlToElement(
+            '<div class="border-bottom py-3">' +
+            '</div>'
+          ); {% endcomment %}
+          var ChartSectionBody = htmlToElement(
+            '<div id="chart-container" class="chart-container-test"></div>'
+          );      
+
+          {% comment %} var part_data = partData['part_data'];
           for (var k = 0; k < part_data.length; k++) {
+            // for each card
+            if (k % 3 == 0) {
+              var ChartSectionBodyRow = htmlToElement(
+                '<div class="row">' +
+                '</div>'
+              );
+              ChartSectionBody.appendChild(ChartSectionBodyRow);
+            }
             var part_data_inner = part_data[k];
+            var part_data_title = part_data_inner['title'];
             var part_data_name = part_data_inner['name'];
-            
-            var ChartSectionBody = htmlToElement(
-              '<div id="chart-container-' + part_data_name + '" class="chart-container-test"></div>'
+            var part_data_type = part_data_inner['type'];
+            var data = part_data_inner['data'];
+            var options = part_data_inner['options'];
+            var part_data_content_element = htmlToElement(
+              '<div class="col-lg-4 grid-margin stretch-card">' +
+              '<div class="card">' +
+              '<div class="card-body"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>' +
+              '<h4 class="card-title">' + part_data_title + '</h4>' +
+              '<canvas id="' + part_data_name + '" width="751" height="375" style="display: block; height: 300px; width: 601px;" class="chartjs-render-monitor"></canvas>' +
+              '</div>' +
+              '</div>' +
+              '</div>'
             );
-            MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
-          }
+            ChartSectionBodyRow.appendChild(part_data_content_element);
+          } {% endcomment %}
+          MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
           sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
           $sectionTabContent.append(sectionTabContentItem);
 
           // draw Chart(only works when placed here or after)
-          {% comment %} for (var k = 0; k < sectionData.parts.length; k++) {
+          for (var k = 0; k < sectionData.parts.length; k++) {
             var partData = sectionData.parts[k];
             var part_type = partData['part_type'];
             if (part_type == 'multi-choice') {
@@ -541,7 +569,7 @@
                 }
               }
             }
-          } {% endcomment %}
+          }
         }
         else if (part_type == 'text') {
           console.log("enter text");
