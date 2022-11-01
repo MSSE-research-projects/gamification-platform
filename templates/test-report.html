@@ -420,20 +420,54 @@
             '<center><h3 class="rate-percentage">' + aspect_content + '</h3></center>' +
             '</div>'
           );
+          
+          // console.log("aspect_name" + aspect_name);
+
+          // console.log("aspect_content" + aspect_content);
+          // var chartSectionBody = htmlToElement(
+          //   '<div id="bar-chart-container-' + aspect_name + '" class="chart-container-test"></div>'
+          // );
+
+          //MultipleChoiceContentItemBody2.appendChild(chartSectionBody);
+          var treeMapSectionBody = htmlToElement(
+            '<div id="tree-map-container-' + aspect_name + '" class="chart-container-test"></div>'
+          );
+
+          MultipleChoiceContentItemBody2.appendChild(treeMapSectionBody);
+
           summary2.appendChild(aspect_content_element);
         }
         var final_grade = summaryData['final_grade'];
+        
+
         var final_grade_element = htmlToElement(
           '<div>' +
           '<h1 class="rate-percentage">' + final_grade + '&nbsp&nbsp&nbsp&nbsp&nbsp</h1>' +
           '</div>'
         );
+        
+
+         
         summary2.appendChild(final_grade_element);
         summary.appendChild(summary2);
         MultipleChoiceContentItemBody.appendChild(summary);
         summaryContent.appendChild(MultipleChoiceContentItemBody);
-        continue;
-      }
+
+        // summary2.appendChild(final_grade_element);
+        // summary.appendChild(summary2);
+        // MultipleChoiceContentItemBody.appendChild(summary);
+        // summaryContent.appendChild(MultipleChoiceContentItemBody);
+        // TODO: Add a data visual for statistics-title
+        var barSectionBody = htmlToElement(
+              '<div id="bar-chart-container-' + aspect_name + '" class="chart-container-test"></div>'
+            );
+            MultipleChoiceContentItemBody.appendChild(barSectionBody);
+          var treeMapBody = htmlToElement(
+              '<div id="tree-map-container-' + aspect_name + '" class="chart-container-test"></div>'
+            );
+            MultipleChoiceContentItemBody.appendChild(treeMapBody);
+        }
+    
 
       var sectionTabItem = htmlToElement(
         '<li class="nav-item">' +
@@ -483,7 +517,7 @@
         );
 
         feedbackData = sectionData.parts[1].questions[0].answers;
-        console.log(feedbackData);
+       //console.log(feedbackData);
 
         sectionTabContentItemBody.appendChild(feedbackDiv);
         sectionTabContentItemBody.appendChild(artifactPreview);
@@ -498,7 +532,9 @@
         // for each part
         var partData = sectionData.parts[j];
         var part_type = partData['part_type'];
-        console.log("part_type: " + part_type);
+        //console.log("partData" + partData);
+        //console.log("part_type" + part_type);
+
         if (part_type == 'multi-choice') {
           // multi-choice part
           var MultipleChoiceContentItemBody2 = htmlToElement(
@@ -515,6 +551,12 @@
             );
             MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
           }
+
+      
+
+
+
+
           sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
           $sectionTabContent.append(sectionTabContentItem);
 
@@ -544,7 +586,7 @@
           } {% endcomment %}
         }
         else if (part_type == 'text') {
-          console.log("enter text");
+          //console.log("enter text");
           var sectionTabContentItemBody = htmlToElement(
             '<div class="row">' +
             '</div>'
@@ -587,7 +629,7 @@
           $sectionTabContent.append(sectionTabContentItem);
         }
         else {
-          console.log("error: part_type not found");
+          //console.log("error: part_type not found");
         }
       }
     }
@@ -610,4 +652,7 @@
 <script src="https://fastly.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
 <script src="{% static 'js/data-visuals/stack-bars.js' %}"></script>
 <script src="{% static 'js/data-visuals/scatter-single-axis.js' %}"></script>
+<script src="{% static 'js/data-visuals/bar-background.js' %}"></script>
+<script src="{% static 'js/data-visuals/tree-map.js' %}"></script>
+
 {% endblock %}
