@@ -46,7 +46,7 @@ urlpatterns = [
     
     path('instructor_admin/', page_views.instructor_admin, name='instructor_admin'),
 
-#     path('test/', page_views.test, name='test'),
+    path('test/', page_views.test, name='test'),
 #     path('test2/', page_views.test2, name='test2'),
 #     path('test3/', page_views.test3, name='test3'),
     path('test_survey_template/', page_views.test_survey_template,
@@ -54,7 +54,7 @@ urlpatterns = [
     path('test_report/', page_views.test_report, name='test_report'),
 
     path('dashboard_card/', page_views.dashboard_card, name='dashboard_card'),
-
+    path('data_visualization/', page_views.data_visualization, name='data_visualization'),
     path('course/', include([
         path('', page_views.course_list, name='course'),
 

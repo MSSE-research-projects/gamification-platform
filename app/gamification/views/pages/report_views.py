@@ -38,14 +38,19 @@ def report(request, course_id, assignment_id, andrew_id):
     else:
         return redirect('assignment', course_id)
     # find artifact id with assignment id and entity id
-    artifact = get_object_or_404(
-        Artifact, assignment=assignment, entity=entity)
-    artifact_id = artifact.pk
-    artifact_path = artifact.file.url
-    # artifact_id = Artifact.objects.get(assignment=assignment, entity=entity).pk
-    artifact_url = r"/api/artifacts/" + str(artifact_id) + "/"
-    print("artifact_url: " + artifact_url)
-    print("team_name: " + team_name)
+    # artifact = get_object_or_404(Artifact, assignment=assignment, entity=entity)
+    try:
+        artifact = Artifact.objects.get(assignment=assignment, entity=entity)
+        artifact_exists_flag = True
+        artifact_id = artifact.pk
+        artifact_path = artifact.file.url
+        artifact_url = r"/api/artifacts/" + str(artifact_id) + "/"
+    except Artifact.DoesNotExist:
+        print("artifact does not exist")
+        artifact_exists_flag = False
+        artifact_id = None
+        artifact_path = None
+        artifact_url = None
     context = {'user': user,
                'course': course,
                'entity': entity,
@@ -53,5 +58,6 @@ def report(request, course_id, assignment_id, andrew_id):
                'artifact_url': artifact_url,
                'artifact_path': artifact_path,
                'team_name': team_name,
+               "artifact_exists_flag": artifact_exists_flag,
                }
     return render(request, 'test-report.html', context)

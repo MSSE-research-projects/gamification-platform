@@ -1,0 +1,16 @@
+* {
+    margin: 0;
+    padding: 0;
+  }
+  /* #chart-container {
+    position: relative;
+    height: 10vh;
+    overflow: hidden;
+  } */
+  .chart-container-test {
+    position: relative;
+    height: 40vh; /* 40vh */
+    /* height: 100%; */
+    width: 100%;
+    overflow: hidden;
+  }
