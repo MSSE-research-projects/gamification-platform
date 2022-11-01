@@ -1,3 +1,4 @@
+from re import S
 import pytz
 from pytz import timezone
 from datetime import datetime
@@ -57,4 +58,33 @@ def view_reports(request, course_id, assignment_id):
 
                    }
         return render(request, 'assignment_report_list.html', context)
+    
+
+
+@login_required
+@user_role_check(user_roles=[Registration.UserRole.Instructor, Registration.UserRole.TA, Registration.UserRole.Student])
+def team_list(request, course_id, assignment_id, team_id):
+    assignment = get_object_or_404(Assignment, pk=assignment_id)
+    userRole = Registration.objects.get(
+        users=request.user, courses=course_id).userRole
+    course = get_object_or_404(Course, pk=course_id)
+    team = get_object_or_404(Team, pk=team_id)
+    students = []
+    counter = 0
+    student_row = []
+    for user in team.members:
+        print(user)
+        student_row.append(user)
+        counter += 1
+        if counter == 4:
+            students.append(student_row)
+            counter = 0
+            student_row = []
+    students.append(student_row)
+    context = {'course_id': course_id,
+                'assignment_id': assignment_id,
+                'team_id': team_id,
+                'students': students,
+                }
+    return render(request, 'team_member.html', context)
     

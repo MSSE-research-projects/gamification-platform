@@ -79,8 +79,13 @@ urlpatterns = [
                          name='edit_assignment'),
                     path('view/', page_views.view_assignment,
                          name='view_assignment'),
-                    path('report/', page_views.view_reports,
+                    path('report/', include([
+                         path('', page_views.view_reports,
                          name='view_reports'),
+                         path('<int:team_id>/team_list', page_views.team_list,
+                         name='team_list'),
+                    ])),
+
                     path('template/', include([
                          path('add/', page_views.add_survey, name='add_survey'),
                          path('edit/', include([

@@ -60,8 +60,11 @@
                             {% elif team.number_members > 1 %}
                             <p class="card-text">{{team.number_members}} members</p>
                             {% endif %}
-                            <a href="#" class="card-link">Team member list</a>
-                            <a href="#" class="card-link">Report</a>
+                            <a href="{% url 'team_list' course_id assignment_id team.id %}" class="card-link">Team member list</a>
+                            {% comment %} <h5> {{ team }} {{ team.members }} </h5> {% endcomment %}
+                            {% for user in team.members|slice:":1" %}
+                            <a href="{% url 'report' course_id assignment_id user.andrew_id %}" class="card-link">Report</a>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

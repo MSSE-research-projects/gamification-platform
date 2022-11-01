@@ -1,0 +1,43 @@
+
+{% extends 'boilerplates/base_navbar.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% load widget_tweaks form_tags %}
+
+{% block title %}Dashboard Card{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    {% for student_row in students %}
+    <div class="row">
+        {% for student in student_row %}
+        <div class="col-md-4 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3">
+                            {% if student.image %}
+                            <img src="{{student.image.url}}" class="img-lg rounded">
+                            {% else %}
+                            <img src="{% static 'images/default.jpg' %}" class="img-lg rounded">
+                            {% endif %}
+                        </div>
+
+                        <div class="col-lg-9">
+                            <h5 class="card-title">{{ student.first_name}} {{student.last_name}}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ student.andrew_id }}</h6>
+                            <p class="card-text">Student</p>
+                        </div>
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"></li>
+                    <li class="list-group-item" style="text-align: center">98%</li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock content %}
