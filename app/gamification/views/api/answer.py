@@ -1,4 +1,5 @@
 import json
+import yake
 from django.utils import timezone
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
@@ -369,3 +370,26 @@ class CheckAllDone(generics.GenericAPIView):
             return Response(status=400)
 
         return Response(status=200)
+
+class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    # permission_classes = [IsAdminOrReadOnly]
+
+    def get(self, request, artifact_review_pk, *args, **kwargs):
+        answers = Answer.objects.filter(
+            artifact_review_id=artifact_review_pk).order_by('pk')
+        kw_extractor = yake.KeywordExtractor()
+        language = "en"
+        max_ngram_size = 3
+        deduplication_threshold = 0.9
+        numOfKeywords = 10
+        custom_kw_extractor = yake.KeywordExtractor()
+        custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold, top=numOfKeywords, features=None)
+        text = ""
+        for answer in answers:
+            # text += answer
+            print(answer)
+        keywords = custom_kw_extractor.extract_keywords(text)
+        serializer = self.get_serializer(keywords)
+        return Response(serializer.data)

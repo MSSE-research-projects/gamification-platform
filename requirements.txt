@@ -10,6 +10,7 @@ gunicorn==20.1.0
 pillow==9.1.1
 psycopg2==2.9.3
 python-dotenv==0.20.0
+yake==0.4.8
 
 # Dev requirements
 coverage==6.4.1

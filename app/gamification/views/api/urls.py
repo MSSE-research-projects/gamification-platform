@@ -6,7 +6,7 @@ from rest_framework.reverse import reverse
 from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyGetInfo, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
-from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete
+from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete, ArtifactAnswerKeywordList
 
 
 @api_view(['GET'])
@@ -99,6 +99,10 @@ urlpatterns = [
     # Get answers of artifact review
     path('artifact_reviews/<int:artifact_review_pk>/answers/',
          ArtifactAnswerList.as_view(), name='artifact-answer'),
+
+     # Get answers keywords of artifact review
+    path('artifact_reviews/<int:artifact_review_pk>/answers/keywords',
+         ArtifactAnswerKeywordList.as_view(), name='artifact-answer-keyword'),
 
     # Get answers of a question, Post answer to artifact(response answer_pk)
     path('artifact_reviews/<int:artifact_review_pk>/questions/<question_pk>/answers/',
