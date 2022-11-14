@@ -390,10 +390,10 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
         for answer in answers:
             number_answers = ['MULTIPLECHOICE', 'NUMBER']
             if answer.question_option.question.question_type not in number_answers:
-                answer_content = " "+ answer.answer_text + " "
+                answer_content = " "+ answer.answer_text + ". "
                 text += answer_content
         keywords = custom_kw_extractor.extract_keywords(text)
         result = {}
         for word in keywords:
-            result[word[0]] = - word[1]
+            result[word[0]] = int((1 - word[1]) * 10)
         return Response(result)
