@@ -421,7 +421,8 @@ class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
         result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
         for answer in answers:
             if answer.question_option.question.question_type == 'MULTIPLECHOICE':
-                result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
+                if answer.question_option.question.text not in result["sections"][answer.question_option.question.section.title].keys():
+                    result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
                 option_index = list(choice_labels).index(answer.question_option.option_choice.text)
                 result["sections"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
         return Response(result)
