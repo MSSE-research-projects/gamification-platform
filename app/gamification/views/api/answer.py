@@ -1,3 +1,4 @@
+import collections
 import json
 import yake
 from django.utils import timezone
@@ -376,9 +377,13 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
     serializer_class = AnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
 
-    def get(self, request, artifact_review_pk, *args, **kwargs):
-        answers = Answer.objects.filter(
-            artifact_review_id=artifact_review_pk).order_by('pk')
+    def get(self, request, artifact_pk, *args, **kwargs):
+        answers = []
+        artifacts_reviews = Artifact.objects.filter(id = artifact_pk)
+        for artifact_review in artifacts_reviews:
+            answer = Answer.objects.filter(
+                artifact_review_id=artifact_review.pk).order_by('pk')
+            answers.extend(answer)
         kw_extractor = yake.KeywordExtractor()
         language = "en"
         max_ngram_size = 3
@@ -397,3 +402,28 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
         for word in keywords:
             result[word[0]] = int((1 - word[1]) * 10)
         return Response(result)
+
+class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
+    # data = {"label":["a", "b", "c", "d"], "sections":{"section_name": {"question_name": [2,3,1,4]}}}
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    def get(self, request, artifact_pk, *args, **kwargs):
+        answers = []
+        artifacts_reviews = Artifact.objects.filter(id = artifact_pk)
+        for artifact_review in artifacts_reviews:
+            answer = Answer.objects.filter(
+                artifact_review_id=artifact_review.pk).order_by('pk')
+            answers.extend(answer)
+        choice_labels = set()
+        for answer in answers:
+            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
+                choice_labels.add(answer.question_option.option_choice.text)
+        result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
+        for answer in answers:
+            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
+                result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
+                option_index = list(choice_labels).index(answer.question_option.option_choice.text)
+                result["sections"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
+        return Response(result)
+        
+
