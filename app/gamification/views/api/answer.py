@@ -379,7 +379,7 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
 
     def get(self, request, artifact_pk, *args, **kwargs):
         answers = []
-        artifacts_reviews = Artifact.objects.filter(id = artifact_pk)
+        artifacts_reviews = ArtifactReview.objects.filter(artifact_id = artifact_pk)
         for artifact_review in artifacts_reviews:
             answer = Answer.objects.filter(
                 artifact_review_id=artifact_review.pk).order_by('pk')
@@ -409,7 +409,7 @@ class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
     serializer_class = AnswerSerializer
     def get(self, request, artifact_pk, *args, **kwargs):
         answers = []
-        artifacts_reviews = Artifact.objects.filter(id = artifact_pk)
+        artifacts_reviews = ArtifactReview.objects.filter(artifact_id = artifact_pk)
         for artifact_review in artifacts_reviews:
             answer = Answer.objects.filter(
                 artifact_review_id=artifact_review.pk).order_by('pk')
