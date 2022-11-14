@@ -388,8 +388,12 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
         custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold, top=numOfKeywords, features=None)
         text = ""
         for answer in answers:
-            # text += answer
-            print(answer)
+            number_answers = ['MULTIPLECHOICE', 'NUMBER']
+            if answer.question_option.question.question_type not in number_answers:
+                answer_content = " "+ answer.answer_text + " "
+                text += answer_content
         keywords = custom_kw_extractor.extract_keywords(text)
-        serializer = self.get_serializer(keywords)
-        return Response(serializer.data)
+        result = {}
+        for word in keywords:
+            result[word[0]] = - word[1]
+        return Response(result)
