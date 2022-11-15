@@ -45,12 +45,15 @@ def report(request, course_id, assignment_id, andrew_id):
         artifact_id = artifact.pk
         artifact_path = artifact.file.url
         artifact_url = r"/api/artifacts/" + str(artifact_id) + "/"
+        artifact_answers_url = r"/api/artifacts/" + str(artifact_id) + r"/answers/statistics"
+        print("artifact_answers_url: ", artifact_answers_url)
     except Artifact.DoesNotExist:
         print("artifact does not exist")
         artifact_exists_flag = False
         artifact_id = None
         artifact_path = None
         artifact_url = None
+        artifact_answers_url = None
     context = {'user': user,
                'course': course,
                'entity': entity,
@@ -59,5 +62,6 @@ def report(request, course_id, assignment_id, andrew_id):
                'artifact_path': artifact_path,
                'team_name': team_name,
                "artifact_exists_flag": artifact_exists_flag,
+               "artifact_answers_url": artifact_answers_url
                }
     return render(request, 'test-report.html', context)

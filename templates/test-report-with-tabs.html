@@ -32,6 +32,7 @@
 {% endblock %}
 
 {% block css %}
+{% comment %} <link rel="stylesheet" href="./../static/css/data-visuals/stack-bars.css"> {% endcomment %}
 <link rel="stylesheet" href="{% static 'css/data-visuals/stack-bars.css' %}">
 <style>
   .text-question .vertical-scrollable.row {
@@ -75,32 +76,167 @@
     }
   });
 
-  var answers_fromAPI = null;
-  $.ajax({
-    async: false,
-    url: "{{artifact_answers_url}}",
-    type: 'GET',
-    success: function (data) {
-      answers_fromAPI = data;
+
+  var data = {
+    labels: ["2013", "2014", "2014", "2015", "2016", "2017"],
+    datasets: [{
+      label: '# of Votes',
+      data: [10, 19, 3, 5, 2, 3],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ],
+      borderWidth: 1,
+      fill: false
+    }]
+  };
+
+  var options = {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
     },
-    error: function (err) {
-    }
-  });
-
-  var keyWords = null;
-  $.ajax({
-    async: false,
-    url: "{{artifact_url}}answers/keywords",
-    type: 'GET',
-    success: function (data) {
-      keyWords = data;
-
+    legend: {
+      display: false
     },
-    error: function (err) {
-      console.log("err: ", err);
-
+    elements: {
+      point: {
+        radius: 0
+      }
     }
-  });
+
+  };
+
+  var areaData = {
+    labels: ["2013", "2014", "2015", "2016", "2017"],
+    datasets: [{
+      label: '# of Votes',
+      data: [12, 19, 3, 5, 2, 3],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+      ],
+      borderWidth: 1,
+      fill: true, // 3: no fill
+    }]
+  };
+
+  var areaOptions = {
+    plugins: {
+      filler: {
+        propagate: true
+      }
+    }
+  }
+
+  var scatterChartData = {
+    datasets: [{
+      label: 'First Dataset',
+      data: [{
+        x: -10,
+        y: 0
+      },
+      {
+        x: 0,
+        y: 3
+      },
+      {
+        x: -25,
+        y: 5
+      },
+      {
+        x: 40,
+        y: 5
+      }
+      ],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255,99,132,1)'
+      ],
+      borderWidth: 1
+    },
+    {
+      label: 'Second Dataset',
+      data: [{
+        x: 10,
+        y: 5
+      },
+      {
+        x: 20,
+        y: -30
+      },
+      {
+        x: -25,
+        y: 15
+      },
+      {
+        x: -10,
+        y: 5
+      }
+      ],
+      backgroundColor: [
+        'rgba(54, 162, 235, 0.2)',
+      ],
+      borderColor: [
+        'rgba(54, 162, 235, 1)',
+      ],
+      borderWidth: 1
+    }
+    ]
+  }
+
+  var scatterChartOptions = {
+    scales: {
+      xAxes: [{
+        type: 'linear',
+        position: 'bottom'
+      }]
+    }
+  }
+
+  var doughnutPieOptionsNew = {
+    responsive: true,
+    animation: {
+      animateScale: true,
+      animateRotate: true
+    },
+    tooltips: {
+      callbacks: {
+        label: function (tooltipItem, data) {
+          return data['datasets'][0]['percentage'][tooltipItem['index']] + '% ' + data['labels'][tooltipItem['index']] + ' (' + data['datasets'][0]['data'][tooltipItem['index']] + ')';
+        }
+      }
+    }
+  }
 
   function htmlToElement(html) {
     var template = document.createElement('template');
@@ -125,8 +261,6 @@
   }
   else{
     console.log("fromAPI: ", fromAPI);
-    console.log("answers_fromAPI: ", answers_fromAPI);
-    chart_container_cnt = 0;
     for (var section in fromAPI) {
       var sectionData = fromAPI[section];
       if (section == 'Aspect') {
@@ -178,7 +312,55 @@
         var answers = questionData.answers;
 
         if (question_type == 'MULTIPLECHOICE') {
-          // 
+          var doughnutPieDataTemp = {
+            datasets: [{
+              label: 'Dataset 1',
+              data: [],
+              percentage: [],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+                'rgba(255, 159, 64, 0.5)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+            }],
+            // These labels appear in the legend and in the tooltips when hovering different arcs
+            labels: [],
+          };
+          var sum = 0;
+          for (var m = 0; m < answers.length; ++m) {
+            for (var key in answers[m]) {
+              var count = answers[m][key];
+              sum += count;
+            }
+          }
+          for (var m = 0; m < answers.length; ++m) {
+            for (var key in answers[m]) {
+              var count = answers[m][key];
+              doughnutPieDataTemp.datasets[0].data.push(count);
+              doughnutPieDataTemp.datasets[0].percentage.push(100 * count / sum);
+              doughnutPieDataTemp.labels.push(key);
+            }
+          }
+          var temp_part_data = {
+            'title': question_name,
+            'name': "pieChart-" + pieChart_count,
+            'type': 'pie',
+            'data': doughnutPieDataTemp,
+            'options': doughnutPieOptionsNew
+          }
+          pieChart_count++;
+          multipleChoicePart.part_data.push(temp_part_data);
         }
         else if (question_type == 'FIXEDTEXT' || question_type == 'MULTIPLETEXT' || question_type == 'TEXTAREA' || question_type == 'SLIDEREVIEW') {
           var temp_part_data = {
@@ -228,62 +410,75 @@
         );
         summary2.appendChild(team_name);
 
+        var aspect = summaryData['aspect'];
+        for (var j = 0; j < aspect.length; j++) {
+          var aspect_name = aspect[j]['aspect_name'];
+          var aspect_content = aspect[j]['aspect_content'];
+          var aspect_content_element = htmlToElement(
+            '<div>' +
+            '<b><p2 class="statistics-title">' + aspect_name + '</p></b>' +
+            '<center><h3 class="rate-percentage">' + aspect_content + '</h3></center>' +
+            '</div>'
+          );
+          
+          // console.log("aspect_name" + aspect_name);
+
+          // console.log("aspect_content" + aspect_content);
+          // var chartSectionBody = htmlToElement(
+          //   '<div id="bar-chart-container-' + aspect_name + '" class="chart-container-test"></div>'
+          // );
+
+          //MultipleChoiceContentItemBody2.appendChild(chartSectionBody);
+          var treeMapSectionBody = htmlToElement(
+            '<div id="tree-map-container-' + aspect_name + '" class="chart-container-test"></div>'
+          );
+
+          MultipleChoiceContentItemBody2.appendChild(treeMapSectionBody);
+
+          summary2.appendChild(aspect_content_element);
+        }
         var final_grade = summaryData['final_grade'];
+        
 
         var final_grade_element = htmlToElement(
           '<div>' +
           '<h1 class="rate-percentage">' + final_grade + '&nbsp&nbsp&nbsp&nbsp&nbsp</h1>' +
           '</div>'
         );
+        
 
+         
         summary2.appendChild(final_grade_element);
         summary.appendChild(summary2);
         MultipleChoiceContentItemBody.appendChild(summary);
         summaryContent.appendChild(MultipleChoiceContentItemBody);
 
-        // TODO: Add a data visual for summary
-
-        var aspectSummary = summaryData['aspect'];
-        var scoreLabels = [];
-        var scoreData = [];
-        var treeData = []; 
-        console.log(keyWords);
-
-        for (const property in keyWords) {
-          var name = property;
-          var value = keyWords[property]; 
-          treeData.push({name : name, value : value});
-        }
-
-        for (var j = 0; j < aspectSummary.length; j++) {
-          var aspect_name = aspectSummary[j]["aspect_name"];
-          var aspect_content = aspectSummary[j]["aspect_content"];
-          scoreLabels.push(aspect_name);
-          scoreData.push(aspect_content[0]);
-        }
-       
-        var aspect = summaryData['aspect'];
-        console.log("aspect-" + aspect);
- 
+        // summary2.appendChild(final_grade_element);
+        // summary.appendChild(summary2);
+        // MultipleChoiceContentItemBody.appendChild(summary);
+        // summaryContent.appendChild(MultipleChoiceContentItemBody);
+        // TODO: Add a data visual for statistics-title
         var barSectionBody = htmlToElement(
-              '<div id="bar-chart-container' + '" class="chart-container-test"></div>'
+              '<div id="bar-chart-container-' + aspect_name + '" class="chart-container-test"></div>'
             );
             MultipleChoiceContentItemBody.appendChild(barSectionBody);
-        var treeMapBody = htmlToElement(
-            '<div id="tree-map-container' + '" class="chart-container-test"></div>'
-          );
-          MultipleChoiceContentItemBody.appendChild(treeMapBody);
-        continue;
-      }
-      
+          var treeMapBody = htmlToElement(
+              '<div id="tree-map-container-' + aspect_name + '" class="chart-container-test"></div>'
+            );
+            MultipleChoiceContentItemBody.appendChild(treeMapBody);
+        }
+    
+
       var sectionTabItem = htmlToElement(
         '<li class="nav-item">' +
+        ` <button class="nav-link${i === 0 ? ' active' : ''}" id="${sectionTitleSlug}-tab" data-bs-toggle="tab" data-bs-target="#${sectionTitleSlug}"` +
+        `         type="button" role="tab" aria-controls="${sectionTitleSlug}" aria-selected="${i === 0 ? 'true' : 'false'}">${sectionTitle}</button>` +
         '</li>'
       );
       $sectionTab.append(sectionTabItem);
 
       var sectionTabContentItem = htmlToElement(
-        `<div class="tab-pane active" id="${sectionTitleSlug}" role="tabpanel" aria-labelledby="${sectionTitleSlug}-tab">` +
+        `<div class="tab-pane${i === 0 ? ' active' : ''}" id="${sectionTitleSlug}" role="tabpanel" aria-labelledby="${sectionTitleSlug}-tab">` +
         '</div>'
       );
 
@@ -322,6 +517,7 @@
         );
 
         feedbackData = sectionData.parts[1].questions[0].answers;
+       //console.log(feedbackData);
 
         sectionTabContentItemBody.appendChild(feedbackDiv);
         sectionTabContentItemBody.appendChild(artifactPreview);
@@ -331,16 +527,13 @@
 
         continue;
       }
-      
-      SectionTitleBody = htmlToElement(
-        '<div class="row align-items-center"><h3>' + sectionTitle +
-        '</h></div>'
-      );
-      sectionTabContentItem.appendChild(SectionTitleBody);
+
       for (var j = 0; j < sectionData.parts.length; j++) {
         // for each part
         var partData = sectionData.parts[j];
         var part_type = partData['part_type'];
+        //console.log("partData" + partData);
+        //console.log("part_type" + part_type);
 
         if (part_type == 'multi-choice') {
           // multi-choice part
@@ -349,16 +542,51 @@
             '</div>'
           );
           var part_data = partData['part_data'];
-          chart_container_cnt += 1;
-          var ChartSectionBody = htmlToElement(
-              '<div id="chart-container-' + i + '" class="chart-container-test"></div>'
+          for (var k = 0; k < part_data.length; k++) {
+            var part_data_inner = part_data[k];
+            var part_data_name = part_data_inner['name'];
+            
+            var ChartSectionBody = htmlToElement(
+              '<div id="chart-container-' + part_data_name + '" class="chart-container-test"></div>'
             );
             MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
+          }
+
+      
+
+
+
 
           sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
           $sectionTabContent.append(sectionTabContentItem);
+
+          // draw Chart(only works when placed here or after)
+          {% comment %} for (var k = 0; k < sectionData.parts.length; k++) {
+            var partData = sectionData.parts[k];
+            var part_type = partData['part_type'];
+            if (part_type == 'multi-choice') {
+              var part_data = partData['part_data'];
+              for (var l = 0; l < part_data.length; l++) {
+                var part_data_inner = part_data[l];
+                var part_data_name = part_data_inner['name'];
+                var part_data_data = part_data_inner['data'];
+                var part_data_options = part_data_inner['options'];
+                var part_data_type = part_data_inner['type'];
+                // TODO: add more types
+                if ($("#" + part_data_name).length) {
+                  var ChartCanvas = $("#" + part_data_name).get(0).getContext("2d");
+                  var newChart = new Chart(ChartCanvas, {
+                    type: part_data_type,
+                    data: part_data_data,
+                    options: part_data_options
+                  });
+                }
+              }
+            }
+          } {% endcomment %}
         }
         else if (part_type == 'text') {
+          //console.log("enter text");
           var sectionTabContentItemBody = htmlToElement(
             '<div class="row">' +
             '</div>'
@@ -404,10 +632,6 @@
           //console.log("error: part_type not found");
         }
       }
-      SectionEndBody = htmlToElement(
-        '<hr>'
-      );
-      sectionTabContentItem.appendChild(SectionEndBody);
     }
 
     var pdfURL = '{{ artifact_path }}';
