@@ -1,5 +1,5 @@
 var chartDom = document.getElementById("bar-chart-container");
-var myChart = echarts.init(chartDom);
+var myChart = echarts.init(chartDom,null,{height: 200});
 var option;
 
 option = {
