@@ -49,7 +49,6 @@ def view_reports(request, course_id, assignment_id):
                     counter = 0
                     team_row = []
             teams.append(team_row)
-        print(students)
         context = {'course_id': course_id,
                    'assignment_id': assignment_id,
                    'is_individual': is_individual,
@@ -73,7 +72,6 @@ def team_list(request, course_id, assignment_id, team_id):
     counter = 0
     student_row = []
     for user in team.members:
-        print(user)
         student_row.append(user)
         counter += 1
         if counter == 4:

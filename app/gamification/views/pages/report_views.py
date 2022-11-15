@@ -46,7 +46,6 @@ def report(request, course_id, assignment_id, andrew_id):
         artifact_path = artifact.file.url
         artifact_url = r"/api/artifacts/" + str(artifact_id) + "/"
         artifact_answers_url = r"/api/artifacts/" + str(artifact_id) + r"/answers/statistics"
-        print("artifact_answers_url: ", artifact_answers_url)
     except Artifact.DoesNotExist:
         print("artifact does not exist")
         artifact_exists_flag = False
