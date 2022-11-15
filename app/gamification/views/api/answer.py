@@ -1,4 +1,6 @@
+import collections
 import json
+import yake
 from django.utils import timezone
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
@@ -369,3 +371,60 @@ class CheckAllDone(generics.GenericAPIView):
             return Response(status=400)
 
         return Response(status=200)
+
+class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    # permission_classes = [IsAdminOrReadOnly]
+
+    def get(self, request, artifact_pk, *args, **kwargs):
+        answers = []
+        artifacts_reviews = ArtifactReview.objects.filter(artifact_id = artifact_pk)
+        for artifact_review in artifacts_reviews:
+            answer = Answer.objects.filter(
+                artifact_review_id=artifact_review.pk).order_by('pk')
+            answers.extend(answer)
+        kw_extractor = yake.KeywordExtractor()
+        language = "en"
+        max_ngram_size = 3
+        deduplication_threshold = 0.9
+        numOfKeywords = 10
+        custom_kw_extractor = yake.KeywordExtractor()
+        custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold, top=numOfKeywords, features=None)
+        text = ""
+        for answer in answers:
+            number_answers = ['MULTIPLECHOICE', 'NUMBER']
+            if answer.question_option.question.question_type not in number_answers:
+                answer_content = " "+ answer.answer_text + ". "
+                text += answer_content
+        keywords = custom_kw_extractor.extract_keywords(text)
+        result = {}
+        for word in keywords:
+            result[word[0]] = int((1 - word[1]) * 10)
+        return Response(result)
+
+class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
+    # data = {"label":["a", "b", "c", "d"], "sections":{"section_name": {"question_name": [2,3,1,4]}}}
+    queryset = Answer.objects.all()
+    serializer_class = AnswerSerializer
+    def get(self, request, artifact_pk, *args, **kwargs):
+        answers = []
+        artifacts_reviews = ArtifactReview.objects.filter(artifact_id = artifact_pk)
+        for artifact_review in artifacts_reviews:
+            answer = Answer.objects.filter(
+                artifact_review_id=artifact_review.pk).order_by('pk')
+            answers.extend(answer)
+        choice_labels = set()
+        for answer in answers:
+            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
+                choice_labels.add(answer.question_option.option_choice.text)
+        result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
+        for answer in answers:
+            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
+                if answer.question_option.question.text not in result["sections"][answer.question_option.question.section.title].keys():
+                    result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
+                option_index = list(choice_labels).index(answer.question_option.option_choice.text)
+                result["sections"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
+        return Response(result)
+        
+
