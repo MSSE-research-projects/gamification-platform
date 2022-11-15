@@ -12,15 +12,19 @@ for (var section in sections) {
     console.log("sectionData", sectionData);
 
     var questions = [];
+    var question_cnt = 0;
     for (var question in sectionData) {
         questions.push(question + "\n");
+        question_cnt++;
     }
     console.log("questions", questions);
+    myChart_height = 60 * (question_cnt + 1);
 
     var dom = document.getElementById('chart-container-' + i);
     var myChart = echarts.init(dom, null, {
     renderer: 'canvas',
-    useDirtyRect: false
+    useDirtyRect: false,
+    height: myChart_height,
     });
     var app = {};
 
