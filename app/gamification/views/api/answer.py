@@ -1,6 +1,8 @@
 import collections
 import json
 import yake
+import pytz
+import spacy
 from django.utils import timezone
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
@@ -16,7 +18,6 @@ from app.gamification.models.question_option import QuestionOption
 from app.gamification.models.registration import Registration
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
 from collections import defaultdict
-import pytz
 from pytz import timezone
 from datetime import datetime
 
@@ -132,7 +133,7 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
 
-        if question_type == Question.QuestionType.MULTIPLECHOICE:
+        if question_type == Question.QuestionType.MULTIPLECHOICE or question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
             # delete original answer
             if len(answer_texts) == 0:
                 return Response()
@@ -290,7 +291,7 @@ class ArtifactResult(generics.ListAPIView):
                 artifact_reviews = ArtifactReview.objects.filter(
                     artifact=artifact)
 
-                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE or question.question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
                     question_options = question.options
                     for question_option in question_options:
                         answer_text = question_option.option_choice.text
@@ -376,31 +377,30 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
     # permission_classes = [IsAdminOrReadOnly]
-
+    
     def get(self, request, artifact_pk, *args, **kwargs):
+        nlp = spacy.load("en_core_web_sm")
         answers = []
         artifacts_reviews = ArtifactReview.objects.filter(artifact_id = artifact_pk)
         for artifact_review in artifacts_reviews:
             answer = Answer.objects.filter(
                 artifact_review_id=artifact_review.pk).order_by('pk')
             answers.extend(answer)
-        kw_extractor = yake.KeywordExtractor()
-        language = "en"
-        max_ngram_size = 3
-        deduplication_threshold = 0.9
-        numOfKeywords = 10
-        custom_kw_extractor = yake.KeywordExtractor()
-        custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold, top=numOfKeywords, features=None)
         text = ""
         for answer in answers:
             number_answers = ['MULTIPLECHOICE', 'NUMBER']
             if answer.question_option.question.question_type not in number_answers:
                 answer_content = " "+ answer.answer_text + ". "
                 text += answer_content
-        keywords = custom_kw_extractor.extract_keywords(text)
+        doc = nlp(text)
+        keywords = [token.lemma_ for token in doc if token.pos_ == "VERB"]
         result = {}
-        for word in keywords:
-            result[word[0]] = int((1 - word[1]) * 10)
+        unwanted_chars = ".,-_ ()'"
+        for raw_word in keywords:
+            word = raw_word.strip(unwanted_chars)
+            if word not in result:
+                result[word] = 0 
+            result[word] += 1
         return Response(result)
 
 class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
