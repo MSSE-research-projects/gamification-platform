@@ -789,6 +789,89 @@ class MultipleChoiceQuestion extends InlineStyleQuestion {
   }
 }
 
+class ScaleMultipleChoiceQuestion extends InlineStyleQuestion {
+  constructor(data = {}, options = {}) {
+    super(data, options);
+    this.choices = data.choices ? data.choices : [];
+    this.numberOfScale = data.numberOfScale ? data.numberOfScale : 5;
+    this.type = 'smcq';
+
+    this.temp = {
+      3: [new OptionChoice({text: "Disagree", question: this}), new OptionChoice({text: "Neutral", question: this}), new OptionChoice({text: "Agree", question: this})],
+      5: [new OptionChoice({text: "Strongly Disagree", question: this}), new OptionChoice({text: "Disagree", question: this}), new OptionChoice({text: "Neutral", question: this}), new OptionChoice({text: "Agree", question: this}), new OptionChoice({text: "Strongly Agree", question: this})],
+      7: [new OptionChoice({text: "Strongly Disagree", question: this}), new OptionChoice({text: "Disagree", question: this}), new OptionChoice({text: "Weakly Disagree", question: this}), new OptionChoice({text: "Neutral", question: this}), new OptionChoice({text: "Weakly Agree", question: this}), new OptionChoice({text: "Agree", question: this}), new OptionChoice({text: "Strong Agree", question: this})],
+    }
+
+    this.choices = this.temp[this.numberOfScale];
+
+    this.buildElement();
+
+    this.on('input', 'input', this.removeError);
+  }
+
+  _buildOption() {
+    var randomString = Math.random().toString(36).substring(2, 15);
+    var html = '';
+    html += '<div class="row">';
+
+    for (var i = 0; i < this.numberOfScale; i++) {
+      html += '  <div class="col-sm">';
+      html += '    <div class="form-check">';
+      html += `      <input class="form-check-input" type="radio" name="${randomString}" value="${this.choices[i].value}">`;
+      html += `      <label class="form-check-label">${this.choices[i].text}</label>`;
+      html += '    </div>';
+      html += '  </div>';
+    }
+    html += '</div>';
+
+    return htmlToElement(html);
+  }
+
+  setAnswers(values) {
+    for (var i = 0; i < values.length; i++) {
+      $(this.element).find(`input[value="${values[i]}"]`).prop('checked', true);
+    }
+  }
+
+  getAnswers() {
+    // Get all chekced buttons
+    var checkedButtons = $(this.element).find('input:checked');
+    var answers = [];
+    for (var i = 0; i < checkedButtons.length; i++) {
+      answers.push(checkedButtons[i].value);
+    }
+    return answers;
+  }
+
+  getChoiceByText(text) {
+    return this.choices.find(function (choice) {
+      return choice.text === text;
+    });
+  }
+
+  addChoice(choice) {
+    this.choices.push(choice);
+
+    this.updateElement();
+  }
+
+  addChoiceByText(text) {
+    var choice = new OptionChoice(text);
+    this.addChoice(choice);
+  }
+
+  removeChoice(choice) {
+    this.choices.splice(this.choices.indexOf(choice), 1);
+
+    this.updateElement();
+  }
+
+  removeChoiceByText(text) {
+    var choice = this.getChoiceByText(text);
+    this.removeChoice(choice);
+  }
+}
+
 class FixedTextInputQuestion extends DefaultStyleQuestion {
   constructor(data = {}, options = {}) {
     super(data, options);
@@ -1054,22 +1137,32 @@ class QuestionModal {
     var questionType = this.modal.find('#questionType').val();
     switch (questionType) {
       case 'mcq':
+        this.modal.find('#smcqFields').hide();
         this.modal.find('#mcqFields').show();
+        this.modal.find('#textFields').hide();
+        this.modal.find('#numericFields').hide();
+        break;
+      case 'smcq':
+        this.modal.find('#smcqFields').show();
+        this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').hide();
         this.modal.find('#numericFields').hide();
         break;
       case 'fixed-text':
       case 'multi-text':
+        this.modal.find('#smcqFields').hide();
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').show();
         this.modal.find('#numericFields').hide();
         break;
       case 'number':
+        this.modal.find('#smcqFields').hide();
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').hide();
         this.modal.find('#numericFields').show();
         break;
       default:
+        this.modal.find('#smcqFields').hide();
         this.modal.find('#mcqFields').hide();
         this.modal.find('#textFields').hide();
         this.modal.find('#numericFields').hide();
