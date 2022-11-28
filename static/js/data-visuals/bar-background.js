@@ -1,18 +1,18 @@
-var chartDom = document.getElementById("bar-chart-container-" + aspect_name);
-var myChart = echarts.init(chartDom);
+var chartDom = document.getElementById("bar-chart-container");
+var myChart = echarts.init(chartDom,null,{height: 400});
 var option;
 
 option = {
   xAxis: {
     type: "category",
-    data: ["Content", "Design", "Delivery", "Overall"],
+    data: scoreLabels,
   },
   yAxis: {
     type: "value",
   },
   series: [
     {
-      data: [5, 6, 4, 5],
+      data: scoreData,
       type: "bar",
       showBackground: true,
       backgroundStyle: {
@@ -21,10 +21,6 @@ option = {
     },
   ],
 };
-
-console.log("aspect_name" + aspect_name);
-
-console.log("aspect_content" + aspect_content);
 
 option && myChart.setOption(option);
 window.addEventListener("resize", myChart.resize);

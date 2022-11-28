@@ -1,5 +1,5 @@
-var chartDom = document.getElementById("tree-map-container-" + aspect_name);
-var myChart = echarts.init(chartDom);
+var chartDom = document.getElementById("tree-map-container");
+var myChart = echarts.init(chartDom,null,{height: 400});
 var option;
 
 option = {
@@ -11,6 +11,8 @@ option = {
     borderWidth: 0,
     gapWidth: 5,
   },
+  tooltip: {},
+
   series: [
     {
       type: "treemap",
@@ -23,56 +25,14 @@ option = {
           },
         },
         {
-          color: ["#942e38", "#aaa", "#269f3c"],
           colorMappingBy: "value",
           itemStyle: {
             gapWidth: 1,
           },
         },
       ],
-      data: [
-        {
-          name: "Great",
-          value: 1,
-          children: [
-            {
-              name: "Negative",
-              value: 6,
-              children: [
-                {
-                  name: "clear",
-                  value: 2,
-                },
-                {
-                  name: "friendly",
-                  value: 2,
-                },
-                {
-                  name: "comes with images",
-                  value: 1,
-                },
-                {
-                  name: "data-driven",
-                  value: 1,
-                },
-              ],
-            },
-
-            {
-              name: "little lengthy",
-              value: 1,
-            },
-            {
-              name: "abrupt end",
-              value: 1,
-            },
-            {
-              name: "more interactions",
-              value: 1,
-            },
-          ],
-        },
-      ],
+      data: treeData,
+      
     },
   ],
 };

@@ -1,100 +1,98 @@
-// var dom = document.getElementById('chart-container');
-// console.log("part_data", part_data);
-// var myChart = echarts.init(dom, null, {
-//   renderer: 'canvas',
-//   useDirtyRect: false
-// });
-// var app = {};
+// chart_container_cnt
+console.log("chart_container_cnt", chart_container_cnt);
+// answers_fromAPI
+console.log("answers_fromAPI::", answers_fromAPI);
+var i = 0;
+var labels = answers_fromAPI["label"];
+console.log("labels", labels);
+var sections = answers_fromAPI["sections"];
 
-// var option;
+for (var section in sections) {
+    var sectionData = sections[section];
+    console.log("sectionData", sectionData);
 
-// option = {
-//   tooltip: {
-//     trigger: 'axis',
-//     axisPointer: {
-//       // Use axis to trigger tooltip
-//       type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
-//     }
-//   },
-//   legend: {},
-//   grid: {
-//     left: '3%',
-//     right: '4%',
-//     bottom: '3%',
-//     containLabel: true
-//   },
-//   xAxis: {
-//     type: 'value'
-//   },
-//   yAxis: {
-//     type: 'category',
-//     data: ['Question 1', 'Question 2', 'Question 3', 'Question 4', 'Question 5']
-//   },
-//   series: [
-//     {
-//       name: 'Strongly Disagree',
-//       type: 'bar',
-//       stack: 'total',
-//       label: {
-//         show: true
-//       },
-//       emphasis: {
-//         focus: 'series'
-//       },
-//       data: [5,6,7,8,9]
-//     },
-//     {
-//       name: 'Disagree',
-//       type: 'bar',
-//       stack: 'total',
-//       label: {
-//         show: true
-//       },
-//       emphasis: {
-//         focus: 'series'
-//       },
-//       data: [5,2,7,6,9]
-//     },
-//     {
-//       name: 'Neutral',
-//       type: 'bar',
-//       stack: 'total',
-//       label: {
-//         show: true
-//       },
-//       emphasis: {
-//         focus: 'series'
-//       },
-//       data: [1,2,7,3,9]
-//     },
-//     {
-//       name: 'Agree',
-//       type: 'bar',
-//       stack: 'total',
-//       label: {
-//         show: true
-//       },
-//       emphasis: {
-//         focus: 'series'
-//       },
-//       data: [1,2,1,3,9]
-//     },
-//     {
-//       name: 'Strongly Agree',
-//       type: 'bar',
-//       stack: 'total',
-//       label: {
-//         show: true
-//       },
-//       emphasis: {
-//         focus: 'series'
-//       },
-//       data: [5,12,7,3,9]
-//     }
-//   ]
-// };
-// if (option && typeof option === 'object') {
-//   myChart.setOption(option);
-// }
+    var questions = [];
+    var question_cnt = 0;
+    for (var question in sectionData) {
+        questions.push(question + "\n");
+        question_cnt++;
+    }
+    console.log("questions", questions);
+    myChart_height = 60 * (question_cnt + 1);
 
-// window.addEventListener('resize', myChart.resize);
+    var dom = document.getElementById('chart-container-' + i);
+    var myChart = echarts.init(dom, null, {
+    renderer: 'canvas',
+    useDirtyRect: false,
+    height: myChart_height,
+    });
+    var app = {};
+
+    var option;
+    
+    option = {
+        tooltip: {
+            extraCssText: "width:400px; white-space:pre-wrap;position: absolute;",
+            trigger: 'axis',
+            confine: 'true',
+            axisPointer: {
+            // Use axis to trigger tooltip
+            type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+            }
+        },
+        legend: {},
+        grid: {
+            top: '10%',
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            show:false,
+            position: 'top',
+            type: 'value'
+        },
+        yAxis: {
+            type: 'category',
+            data: questions,
+            axisLabel: {
+                margin: 40,
+                width: "180",
+                overflow: "break",
+            },
+        },
+        series: []
+    };
+
+    for (var j = 0; j < labels.length; j++) {
+        option_series_data = {
+            name: labels[j],
+            type: 'bar',
+            stack: 'total',
+            label: {
+                show: true,
+            },
+            emphasis: {
+                focus: 'series'
+            },
+            data: []
+            }
+        option.series.push(option_series_data);
+    }
+    j = 0;
+    for (var question in sectionData) {  //j, k -> k, j
+        var question_data = sectionData[question];  //[j]
+        console.log("question_data", question_data);
+        for (var k = 0; k < labels.length; k++) {
+            option.series[k].data.push(question_data[k]);
+        }
+        j += 1;
+    }
+
+    if (option && typeof option === 'object') {
+    myChart.setOption(option);
+    }
+    i += 1;
+}
+window.addEventListener('resize', myChart.resize);

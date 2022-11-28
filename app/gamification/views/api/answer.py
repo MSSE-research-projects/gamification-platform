@@ -273,7 +273,6 @@ class ArtifactResult(generics.ListAPIView):
             answers = Answer.objects.filter(
                 artifact_review=artifact_review)
             for answer in answers:
-                print(answer.question_option.question.text)
                 if answer.question_option.question.text == 'Your confidence' and answer.question_option.question.question_type == Question.QuestionType.NUMBER:
                     confidence[artifact_review.pk] = answer.answer_text
                     confidence['sum'] += int(answer.answer_text)
