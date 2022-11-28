@@ -1,11 +1,10 @@
 var chartDom = document.getElementById("tree-map-container");
-var myChart = echarts.init(chartDom,null,{height: 400});
+var myChart = echarts.init(chartDom, null, { height: 400 });
 var option;
 
 option = {
   title: {
     text: "Top Tags from other reviewers",
-    left: "center",
   },
   itemStyle: {
     borderWidth: 0,
@@ -32,7 +31,6 @@ option = {
         },
       ],
       data: treeData,
-      
     },
   ],
 };
