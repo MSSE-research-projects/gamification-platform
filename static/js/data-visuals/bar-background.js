@@ -3,6 +3,10 @@ var myChart = echarts.init(chartDom, null, { height: 400 });
 var option;
 
 option = {
+  tooltip: {
+    trigger: "item",
+    formatter: "{b} : {c} points out of 10",
+  },
   visualMap: [
     {
       show: true,
