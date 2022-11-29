@@ -800,7 +800,7 @@ class ScaleMultipleChoiceQuestion extends InlineStyleQuestion {
     this.temp = {
       3: [new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "agree", question: this})],
       5: [new OptionChoice({text: "strongly disagree", question: this}), new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "agree", question: this}), new OptionChoice({text: "strongly agree", question: this})],
-      7: [new OptionChoice({text: "strongly disagree", question: this}), new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "weakly disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "weakly agree", question: this}), new OptionChoice({text: "agree", question: this}), new OptionChoice({text: "strong agree", question: this})],
+      7: [new OptionChoice({text: "strongly disagree", question: this}), new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "weakly disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "weakly agree", question: this}), new OptionChoice({text: "agree", question: this}), new OptionChoice({text: "strongly agree", question: this})],
     }
 
     this.choices = this.temp[this.numberOfScale];

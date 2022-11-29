@@ -751,7 +751,6 @@
           case 'smcq':
             questionClass = ScaleMultipleChoiceQuestion;
             data.numberOfScale = data.number_of_scale;
-            console.log(data);
             break;
           case 'fixed-text':
             questionClass = FixedTextInputQuestion;
@@ -821,9 +820,6 @@
             text: ''
           },
           success: function (data) {
-            console.log(data);
-            // question.numberOfScale = numberOfScale;
-            // console.log("xinde" + numberOfScale);
             question.updateElement();
           },
           error: function (data) {
