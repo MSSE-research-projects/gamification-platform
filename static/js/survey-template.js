@@ -794,7 +794,6 @@ class ScaleMultipleChoiceQuestion extends InlineStyleQuestion {
     super(data, options);
     this.choices = data.choices ? data.choices : [];
     this.numberOfScale = data.numberOfScale ? data.numberOfScale : 5;
-    console.log(data);
     this.type = 'smcq';
 
     this.temp = {

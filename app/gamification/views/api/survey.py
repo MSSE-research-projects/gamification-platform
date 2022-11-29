@@ -167,9 +167,8 @@ class SectionQuestionList(generics.ListCreateAPIView):
         question = Question(
             text=text, is_required=is_required, is_multiple=is_multiple, number_of_scale=number_of_scale, dependent_question=dependent_question, question_type=question_type, section=section)
         question.save()
-        if question.QuestionType == Question.QuestionType.SCALEMULTIPLECHOICE:
+        if question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
             if question.number_of_scale == 3:
-                print('111111')
                 option_choice, _ = OptionChoice.objects.get_or_create(
                     text="agree")
                 question_option = QuestionOption(
@@ -186,7 +185,6 @@ class SectionQuestionList(generics.ListCreateAPIView):
                     option_choice=option_choice, question=question)
                 question_option.save()
             elif question.number_of_scale == 5:
-                print('22222')
                 option_choice, _ = OptionChoice.objects.get_or_create(
                     text="strongly agree")
                 question_option = QuestionOption(
@@ -213,7 +211,6 @@ class SectionQuestionList(generics.ListCreateAPIView):
                     option_choice=option_choice, question=question)
                 question_option.save()
             else:
-                print('333333')
                 option_choice, _ = OptionChoice.objects.get_or_create(
                     text="strongly agree")
                 question_option = QuestionOption(

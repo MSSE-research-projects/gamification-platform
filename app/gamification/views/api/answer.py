@@ -162,11 +162,8 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
                 current_answer = answer_texts.pop(0)
                 question_option = QuestionOption.objects.get(
                     option_choice=OptionChoice.objects.get(text=current_answer), question=question)
-                print(question_option)
                 answer = Answer(answer_text=current_answer,
                                 question_option=question_option, artifact_review=artifact_review)
-                print(answer.text)
-                print("answer.answer_text: ", answer.answer_text)
                 answer.save()
             serializer = self.get_serializer(answer)
             return Response(serializer.data)
