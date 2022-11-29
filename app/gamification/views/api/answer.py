@@ -1,6 +1,8 @@
 import collections
 import json
 import yake
+import spacy
+import re
 from django.utils import timezone
 from rest_framework import generics, mixins, permissions
 from rest_framework.response import Response
@@ -378,12 +380,23 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
     # permission_classes = [IsAdminOrReadOnly]
 
     def get(self, request, artifact_pk, *args, **kwargs):
+        nlp = spacy.load("en_core_web_sm")
         answers = []
         artifacts_reviews = ArtifactReview.objects.filter(artifact_id = artifact_pk)
         for artifact_review in artifacts_reviews:
             answer = Answer.objects.filter(
                 artifact_review_id=artifact_review.pk).order_by('pk')
             answers.extend(answer)
+        text = ""
+        for answer in answers:
+            number_answers = ['MULTIPLECHOICE', 'NUMBER']
+            if answer.question_option.question.question_type not in number_answers:
+                answer_content = " "+ answer.answer_text + ". "
+                text += answer_content
+        doc = nlp(text)
+        nouns = [token.lemma_ for token in doc if token.pos_ == "NOUN"]
+        verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
+
         kw_extractor = yake.KeywordExtractor()
         language = "en"
         max_ngram_size = 3
@@ -391,16 +404,11 @@ class ArtifactAnswerKeywordList(generics.ListCreateAPIView):
         numOfKeywords = 10
         custom_kw_extractor = yake.KeywordExtractor()
         custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold, top=numOfKeywords, features=None)
-        text = ""
-        for answer in answers:
-            number_answers = ['MULTIPLECHOICE', 'NUMBER']
-            if answer.question_option.question.question_type not in number_answers:
-                answer_content = " "+ answer.answer_text + ". "
-                text += answer_content
         keywords = custom_kw_extractor.extract_keywords(text)
         result = {}
         for word in keywords:
-            result[word[0]] = int((1 - word[1]) * 10)
+            if bool(re.search(r"\s", word[0]))==False and word[0] not in nouns and word[0] not in verbs or bool(re.search(r"\s", word[0]))==True:
+                result[word[0]] = int((1 - word[1]) * 10)
         return Response(result)
 
 class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
