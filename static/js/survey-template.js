@@ -794,12 +794,13 @@ class ScaleMultipleChoiceQuestion extends InlineStyleQuestion {
     super(data, options);
     this.choices = data.choices ? data.choices : [];
     this.numberOfScale = data.numberOfScale ? data.numberOfScale : 5;
+    console.log(data);
     this.type = 'smcq';
 
     this.temp = {
-      3: [new OptionChoice({text: "Disagree", question: this}), new OptionChoice({text: "Neutral", question: this}), new OptionChoice({text: "Agree", question: this})],
-      5: [new OptionChoice({text: "Strongly Disagree", question: this}), new OptionChoice({text: "Disagree", question: this}), new OptionChoice({text: "Neutral", question: this}), new OptionChoice({text: "Agree", question: this}), new OptionChoice({text: "Strongly Agree", question: this})],
-      7: [new OptionChoice({text: "Strongly Disagree", question: this}), new OptionChoice({text: "Disagree", question: this}), new OptionChoice({text: "Weakly Disagree", question: this}), new OptionChoice({text: "Neutral", question: this}), new OptionChoice({text: "Weakly Agree", question: this}), new OptionChoice({text: "Agree", question: this}), new OptionChoice({text: "Strong Agree", question: this})],
+      3: [new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "agree", question: this})],
+      5: [new OptionChoice({text: "strongly disagree", question: this}), new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "agree", question: this}), new OptionChoice({text: "strongly agree", question: this})],
+      7: [new OptionChoice({text: "strongly disagree", question: this}), new OptionChoice({text: "disagree", question: this}), new OptionChoice({text: "weakly disagree", question: this}), new OptionChoice({text: "neutral", question: this}), new OptionChoice({text: "weakly agree", question: this}), new OptionChoice({text: "agree", question: this}), new OptionChoice({text: "strong agree", question: this})],
     }
 
     this.choices = this.temp[this.numberOfScale];

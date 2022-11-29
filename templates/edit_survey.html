@@ -395,7 +395,7 @@
           if (questionData.number_of_text)
             numberOfText = questionData.number_of_text;
 
-          addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, minValue, maxValue, step);
+          addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, numberOfScale, minValue, maxValue, step);
         });
       }
 
@@ -737,9 +737,11 @@
         text: questionText,
         question_type: queTypeMap[questionType],
         is_required: questionRequried,
+        number_of_scale: numberOfScale,
       },
       success: function (data) {
         data.section = section;
+        console.log(data);
 
         var questionClass;
         switch (questionType) {
@@ -748,6 +750,8 @@
             break;
           case 'smcq':
             questionClass = ScaleMultipleChoiceQuestion;
+            data.numberOfScale = data.number_of_scale;
+            console.log(data);
             break;
           case 'fixed-text':
             questionClass = FixedTextInputQuestion;
@@ -814,11 +818,12 @@
           type: 'POST',
           data: {
             csrfmiddlewaretoken: '{{ csrf_token }}',
-            text: '',
-            number_of_scale: numberOfScale,
+            text: ''
           },
           success: function (data) {
-            question.numberOfScale = numberOfScale;
+            console.log(data);
+            // question.numberOfScale = numberOfScale;
+            // console.log("xinde" + numberOfScale);
             question.updateElement();
           },
           error: function (data) {

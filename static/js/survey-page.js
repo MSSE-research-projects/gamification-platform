@@ -83,7 +83,8 @@ getSurvey = function (survey_pk, options) {
         case 'SCALEMULTIPLECHOICE':
           var numberOfScale = data.number_of_scale;
           data.numberOfScale = numberOfScale;
-
+          console.log("------------------");
+          console.log(numberOfScale);
           questionClass = ScaleMultipleChoiceQuestion;
           break;
         case 'FIXEDTEXT':

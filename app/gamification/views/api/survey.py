@@ -162,10 +162,90 @@ class SectionQuestionList(generics.ListCreateAPIView):
         dependent_question = request.data.get('dependent_question') if request.data.get(
             'dependent_question') != '' else None
         question_type = request.data.get('question_type')
+        number_of_scale = request.data.get('number_of_scale', -1)
         section = SurveySection.objects.get(id=section_pk)
         question = Question(
-            text=text, is_required=is_required, is_multiple=is_multiple, dependent_question=dependent_question, question_type=question_type, section=section)
+            text=text, is_required=is_required, is_multiple=is_multiple, number_of_scale=number_of_scale, dependent_question=dependent_question, question_type=question_type, section=section)
         question.save()
+        if question.QuestionType == Question.QuestionType.SCALEMULTIPLECHOICE:
+            if question.number_of_scale == 3:
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="agree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="neutral")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="disagree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+            elif question.number_of_scale == 5:
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="strongly agree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="agree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="neutral")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="disagree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="strongly disagree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+            else:
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="strongly agree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="agree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="weakly agree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="neutral")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="weakly disagree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="disagree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
+                option_choice, _ = OptionChoice.objects.get_or_create(
+                    text="strongly disagree")
+                question_option = QuestionOption(
+                    option_choice=option_choice, question=question)
+                question_option.save()
         serializer = self.get_serializer(question)
         return Response(serializer.data)
 
@@ -264,7 +344,11 @@ class QuestionOptionList(generics.ListCreateAPIView, mixins.UpdateModelMixin, ge
         question = get_object_or_404(Question, id=question_pk)
         text = request.data.get('text').strip()
         number_of_text = request.data.get('number_of_text', 1)
+        number_of_scale = request.data.get('number_of_scale', -1)
         option_choice, _ = OptionChoice.objects.get_or_create(text=text)
+        if number_of_scale != -1:
+            question.number_of_scale = number_of_scale
+            question.save()
         QuestionOption.objects.get_or_create(
             option_choice=option_choice,
             question=question,
@@ -357,7 +441,7 @@ class TemplateSectionList(generics.ListAPIView):
                 curr_question['text'] = question.text
                 curr_question['is_required'] = question.is_required
                 curr_question['question_type'] = question.question_type
-                if question.question_type == Question.QuestionType.MULTIPLECHOICE or question.question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
                     curr_question['option_choices'] = []
                     for option_choice in question.options:
                         curr_option_choice = dict()
@@ -365,6 +449,8 @@ class TemplateSectionList(generics.ListAPIView):
                         curr_option_choice['text'] = option_choice.option_choice.text
                         curr_question['option_choices'].append(
                             curr_option_choice)
+                elif question.question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
+                    curr_question['number_of_scale'] = question.number_of_scale
                 else:
                     question_option = get_object_or_404(
                         QuestionOption, question=question)
@@ -396,7 +482,7 @@ class SurveyGetInfo(generics.ListAPIView):
                 curr_question['text'] = question.text
                 curr_question['is_required'] = question.is_required
                 curr_question['question_type'] = question.question_type
-                if question.question_type == Question.QuestionType.MULTIPLECHOICE or question.question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
                     curr_question['option_choices'] = []
                     for option_choice in question.options:
                         curr_option_choice = dict()
@@ -404,6 +490,8 @@ class SurveyGetInfo(generics.ListAPIView):
                         curr_option_choice['text'] = option_choice.option_choice.text
                         curr_question['option_choices'].append(
                             curr_option_choice)
+                elif question.question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
+                    curr_question['number_of_scale'] = question.number_of_scale
                 else:
                     question_option = get_object_or_404(
                         QuestionOption, question=question)
