@@ -21,3 +21,4 @@ from .achievement import *
 from .user_reward import *
 from .course_rule import *
 from .progress import *
+from .rule_constraint import *

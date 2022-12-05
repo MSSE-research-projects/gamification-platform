@@ -4,9 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 class Constraint(models.Model):
     met = models.BooleanField(default=False)
-    description = models.TextField(_('description'), blank=True)
+    url = models.TextField(_('url'), blank=True)
     threshold = models.IntegerField()
-    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'constraints'
