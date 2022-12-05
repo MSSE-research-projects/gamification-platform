@@ -15,6 +15,7 @@ class Question(models.Model):
         SLIDEREVIEW = 'SLIDEREVIEW'
         TEXTAREA = 'TEXTAREA'
         NUMBER = 'NUMBER'
+        SCALEMULTIPLECHOICE = 'SCALEMULTIPLECHOICE'
 
     section = models.ForeignKey('SurveySection', on_delete=models.CASCADE)
 
@@ -34,6 +35,8 @@ class Question(models.Model):
 
     option_choices = models.ManyToManyField(
         'OptionChoice', through='QuestionOption')
+
+    number_of_scale = models.IntegerField(default=5, null=True, blank=True)
 
     class Meta:
         db_table = 'question'

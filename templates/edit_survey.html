@@ -112,6 +112,7 @@
           <select class="form-control" id="questionType">
             <option value="">Select Question Type</option>
             <option value="mcq">Multiple Choice Question</option>
+            <option value="smcq">Multiple Choice Question With Scale</option>
             <option value="fixed-text">Fixed Text</option>
             <option value="multi-text">Multi-line Text</option>
             <option value="textarea">Textarea</option>
@@ -133,6 +134,16 @@
               <input type="text" class="form-control mb-2" id="mcqOptions" placeholder="New Option" required>
             </div>
           </div>
+        </div>
+
+        <div class="form-group" id="smcqFields">
+          <label for="numberOfScale">Number of Scale</label>
+          <select class="form-control" id="numberOfScale" required>
+            <option value="">Select Number of Choice</option>
+            <option value="3">Three choices(Agree, Neutral, Disagree)</option>
+            <option value="5">Five choices(Strongly Agree, Agree, Neutral, Disagree, Strongly Disagree)</option>
+            <option value="7">Seven choices(Strongly Agree, Agree, Weakly Agree, Neutral, Weakly Disagree, Disagree, Strongly Disagree)</option>
+          </select>
         </div>
 
         <div class="form-group" id="textFields">
@@ -194,6 +205,7 @@
           <select class="form-control" id="questionType" disabled>
             <option value="">Select Question Type</option>
             <option value="mcq">Multiple Choice Question</option>
+            <option value="smcq">Multiple Choice Question With Scale</option>
             <option value="fixed-text">Fixed Text</option>
             <option value="multi-text">Multi-line Text</option>
             <option value="textarea">Textarea</option>
@@ -383,7 +395,7 @@
           if (questionData.number_of_text)
             numberOfText = questionData.number_of_text;
 
-          addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, minValue, maxValue, step);
+          addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, numberOfScale, minValue, maxValue, step);
         });
       }
 
@@ -511,11 +523,18 @@
         numberOfText = 1;
       }
 
+      var numberOfScale;
+      if (this.modal.find('#numberOfScale').val() != '') {
+        numberOfScale = parseInt(this.modal.find('#numberOfScale').val());
+      } else {
+        numberOfScale = 5;
+      }
+
       var minValue = this.modal.find('#minValue').val();
       var maxValue = this.modal.find('#maxValue').val();
       var step = this.modal.find('#step').val();
 
-      addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, minValue, maxValue, step);
+      addQuestionAjax(section, questionText, questionType, questionRequired, choices, numberOfText, numberOfScale, minValue, maxValue, step);
 
       // Hide modal
       this.hide();
@@ -706,7 +725,7 @@
     }
   });
 
-  function addQuestionAjax(section, questionText, questionType, questionRequried, choices, numberOfText, minValue, maxValue, step) {
+  function addQuestionAjax(section, questionText, questionType, questionRequried, choices, numberOfText, numberOfScale, minValue, maxValue, step) {
     // Add question to server
     var question = null;
     $.ajax({
@@ -718,14 +737,20 @@
         text: questionText,
         question_type: queTypeMap[questionType],
         is_required: questionRequried,
+        number_of_scale: numberOfScale,
       },
       success: function (data) {
         data.section = section;
+        console.log(data);
 
         var questionClass;
         switch (questionType) {
           case 'mcq':
             questionClass = MultipleChoiceQuestion;
+            break;
+          case 'smcq':
+            questionClass = ScaleMultipleChoiceQuestion;
+            data.numberOfScale = data.number_of_scale;
             break;
           case 'fixed-text':
             questionClass = FixedTextInputQuestion;
@@ -783,6 +808,23 @@
               console.log(data);
             }
           });
+        });
+        break;
+      case 'smcq':
+        $.ajax({
+          async: false,
+          url: `/api/questions/${question.pk}/options/`,
+          type: 'POST',
+          data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            text: ''
+          },
+          success: function (data) {
+            question.updateElement();
+          },
+          error: function (data) {
+            console.log(data);
+          }
         });
         break;
       case 'fixed-text':

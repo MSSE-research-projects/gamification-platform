@@ -1,18 +1,46 @@
-var chartDom = document.getElementById("bar-chart-container-" + aspect_name);
-var myChart = echarts.init(chartDom);
+var chartDom = document.getElementById("bar-chart-container");
+var myChart = echarts.init(chartDom, null, { height: 400 });
 var option;
 
 option = {
+  title: {
+    text: "Overall Score",
+  },
+  tooltip: {
+    trigger: "item",
+    formatter: "{b} : {c} points out of 10",
+  },
+  visualMap: [
+    {
+      show: true,
+      top: "10%",
+      type: "continuous",
+      dimension: 1,
+      min: 0,
+      max: 10,
+      inRange: {
+        color: ["red", "light green"],
+      },
+    },
+  ],
   xAxis: {
     type: "category",
-    data: ["Content", "Design", "Delivery", "Overall"],
+    data: scoreLabels,
   },
   yAxis: {
     type: "value",
   },
   series: [
     {
-      data: [5, 6, 4, 5],
+      data: scoreData,
+      barWidth: 50,
+      label: {
+        show: true,
+        position: "insideTop",
+        formatter: "{c}",
+        color: "#000000",
+      },
+
       type: "bar",
       showBackground: true,
       backgroundStyle: {
@@ -21,10 +49,6 @@ option = {
     },
   ],
 };
-
-console.log("aspect_name" + aspect_name);
-
-console.log("aspect_content" + aspect_content);
 
 option && myChart.setOption(option);
 window.addEventListener("resize", myChart.resize);

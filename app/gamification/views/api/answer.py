@@ -133,12 +133,12 @@ class CreateArtifactAnswer(generics.RetrieveUpdateAPIView):
         # get_object_or_404
         question = Question.objects.get(id=question_pk)
         question_type = question.question_type
-
-        if question_type == Question.QuestionType.MULTIPLECHOICE:
+        if question_type == Question.QuestionType.MULTIPLECHOICE or question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
             # delete original answer
             if len(answer_texts) == 0:
                 return Response()
             question_options = question.options.all()
+            
             # question_options = ['a', 'b', 'c', 'd']
             for question_option in question_options:
                 if len(answer_texts) == 0:
@@ -275,7 +275,6 @@ class ArtifactResult(generics.ListAPIView):
             answers = Answer.objects.filter(
                 artifact_review=artifact_review)
             for answer in answers:
-                print(answer.question_option.question.text)
                 if answer.question_option.question.text == 'Your confidence' and answer.question_option.question.question_type == Question.QuestionType.NUMBER:
                     confidence[artifact_review.pk] = answer.answer_text
                     confidence['sum'] += int(answer.answer_text)
@@ -292,7 +291,7 @@ class ArtifactResult(generics.ListAPIView):
                 artifact_reviews = ArtifactReview.objects.filter(
                     artifact=artifact)
 
-                if question.question_type == Question.QuestionType.MULTIPLECHOICE:
+                if question.question_type == Question.QuestionType.MULTIPLECHOICE or question.question_type == Question.QuestionType.SCALEMULTIPLECHOICE:
                     question_options = question.options
                     for question_option in question_options:
                         answer_text = question_option.option_choice.text
@@ -422,9 +421,27 @@ class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
             answer = Answer.objects.filter(
                 artifact_review_id=artifact_review.pk).order_by('pk')
             answers.extend(answer)
+        # choice_labels = set()
+        #[section_title][MULTIPLECHOICE/SCALEMULTIPLECHOICE][label/answer_text]
+        # for answer in answers:
+        #     section_name = answer.question_option.question.section
+        #     if answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
+        #         print("test")
+        #     elif answer.question_option.question.question_type == 'MULTIPLECHOICE':
+        #         choice_labels.add((section_name, answer.question_option.option_choice.text))
+        # choice_labels_list = list(choice_labels)
+        # result = collections.defaultdict(list)
+        # for section_name, choice in choice_labels_list:
+        #     result[section_name].append(choice)
+        # return Response(result)
+        
         choice_labels = set()
         for answer in answers:
-            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
+            # print(answer.question_option.question.section)
+            # print(answer.question_option.question.question_type)
+            if answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
+                choice_labels.add(answer.question_option.option_choice.text)
+            elif answer.question_option.question.question_type == 'MULTIPLECHOICE':
                 choice_labels.add(answer.question_option.option_choice.text)
         result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
         for answer in answers:

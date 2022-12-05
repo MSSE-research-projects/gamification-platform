@@ -6,6 +6,7 @@ $(function () {
 
 var queTypeMap = {
   'mcq': 'MULTIPLECHOICE',
+  'smcq': 'SCALEMULTIPLECHOICE',
   'fixed-text': 'FIXEDTEXT',
   'multi-text': 'MULTIPLETEXT',
   'textarea': 'TEXTAREA',
@@ -13,6 +14,7 @@ var queTypeMap = {
 };
 var queTypeMapRev = {
   'MULTIPLECHOICE': 'mcq',
+  'SCALEMULTIPLECHOICE': 'smcq',
   'FIXEDTEXT': 'fixed-text',
   'MULTIPLETEXT': 'multi-text',
   'TEXTAREA': 'textarea',
@@ -77,6 +79,13 @@ getSurvey = function (survey_pk, options) {
           data.choices = choices;
 
           questionClass = MultipleChoiceQuestion;
+          break;
+        case 'SCALEMULTIPLECHOICE':
+          var numberOfScale = data.number_of_scale;
+          data.numberOfScale = numberOfScale;
+          console.log("------------------");
+          console.log(numberOfScale);
+          questionClass = ScaleMultipleChoiceQuestion;
           break;
         case 'FIXEDTEXT':
           var numberOfText = data.number_of_text;
