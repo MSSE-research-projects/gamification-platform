@@ -7,7 +7,7 @@ from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyGetInfo, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
 from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactAnswerMultipleChoiceList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete, ArtifactAnswerKeywordList
-from .constraint import ConstraintDetail, ConstraintList, ConstraintProgressDetail
+from .constraint import ConstraintDetail, ConstraintList, ActionConstraintProgressDetail, GradeConstraintProgressDetail, ConstraintProgress
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -139,10 +139,16 @@ urlpatterns = [
      path('constraints/<str:url>/',
           ConstraintDetail.as_view(), name='constraint-detail'),
 
-     # Get progress of a constraint, update progress of a constraint, delete progress of a constraint
+     # Get progress of a constraint
      path('constraints/<str:url>/progress/',
-          ConstraintProgressDetail.as_view(), name='constraint-progress-detail'),
+          ConstraintProgress.as_view(), name='constraint-progress'),
+
+     # Get progress of an action constraint, update progress of an action constraint, delete progress of an action constraint
+     path('constraints/<str:url>/progress/action',
+          ActionConstraintProgressDetail.as_view(), name='constraint-progress-detail'),
      
-     
+     # Get progress of a grade constraint, update progress of a grade constraint, delete progress of a grade constraint
+     path('constraints/<str:url>/progress/grade',
+          GradeConstraintProgressDetail.as_view(), name='constraint-progress-detail'),
      # path('constraints/<int:constraint_pk>/progress', ConstraintProgress.as_view(), name='constraint-progress'),
 ]

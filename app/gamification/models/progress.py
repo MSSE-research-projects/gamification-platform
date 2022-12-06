@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class Progress(models.Model):
     met = models.BooleanField(default=False)
-    cur_point = models.FloatField(null=True, blank=True)
+    cur_point = models.FloatField(default=0, blank=True)
     constraint = models.ForeignKey('Constraint', on_delete=models.CASCADE)
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
 
