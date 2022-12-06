@@ -42,6 +42,8 @@ class ConstraintProgressDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get(self, request, url, *args, **kwargs):
         constraint = get_object_or_404(Constraint, url=url)
+        user = request.user
+        print(user)
         serializer = self.get_serializer(constraint)
         return Response(serializer.data)
 

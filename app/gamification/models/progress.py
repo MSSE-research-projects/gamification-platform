@@ -7,7 +7,7 @@ class Progress(models.Model):
     met = models.BooleanField(default=False)
     cur_point = models.FloatField(null=True, blank=True)
     constraint = models.ForeignKey('Constraint', on_delete=models.CASCADE)
-    student = models.ForeignKey('Registration', on_delete=models.CASCADE)
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'progresses'
