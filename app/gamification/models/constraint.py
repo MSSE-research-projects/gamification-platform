@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Constraint(models.Model):
-    met = models.BooleanField(default=False)
     url = models.TextField(_('url'), blank=True)
     threshold = models.IntegerField()
 

@@ -19,7 +19,6 @@ from app.gamification.models.registration import Registration
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
 from collections import defaultdict
 import pytz
-from pytz import timezone
 from datetime import datetime
 
 

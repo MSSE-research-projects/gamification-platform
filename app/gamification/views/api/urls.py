@@ -7,7 +7,7 @@ from .user import UserList, UserDetail
 from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyGetInfo, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
 from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactAnswerMultipleChoiceList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete, ArtifactAnswerKeywordList
-
+from .constraint import ConstraintDetail, ConstraintList, ConstraintProgressDetail
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -21,6 +21,8 @@ def api_root(request, format=None):
         'answers': reverse('answer-list', request=request, format=format),
         'template_section': reverse('template-section-list', request=request, format=format),
         'artifact_reviews': reverse('artifact-review-list', request=request, format=format),
+     #    'rules': reverse('rule-list', request=request, format=format),
+        'constraints': reverse('constraint-list', request=request, format=format),
     })
 
 
@@ -130,5 +132,17 @@ urlpatterns = [
      path('artifacts/<int:artifact_pk>/answers/statistics',
            ArtifactAnswerMultipleChoiceList.as_view(), name='artifact-answer-statistics'),
 
+     # Get list of constraints
+     path('constraints/', ConstraintList.as_view(), name='constraint-list'),
 
+     # Get detail of a constraint, Update a constraint, Delete a constraint
+     path('constraints/<str:url>/',
+          ConstraintDetail.as_view(), name='constraint-detail'),
+
+     # Get progress of a constraint, update progress of a constraint, delete progress of a constraint
+     path('constraints/<str:url>/progress/',
+          ConstraintProgressDetail.as_view(), name='constraint-progress-detail'),
+     
+     
+     # path('constraints/<int:constraint_pk>/progress', ConstraintProgress.as_view(), name='constraint-progress'),
 ]

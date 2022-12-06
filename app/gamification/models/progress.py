@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Progress(models.Model):
+    met = models.BooleanField(default=False)
     cur_point = models.FloatField(null=True, blank=True)
     point = models.ForeignKey('Point', on_delete=models.CASCADE)
     student = models.ForeignKey('Registration', on_delete=models.CASCADE)

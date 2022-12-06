@@ -1,7 +1,6 @@
 import json
 from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
-from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from app.gamification.models.option_choice import OptionChoice
 from app.gamification.models.question import Question
