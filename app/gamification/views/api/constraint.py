@@ -17,12 +17,12 @@ class ConstraintDetail(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [permissions.IsAdminUser]
 
     def get(self, request, url, *args, **kwargs):
-        Constraint = get_object_or_404(Constraint, url=url)
-        serializer = self.get_serializer(Constraint, many=True)
+        constraint = get_object_or_404(Constraint, url=url)
+        serializer = self.get_serializer(constraint)
         return Response(serializer.data)
 
     def put(self, request, url, *args, **kwargs):
-        constraint = get_object_or_404(Constraint, url)
+        constraint = get_object_or_404(Constraint, url=url)
         threshold = request.data.get('threshold')
         
         constraint.threshold = threshold
@@ -41,8 +41,8 @@ class ConstraintProgressDetail(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [permissions.IsAdminUser]
 
     def get(self, request, url, *args, **kwargs):
-        Constraint = get_object_or_404(Constraint, url=url)
-        serializer = self.get_serializer(Constraint, many=True)
+        constraint = get_object_or_404(Constraint, url=url)
+        serializer = self.get_serializer(constraint)
         return Response(serializer.data)
 
     def put(self, request, url, *args, **kwargs):
