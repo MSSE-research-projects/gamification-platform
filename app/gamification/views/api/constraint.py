@@ -120,7 +120,7 @@ class GradeConstraintProgressDetail(generics.RetrieveUpdateDestroyAPIView):
             progress = Progress(constraint=constraint, user=user)
         else:
             progress = get_object_or_404(Progress, constraint=constraint, user=user)
-        progress.cur_point = request.data.get('cur_point')
+        progress.cur_point = int(request.data.get('cur_point'))
         progress.save()
         progress = track_progress(user, progress, constraint)
         serializer = self.get_serializer(progress)
