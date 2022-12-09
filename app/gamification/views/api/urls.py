@@ -8,6 +8,7 @@ from .course import CourseList, CourseDetail
 from .survey import OptionDetail, OptionList, QuestionDetail, QuestionList, QuestionOptionList, QuestionOptionDetail, SectionDetail, SectionList, SectionQuestionList, SurveyGetInfo, SurveyList, SurveyDetail, SurveySectionList, TemplateSectionList
 from .answer import AnswerList, AnswerDetail, ArtifactAnswerList, ArtifactAnswerMultipleChoiceList, ArtifactReviewList, ArtifactReviewDetail, CheckAllDone, CreateArtifactReview, CreateArtifactAnswer, FeedbackDetail, ArtifactResult, SurveyComplete, ArtifactAnswerKeywordList
 from .constraint import ConstraintDetail, ConstraintList, ActionConstraintProgressDetail, GradeConstraintProgressDetail, ConstraintProgress
+from .rule import getAllRuleProgress, getRulesProgressByContraint, getAllRules
 
 @api_view(['GET'])
 def api_root(request, format=None):
@@ -151,4 +152,14 @@ urlpatterns = [
      path('constraints/<str:url>/progress/grade',
           GradeConstraintProgressDetail.as_view(), name='constraint-progress-detail'),
      # path('constraints/<int:constraint_pk>/progress', ConstraintProgress.as_view(), name='constraint-progress'),
+
+     # get all rules
+     path('rules/', getAllRules.as_view(), name='rule-list'),
+     
+     # get the progress of all rules
+     path('rules/progress/', getAllRuleProgress.as_view(), name='rule-progress'),
+     
+     # get the progress of all rules by constraint id
+     path('rules/progress/<int:constraint_pk>', getRulesProgressByContraint.as_view(), name='rule-progress'),
 ]
+     
