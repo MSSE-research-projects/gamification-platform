@@ -19,7 +19,6 @@ from app.gamification.models.registration import Registration
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
 from collections import defaultdict
 import pytz
-from pytz import timezone
 from datetime import datetime
 
 
@@ -445,7 +444,7 @@ class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
                 choice_labels.add(answer.question_option.option_choice.text)
         result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
         for answer in answers:
-            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
+            if answer.question_option.question.question_type == 'MULTIPLECHOICE' or answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
                 if answer.question_option.question.text not in result["sections"][answer.question_option.question.section.title].keys():
                     result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
                 option_index = list(choice_labels).index(answer.question_option.option_choice.text)

@@ -2,7 +2,7 @@
 console.log("chart_container_cnt", chart_container_cnt);
 // answers_fromAPI
 console.log("answers_fromAPI::", answers_fromAPI);
-var i = 0;
+var i = 1;
 var labels = answers_fromAPI["label"];
 console.log("labels", labels);
 var sections = answers_fromAPI["sections"];
