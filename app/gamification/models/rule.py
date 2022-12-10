@@ -14,11 +14,11 @@ class Rule(models.Model):
 
     @property
     def rule_constraints(self):
-        return RuleConstraint.objects.filter(Rule=self)
+        return RuleConstraint.objects.filter(rule=self)
 
     @property
     def rewards(self):
-        return Reward.objects.filter(Rule=self)
+        return Reward.objects.filter(rule=self)
 
     class Meta:
         db_table = 'rules'
