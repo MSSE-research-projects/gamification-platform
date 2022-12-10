@@ -216,8 +216,7 @@
       }
 
       if (!hasError) {
-        var ajaxCalls = [];
-        ajaxCall = $.ajax({
+        $.ajax({
           async: false,
           url: `/api/rules/progress`,
           type: 'GET',
@@ -226,8 +225,7 @@
             alert(JSON.stringify(data));
           },
         });
-        ajaxCalls.push(ajaxCall);
-        Promise.all(ajaxCalls);
+
 
         
         $.ajax({
