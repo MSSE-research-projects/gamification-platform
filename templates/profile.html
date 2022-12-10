@@ -47,15 +47,15 @@
               <div class="border-bottom py-4" >
                 <p>Badges</p>
                 <ul class="list-group list-group-flush">
-                  <li class="list-group-item">     <button type="button" class="btn btn-light rounded-pill"><img src = "../static/images/badges/gamification-starter.svg" width="35" 
+                  <li class="list-group-item" style="display: block" id = "Gamification Starter">   <button type="button" class="btn btn-light rounded-pill"><img src = "../static/images/badges/gamification-starter.svg" width="35" 
                     height= "auto">Gamification Starter</button></li>
-                  <li class="list-group-item"> <button type="button" class="btn btn-success rounded-pill"><img src = "../static/images/badges/season-evaluater.svg" width="35" 
+                  <li class="list-group-item" style="display: none" id = "Seasoned Evaluator"> <button type="button" class="btn btn-success rounded-pill"><img src = "../static/images/badges/season-evaluater.svg" width="35" 
                     height= "auto">Seasoned Evaluater</button></li>
-                  <li class="list-group-item"><button type="button" class="btn btn-info rounded-pill"><img src = "../static/images/badges/detailed-evaluater.svg" width="35" 
+                  <li class="list-group-item" style="display: none" id = "Detailed Evaluator"><button type="button" class="btn btn-info rounded-pill"><img src = "../static/images/badges/detailed-evaluater.svg" width="35" 
                     height= "auto">Detailed Evaluater
                   </button></li>
-                  <li class="list-group-item"><button type="button" class="btn btn-warning rounded-pill"><img src = "../static/images/badges/open-minded-orange.svg" width="35" 
-                    height= "auto">Open Minded</button></li>
+                  <li class="list-group-item" style="display: none" id = "Seasoned Presenter"><button type="button" class="btn btn-warning rounded-pill"><img src = "../static/images/badges/open-minded-orange.svg" width="35" 
+                    height= "auto">Seasoned Presenter</button></li>
                 </ul>
           
               </div>
@@ -155,18 +155,42 @@
 <script>
 
 $(document).ready(function () {
-  var ajaxCalls = [];
+  let badges = [];
+  let adjaxCall
         ajaxCall = $.ajax({
           async: false,
           url: `/api/rules/progress`,
           type: 'GET',
           success: function (data) {
-            
-            alert(JSON.stringify(data));
+            badges.push(data);
           },
         });
-        ajaxCalls.push(ajaxCall);
-        Promise.all(ajaxCalls);
+
+  console.log(badges);
+  if(badges && badges.length > 0){
+    for(let i = 0; i < badges[0].length; i += 1){
+      if(badges[0][i].conditions.length > 0){
+        let currCount = badges[0][i].conditions[0].Curr_count;
+        let unlockCount = badges[0][i].conditions[0].Unlock_count;
+        console.log("\n currCount:" + currCount);
+        console.log("\n unlockCount:" + unlockCount);
+
+        // If the condition matched, show the badges 
+        if(currCount >= unlockCount){
+          console.log("\n badges[0][i].rule_name:" + badges[0][i].rule_name);
+
+          let badgeDOM = document.getElementById(badges[0][i].rule_name);
+          badgeDOM.style.display = "block"; 
+          console.log(badgeDOM);
+        }
+
+      }
+      
+    }
+  }
+  
+
+
 });
 
     
