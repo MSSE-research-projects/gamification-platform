@@ -43,6 +43,7 @@ class getAllRuleProgress(generics.RetrieveUpdateDestroyAPIView):
         for rule in self.rules:
             rule_data = {}
             rule_data['rule_name'] = rule.name
+            rule_data['description'] = rule.description
             rule_data['conditions'] = []
             rule_constraints = RuleConstraint.objects.filter(rule=rule)
             for rule_constraint in rule_constraints:

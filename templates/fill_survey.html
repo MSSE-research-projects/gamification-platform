@@ -216,7 +216,20 @@
       }
 
       if (!hasError) {
-        alert('Saved!');
+        var ajaxCalls = [];
+        ajaxCall = $.ajax({
+          async: false,
+          url: `/api/rules/progress`,
+          type: 'GET',
+          success: function (data) {
+            
+            alert(JSON.stringify(data));
+          },
+        });
+        ajaxCalls.push(ajaxCall);
+        Promise.all(ajaxCalls);
+
+        
         $.ajax({
           async: false,
           url: `/api/artifact_reviews/${artifact_review_pk}/is_complete/`,
