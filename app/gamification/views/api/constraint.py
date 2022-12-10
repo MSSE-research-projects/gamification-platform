@@ -60,7 +60,8 @@ def track_progress(user, progress, constraint):
         for rule_constraint in rule_constraints:
             rule = rule_constraint.rule
             for rule_constraint in rule.rule_constraints:
-                if not rule_constraint.constraint.met:
+                cur_progress = get_object_or_404(Progress, user=user, constraint=rule_constraint.constraint)
+                if not cur_progress.met:
                     return progress
             rewards = rule.rewards
             for reward in rewards:
