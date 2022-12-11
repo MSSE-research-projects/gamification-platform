@@ -47,18 +47,79 @@
               <div class="border-bottom py-4" >
                 <p>Badges</p>
                 <ul class="list-group list-group-flush">
-                  <li class="list-group-item" style="display: block" id = "Gamification Starter">   <button type="button" class="btn btn-light rounded-pill"><img src = "../static/images/badges/gamification-starter.svg" width="35" 
-                    height= "auto">Gamification Starter</button></li>
-                  <li class="list-group-item" style="display: none" id = "Seasoned Evaluator"> <button type="button" class="btn btn-success rounded-pill"><img src = "../static/images/badges/season-evaluater.svg" width="35" 
-                    height= "auto">Seasoned Evaluater</button></li>
-                  <li class="list-group-item" style="display: none" id = "Detailed Evaluator"><button type="button" class="btn btn-info rounded-pill"><img src = "../static/images/badges/detailed-evaluater.svg" width="35" 
-                    height= "auto">Detailed Evaluater
-                  </button></li>
-                  <li class="list-group-item" style="display: none" id = "Seasoned Presenter"><button type="button" class="btn btn-warning rounded-pill"><img src = "../static/images/badges/open-minded-orange.svg" width="35" 
-                    height= "auto">Seasoned Presenter</button></li>
+                  <li class="list-group-item" style="display: none" id = "Seasoned Evaluator">
+                    <div class="card text-center">
+                      <div class="card-header">
+                        Badge
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Seasoned Evaluator</h5>
+                        <p>
+                          <div class="progress" >
+                            <div id = "Seasoned Evaluator Progress" class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-label="Warning striped example" aria-valuenow="50"style="width: 25%" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </p>
+                        <button type="button" class="btn btn-success rounded-pill"><img src = "../static/images/badges/season-evaluater.svg" width="35" 
+                          height= "auto">Seasoned Evaluator</button>
+                         
+                      </div>
+                      <div class="card-footer text-muted">
+                        2 days ago
+                      </div>
+                    </div>
+                  </li>
+
+
+
+                  <li class="list-group-item" style="display: none" id = "Detailed Evaluator">
+                    <div class="card text-center">
+                      <div class="card-header">
+                        Badge
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Detailed Evaluator</h5>
+                        <p>
+                          <div class="progress" >
+                            <div id = "Detailed Evaluator Progress" class="progress-bar progress-bar-striped bg-info" role="progressbar" aria-label="Warning striped example" aria-valuenow="50"style="width: 25%" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </p>
+                        <button type="button" class="btn btn-info rounded-pill"><img src = "../static/images/badges/detailed-evaluater.svg" width="35" 
+                          height= "auto">Detailed Evaluator</button>
+                         
+                      </div>
+                      <div class="card-footer text-muted">
+                        2 days ago
+                      </div>
+                    </div>
+                  </li>
+                
+                  
+                  <li class="list-group-item" style="display: none" id = "Seasoned Presenter">
+                    <div class="card text-center">
+                      <div class="card-header">
+                        Badge
+                      </div>
+                      <div class="card-body">
+                        <h5 class="card-title">Seasoned Presenter</h5>
+                        <p>
+                          <div class="progress" >
+                            <div id = "Seasoned Presenter Progress" class="progress-bar progress-bar-striped bg-warning" role="progressbar" aria-label="Warning striped example" aria-valuenow="50"style="width: 25%" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </p>
+                        <button type="button" class="btn btn-warning rounded-pill"><img src = "../static/images/badges/open-minded-orange.svg" width="35" 
+                          height= "auto">Seasoned Presenter</button>
+                         
+                      </div>
+                      <div class="card-footer text-muted">
+                        2 days ago
+                      </div>
+                    </div>
+                  </li>
                 </ul>
           
               </div>
+              
+
               <div class="border-bottom py-4">
                 <p>Credit: 11/20</p>
                 <div class="d-flex mb-3">
@@ -172,6 +233,8 @@ $(document).ready(function () {
 
       let conditonCount = badges[0][i].conditions.length; 
       let currConditionCount = 0; 
+      console.log("conditonCount:\n" + conditonCount);
+      console.log("badges[0][i].rule_name:\n" + badges[0][i].rule_name);
 
       if(conditonCount > 0){
 
@@ -180,21 +243,40 @@ $(document).ready(function () {
             let unlockCount = badges[0][i].conditions[j].Unlock_count;
             if(currCount >= unlockCount){
               currConditionCount += 1;  
-              console.log(" badges:" + badges[0][i].rule_name);
-        console.log(" currCount:" + currCount);
-        console.log(" unlockCount:" + unlockCount);
+            
             }
         }
-        
+       
 
-        if(currConditionCount >= conditonCount){
-           // If the condition matched, show the badges 
-          console.log("\n badges[0][i].rule_name:" + badges[0][i].rule_name);
+        // If the condition matched, show the badges 
+        //if(currConditionCount >= conditonCount){
+          console.log("\nbadges[0][i].rule_name:" + badges[0][i].rule_name);
+
+          console.log("\n currConditionCount:" + currConditionCount);
+
+          console.log("\n conditonCount:" + conditonCount);
+
           let badgeDOM = document.getElementById(badges[0][i].rule_name);
+          if(!badgeDOM){
+            continue; 
+          }
           badgeDOM.style.display = "block"; 
-        }
+          let progress = currConditionCount > conditonCount ? 1 : (currConditionCount / conditonCount);
+       
+          progress *= 100; 
+
+          let progressName = badges[0][i].rule_name.concat(" Progress");
+          console.log("progressName:" + progressName);
+          let badgeProgressDOM = document.getElementById(progressName);
           
-        }
+          badgeProgressDOM.style["width"] =progress + "%";
+        //}
+      }
+   
+
+          
+          
+        
       }
       
     }
