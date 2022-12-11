@@ -249,12 +249,8 @@ $(document).ready(function () {
        
 
         // If the condition matched, show the badges 
-        //if(currConditionCount >= conditonCount){
-          console.log("\nbadges[0][i].rule_name:" + badges[0][i].rule_name);
-
-          console.log("\n currConditionCount:" + currConditionCount);
-
-          console.log("\n conditonCount:" + conditonCount);
+        if(currConditionCount >= conditonCount){
+         
 
           let badgeDOM = document.getElementById(badges[0][i].rule_name);
           if(!badgeDOM){
@@ -270,7 +266,7 @@ $(document).ready(function () {
           let badgeProgressDOM = document.getElementById(progressName);
           
           badgeProgressDOM.style["width"] =progress + "%";
-        //}
+        }
       }
    
 
