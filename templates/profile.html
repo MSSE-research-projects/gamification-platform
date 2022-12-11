@@ -165,33 +165,40 @@ $(document).ready(function () {
             badges.push(data);
           },
         });
-
-  console.log(badges);
   if(badges && badges.length > 0){
+    console.log(badges);
+
     for(let i = 0; i < badges[0].length; i += 1){
-      if(badges[0][i].conditions.length > 0){
-        let currCount = badges[0][i].conditions[0].Curr_count;
-        let unlockCount = badges[0][i].conditions[0].Unlock_count;
-        console.log("\n currCount:" + currCount);
-        console.log("\n unlockCount:" + unlockCount);
 
-        // If the condition matched, show the badges 
-        if(currCount >= unlockCount){
+      let conditonCount = badges[0][i].conditions.length; 
+      let currConditionCount = 0; 
+
+      if(conditonCount > 0){
+
+        for(let j = 0; j < conditonCount; j += 1){
+            let currCount = badges[0][i].conditions[j].Curr_count;
+            let unlockCount = badges[0][i].conditions[j].Unlock_count;
+            if(currCount >= unlockCount){
+              currConditionCount += 1;  
+              console.log(" badges:" + badges[0][i].rule_name);
+        console.log(" currCount:" + currCount);
+        console.log(" unlockCount:" + unlockCount);
+            }
+        }
+        
+
+        if(currConditionCount >= conditonCount){
+           // If the condition matched, show the badges 
           console.log("\n badges[0][i].rule_name:" + badges[0][i].rule_name);
-
           let badgeDOM = document.getElementById(badges[0][i].rule_name);
           badgeDOM.style.display = "block"; 
-          console.log(badgeDOM);
         }
-
+          
+        }
       }
       
     }
-  }
-  
-
-
-});
+  });
 
     
 </script>
