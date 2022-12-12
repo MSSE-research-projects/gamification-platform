@@ -435,20 +435,31 @@ class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
         # return Response(result)
         
         choice_labels = set()
+        scale_list = ['strongly disagree', 'weakly disagree', 'disagree', 'neutral', 'weakly agree', 'agree', 'strongly agree']
+        # choice_labels_scale = set('agree', 'weakly agree', 'disagree', 'neutral', 'strongly disagree', 'strongly agree', 'weakly disagree')
+        choice_labels_scale = set()
+        for scale_answer in scale_list:
+            choice_labels_scale.add(scale_answer)
         for answer in answers:
             # print(answer.question_option.question.section)
             # print(answer.question_option.question.question_type)
             if answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
-                choice_labels.add(answer.question_option.option_choice.text)
+                # choice_labels_scale.add(answer.question_option.option_choice.text)
+                pass
             elif answer.question_option.question.question_type == 'MULTIPLECHOICE':
                 choice_labels.add(answer.question_option.option_choice.text)
-        result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
+        result = {"label": list(choice_labels), "label_scale": scale_list, "sections": collections.defaultdict(dict), "sections_scale": collections.defaultdict(dict)}
         for answer in answers:
-            if answer.question_option.question.question_type == 'MULTIPLECHOICE' or answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
+            if answer.question_option.question.question_type == 'MULTIPLECHOICE':
                 if answer.question_option.question.text not in result["sections"][answer.question_option.question.section.title].keys():
                     result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
                 option_index = list(choice_labels).index(answer.question_option.option_choice.text)
                 result["sections"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
+            elif answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
+                if answer.question_option.question.text not in result["sections_scale"][answer.question_option.question.section.title].keys():
+                    result["sections_scale"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels_scale))]
+                option_index = list(choice_labels_scale).index(answer.question_option.option_choice.text)
+                result["sections_scale"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
         return Response(result)
         
 
