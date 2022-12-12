@@ -112,6 +112,7 @@ window.addEventListener("resize", myChart.resize);
 var i = 1;
 // place aspect section at the beginning
 var labels = answers_fromAPI["label_scale"];
+number_of_scale = answers_fromAPI["number_of_scale"];
 console.log("labels", labels);
 var sections = answers_fromAPI["sections_scale"];
 
@@ -177,8 +178,20 @@ for (var section in sections) {
     },
     series: [],
   };
-  co_list = ["red", "#FF6400", "#FFB901", "yellow", "#C2FF7E", "#7EFF40", "green"];
 
+  if (number_of_scale == 7) {
+    co_list = ["red", "#FF6400", "#FFB901", "yellow", "#C2FF7E", "#7EFF40", "green"];
+  }
+  else if (number_of_scale == 5) {
+    co_list = ["red", "#FF6400", "yellow", "#7EFF40", "green"];
+  }
+  else if (number_of_scale == 3) {
+    co_list = ["red", "yellow", "green"];
+  }
+  else {
+    co_list = [];
+  }
+  
   for (var j = 0; j < labels.length; j++) {
 
     option_series_data = {
