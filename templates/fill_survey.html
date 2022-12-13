@@ -278,7 +278,7 @@
               var html = '';
               html += '<h5 class="card-title">' + rule_name + '</h5>';
               for(let n = 0; n < badges[i][j].conditions.length; n += 1){
-                let condition = badges[i][j].conditions[n].url;
+                let condition = badges[i][j].conditions[n].description;
                 let Unlock_count = badges[i][j].conditions[n].Unlock_count;
                 let Curr_count = badges[i][j].conditions[n].Curr_count;
                 let percent = (Curr_count/Unlock_count)*100;
