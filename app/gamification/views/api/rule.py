@@ -55,6 +55,10 @@ class getAllRuleProgress(generics.RetrieveUpdateDestroyAPIView):
                         'Unlock_count': constraint.threshold,
                     })
             getAllRuleProgress_data.append(rule_data)
+        # remove rules that have empty conditions
+        for rule in getAllRuleProgress_data:
+            if len(rule['conditions']) == 0:
+                getAllRuleProgress_data.remove(rule)
         return Response(getAllRuleProgress_data)
     
     
