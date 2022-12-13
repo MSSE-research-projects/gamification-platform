@@ -19,7 +19,6 @@ from app.gamification.models.registration import Registration
 from app.gamification.serializers.answer import AnswerSerializer, ArtifactReviewSerializer, ArtifactFeedbackSerializer, CreateAnswerSerializer
 from collections import defaultdict
 import pytz
-from pytz import timezone
 from datetime import datetime
 
 
@@ -436,20 +435,46 @@ class ArtifactAnswerMultipleChoiceList(generics.ListCreateAPIView):
         # return Response(result)
         
         choice_labels = set()
+        scale_list_7 = ['strongly disagree', 'disagree', 'weakly disagree', 'neutral', 'weakly agree', 'agree', 'strongly agree']
+        scale_list_5 = ['strongly disagree', 'disagree', 'neutral', 'agree', 'strongly agree']
+        scale_list_3 = ['disagree', 'neutral', 'agree']
+
+        
+        # choice_labels_scale = set('agree', 'weakly agree', 'disagree', 'neutral', 'strongly disagree', 'strongly agree', 'weakly disagree')
+        choice_labels_scale = set()
+        number_of_scale = 0
         for answer in answers:
             # print(answer.question_option.question.section)
             # print(answer.question_option.question.question_type)
             if answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
-                choice_labels.add(answer.question_option.option_choice.text)
+                # choice_labels_scale.add(answer.question_option.option_choice.text)
+                number_of_scale = answer.question_option.question.number_of_scale
             elif answer.question_option.question.question_type == 'MULTIPLECHOICE':
                 choice_labels.add(answer.question_option.option_choice.text)
-        result = {"label": list(choice_labels), "sections": collections.defaultdict(dict)}
+        scale_list_input = []
+        if number_of_scale == 7:
+            scale_list_input = scale_list_7
+        elif number_of_scale == 5:
+            scale_list_input = scale_list_5
+        elif number_of_scale == 3:
+            scale_list_input = scale_list_3
+        else:
+            pass
+        for scale_answer in scale_list_input:
+            choice_labels_scale.add(scale_answer)
+            
+        result = {"label": list(choice_labels), "label_scale": scale_list_input, "sections": collections.defaultdict(dict), "sections_scale": collections.defaultdict(dict), "number_of_scale": number_of_scale}
         for answer in answers:
             if answer.question_option.question.question_type == 'MULTIPLECHOICE':
                 if answer.question_option.question.text not in result["sections"][answer.question_option.question.section.title].keys():
                     result["sections"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels))]
                 option_index = list(choice_labels).index(answer.question_option.option_choice.text)
                 result["sections"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
+            elif answer.question_option.question.question_type == 'SCALEMULTIPLECHOICE':
+                if answer.question_option.question.text not in result["sections_scale"][answer.question_option.question.section.title].keys():
+                    result["sections_scale"][answer.question_option.question.section.title][answer.question_option.question.text]= [0 for i in range(len(choice_labels_scale))]
+                option_index = list(choice_labels_scale).index(answer.question_option.option_choice.text)
+                result["sections_scale"][answer.question_option.question.section.title][answer.question_option.question.text][option_index] += 1
         return Response(result)
         
 

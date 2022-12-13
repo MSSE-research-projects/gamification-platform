@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
-from app.gamification.models.constraint import Constraint
+from app.gamification.models.rule_constraint import RuleConstraint
 from app.gamification.models.reward import Reward
 
 
@@ -13,8 +13,8 @@ class Rule(models.Model):
     description = models.TextField(_('description'), blank=True)
 
     @property
-    def constraints(self):
-        return Constraint.objects.filter(Rule=self)
+    def rule_constraints(self):
+        return RuleConstraint.objects.filter(Rule=self)
 
     @property
     def rewards(self):

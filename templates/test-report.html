@@ -351,9 +351,13 @@
           var part_data = partData['part_data'];
           chart_container_cnt += 1;
           var ChartSectionBody = htmlToElement(
-              '<div id="chart-container-' + i + '" class="chart-container-test"></div>'
-            );
-            MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
+              '<div id="chart-container-' + chart_container_cnt + '" class="chart-container-test"></div>'
+          );
+          MultipleChoiceContentItemBody2.appendChild(ChartSectionBody);
+          var ChartSectionBody2 = htmlToElement(
+              '<div id="chart-container-scale-' + chart_container_cnt + '" class="chart-container-test"></div>'
+          );
+          MultipleChoiceContentItemBody2.appendChild(ChartSectionBody2);
 
           sectionTabContentItem.appendChild(MultipleChoiceContentItemBody2);
           $sectionTabContent.append(sectionTabContentItem);
