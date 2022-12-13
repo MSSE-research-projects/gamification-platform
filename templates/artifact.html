@@ -67,7 +67,7 @@
                 <label for="file">File:</label>
                 <input type="file" name="file" style="height: auto; padding: 0.375rem 0.75rem;" class="form-control" id="file" accept=".pdf">
             </div>
-            <button type="submit" class="btn btn-primary me-2">Add</button>
+            <button type="submit" class="btn btn-primary me-2" id="upload-file">Add</button>
             </form>
         </div>
     </div>
@@ -76,3 +76,55 @@
   {% endif %}
 </div>
 {% endblock content %}
+
+{% block js %}
+{% csrf_token %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"
+  integrity="sha512-dw+7hmxlGiOvY3mCnzrPT5yoUwN/MRjVgYV7HGXqsiXnZeqsw1H9n9lsnnPu4kL2nx2bnrjFcuWK+P3lshekwQ=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.worker.min.js"
+  integrity="sha512-fahFaRPTP2xrdxAbzgG31V4Vr+Ga/hp4gQu3ZBq83bhKO10NoWfTJ20OWg9ufEyT1Y4ZyCuh9wLHY9CHi6l95Q=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="{% static 'js/survey-template.js' %}"></script>
+<script src="{% static 'js/survey-page.js' %}"></script>
+<script src="{% static 'js/pdf-carousel.js' %}"></script>
+<script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
+<script>
+
+
+  $( "#upload-file" ).click(function() {
+    var ajaxCalls = [];
+    var ajaxCall = $.ajax({
+      url: `/api/constraints/submit_presentation/progress/action`,
+      type: 'PUT',
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      data: {
+      },
+      success: function (data) {
+        console.log("success");
+      },
+      error: function (data) {
+        console.log("error");
+      }
+    });
+    ajaxCalls.push(ajaxCall);
+    var ajaxCall = $.ajax({
+      url: `/api/rules/progress`,
+      type: 'GET',
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      data: {
+      },
+      success: function (data) {
+      },
+      error: function (data) {
+        console.log("error");
+      }
+    });
+    ajaxCalls.push(ajaxCall);
+    Promise.all(ajaxCalls);
+  });
+  
+
+</script>
+{% endblock js %}

@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 class Constraint(models.Model):
     url = models.TextField(_('url'), blank=True)
     threshold = models.IntegerField()
+    description = models.TextField(_('description'), blank=True)
 
     class Meta:
         db_table = 'constraints'

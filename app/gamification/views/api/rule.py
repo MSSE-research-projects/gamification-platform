@@ -43,6 +43,7 @@ class getAllRuleProgress(generics.RetrieveUpdateDestroyAPIView):
         for rule in self.rules:
             rule_data = {}
             rule_data['rule_name'] = rule.name
+            rule_data['description'] = rule.description
             rule_data['conditions'] = []
             rule_constraints = RuleConstraint.objects.filter(rule=rule)
             for rule_constraint in rule_constraints:
@@ -52,6 +53,7 @@ class getAllRuleProgress(generics.RetrieveUpdateDestroyAPIView):
                     rule_data['conditions'].append({
                         'url': constraint.url,
                         'Curr_count': progress.cur_point,
+                        'description': constraint.description,
                         'Unlock_count': constraint.threshold,
                     })
             getAllRuleProgress_data.append(rule_data)
@@ -76,16 +78,18 @@ class getRulesProgressByContraint(generics.RetrieveUpdateDestroyAPIView):
             rule_data['rule_name'] = rule.name
             rule_data['conditions'] = []
             rule_constraints = RuleConstraint.objects.filter(rule=rule)
+            if constraint_pk not in [rule_constraints.constraint.pk for rule_constraints in rule_constraints]:
+                continue
             for rule_constraint in rule_constraints:
                 constraint = rule_constraint.constraint
-                if constraint.pk != constraint_pk:
-                    continue
                 progresses = Progress.objects.filter(user=user, constraint=constraint)
                 for progress in progresses:
                     rule_data['conditions'].append({
                         'url': constraint.url,
+                        'description': constraint.description,
                         'Curr_count': progress.cur_point,
                         'Unlock_count': constraint.threshold,
                     })
             getAllRuleProgress_data.append(rule_data)
+
         return Response(getAllRuleProgress_data)

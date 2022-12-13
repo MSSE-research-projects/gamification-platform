@@ -117,7 +117,7 @@ PostgreSQL server database.
 
 6. Install fixtures
 
-    Run command `python manage.py loaddata assignments courses entities membership registration survey users artifact`
+    Run command `python manage.py loaddata assignments courses entities membership registration survey users artifact constraint rule rule_constraint`
     
 7. Django Migration 
     

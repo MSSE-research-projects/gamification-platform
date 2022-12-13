@@ -60,7 +60,8 @@ def track_progress(user, progress, constraint):
         for rule_constraint in rule_constraints:
             rule = rule_constraint.rule
             for rule_constraint in rule.rule_constraints:
-                if not rule_constraint.constraint.met:
+                cur_progress = get_object_or_404(Progress, user=user, constraint=rule_constraint.constraint)
+                if not cur_progress.met:
                     return progress
             rewards = rule.rewards
             for reward in rewards:
@@ -120,7 +121,7 @@ class GradeConstraintProgressDetail(generics.RetrieveUpdateDestroyAPIView):
             progress = Progress(constraint=constraint, user=user)
         else:
             progress = get_object_or_404(Progress, constraint=constraint, user=user)
-        progress.cur_point = request.data.get('cur_point')
+        progress.cur_point = max(int(request.data.get('cur_point')), progress.cur_point)
         progress.save()
         progress = track_progress(user, progress, constraint)
         serializer = self.get_serializer(progress)
