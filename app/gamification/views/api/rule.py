@@ -53,6 +53,7 @@ class getAllRuleProgress(generics.RetrieveUpdateDestroyAPIView):
                     rule_data['conditions'].append({
                         'url': constraint.url,
                         'Curr_count': progress.cur_point,
+                        'description': constraint.description,
                         'Unlock_count': constraint.threshold,
                     })
             getAllRuleProgress_data.append(rule_data)

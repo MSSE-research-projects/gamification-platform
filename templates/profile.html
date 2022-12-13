@@ -219,6 +219,7 @@ $(document).ready(function () {
         });
   if(badges && badges.length > 0){
 
+
     // Traversing all the unlocked badges
     for(let i = 0; i < badges[0].length; i += 1){
 
@@ -266,9 +267,10 @@ $(document).ready(function () {
           for(let j = 0; j < conditonCount; j += 1){
             let currCount = badges[0][i].conditions[j].Curr_count;
             let unlockCount = badges[0][i].conditions[j].Unlock_count;
+            let description = badges[0][i].conditions[j].description;
             const progress = currCount > unlockCount ? 100 : (currCount / unlockCount) * 100; 
              
-             html += ` <li class="list-group-item"><div class="progress"><div class="progress-bar progress-bar-striped" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" 
+             html += ` <li class="list-group-item"><div>${description}</div><div class="progress"><div class="progress-bar progress-bar-striped" role="progressbar" style="width: ${progress}%" aria-valuenow="${progress}" 
             aria-valuemin="0" aria-valuemax="100">${progress.toFixed(2)}%</div></div></li>`;
 
           } 
