@@ -341,7 +341,12 @@ class QuestionOptionList(generics.ListCreateAPIView, mixins.UpdateModelMixin, ge
 
     def post(self, request, question_pk, *args, **kwargs):
         question = get_object_or_404(Question, id=question_pk)
+        previous_option_choices = question.option_choices.all()
+        previous_texts = [
+            option_choice.text for option_choice in previous_option_choices]
         text = request.data.get('text').strip()
+        if text in previous_texts:
+            return Response(status=204)
         number_of_text = request.data.get('number_of_text', 1)
         number_of_scale = request.data.get('number_of_scale', -1)
         option_choice, _ = OptionChoice.objects.get_or_create(text=text)
